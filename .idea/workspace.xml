@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
+    <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="96f11a5b-15c5-4853-ba1d-7df0f4612ad1" name="Changes" comment="" />
+    <list default="true" id="df7edaeb-a11f-4b54-8051-792722f3fd84" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
   <component name="ExternalProjectsData">
-    <projectState path="$PROJECT_DIR$/x-pense">
+    <projectState path="$PROJECT_DIR$/Xpense_Backend/x-pense">
       <ProjectState />
     </projectState>
   </component>
@@ -28,40 +31,55 @@
     </system>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/x-pense" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$/Xpense_Backend/x-pense" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/Xpense_Backend/x-pense" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 4
+  &quot;associatedIndex&quot;: 6
 }</component>
-  <component name="ProjectId" id="2eclPEme8r631giHCWY3Gf4A0Jm" />
+  <component name="ProjectId" id="2eJltPIQ2WX5K7aI6UEyW9YEEtX" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
     "WebServerToolWindowFactoryState": "false",
+    "android.gradle.sync.needed": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
     "git-widget-placeholder": "add-backend",
-    "last_opened_file_path": "/Users/lucadoll/Documents/HHN/Studying/Semester4/Labor_Software_Projekt/x-pense-app/X-pense/Xpense_Backend",
+    "last_opened_file_path": "/Users/lucadoll/Documents/HHN/Studying/Semester4/Labor_Software_Projekt/x-pense-app/X-pense",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.43563217",
     "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle",
-    "spring.configuration.checksum": "341441ce5b04278b7d1f45d4837fc10f",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Spring Boot.XPenseApplication">
+    <configuration name="build.gradle.kts" type="KotlinStandaloneScriptRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <module name="X-pense" />
+      <option name="filePath" value="$PROJECT_DIR$/Xpense_App/build.gradle.kts" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="XPenseApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
       <module name="x-pense.main" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.laborsoftware.xpense.XPenseApplication" />
@@ -78,23 +96,34 @@
     <recent_temporary>
       <list>
         <item itemvalue="Spring Boot.XPenseApplication" />
+        <item itemvalue="Kotlin script (Beta).build.gradle.kts" />
       </list>
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="96f11a5b-15c5-4853-ba1d-7df0f4612ad1" name="Changes" comment="" />
-      <created>1712211720541</created>
+      <changelist id="df7edaeb-a11f-4b54-8051-792722f3fd84" name="Changes" comment="" />
+      <created>1711630775980</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1712211720541</updated>
-      <workItem from="1712211721592" duration="373000" />
-      <workItem from="1712213950813" duration="790000" />
+      <updated>1711630775980</updated>
+      <workItem from="1712212112651" duration="1281000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

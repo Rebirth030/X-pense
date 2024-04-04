@@ -4,11 +4,16 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/x-pense" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/Xpense_App" />
         <option name="gradleJvm" value="21" />
+        <option name="resolveExternalAnnotations" value="false" />
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/Xpense_Backend/x-pense" />
+        <option name="gradleJvm" value="#JAVA_HOME" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/x-pense" />
+            <option value="$PROJECT_DIR$/Xpense_Backend/x-pense" />
           </set>
         </option>
       </GradleProjectSettings>
