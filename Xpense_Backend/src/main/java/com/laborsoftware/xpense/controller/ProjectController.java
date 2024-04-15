@@ -32,10 +32,12 @@ public class ProjectController {
 
 
     @PostMapping("/projects")
-    ResponseEntity<Project> createEvent(@RequestBody ProjectDTO projectDTO) {
+    ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDTO) {
         try {
             Project project = projectMapper.toEntity(projectDTO);
-            return ResponseEntity.ok().body(projectService.save(project));
+            project = projectService.save(project);
+            ProjectDTO result = projectMapper.toDto(project);
+            return ResponseEntity.ok().body(result);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -43,11 +45,15 @@ public class ProjectController {
     }
 
     @PutMapping("/projects/{id}")
-    ResponseEntity<Project> updateEvent(@RequestBody ProjectDTO projectDTO, @PathVariable Long id) {
+    ResponseEntity<ProjectDTO> updateProject(@RequestBody ProjectDTO projectDTO, @PathVariable Long id) {
         try {
             Optional<Project> optionalProject = projectService.findOne(id);
             if(optionalProject.isPresent()) {
-                return ResponseEntity.ok().body(projectService.save(projectMapper.toEntity(projectDTO)));
+                Project project = optionalProject.get();
+                project = projectMapper.toEntity(projectDTO);
+                project = projectService.save(project);
+                ProjectDTO result = projectMapper.toDto(project);
+                return ResponseEntity.ok().body(result);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -56,17 +62,20 @@ public class ProjectController {
     }
 
     @GetMapping("/projects")
-    ResponseEntity<List<Project>> getAllEvents() {
-        return new ResponseEntity<>(projectService.findAll(), HttpStatus.OK);
+    ResponseEntity<List<ProjectDTO>> getAllProjects() {
+        List<Project> projects = projectService.findAll();
+        List<ProjectDTO> result = projects.stream().map(projectMapper::toDto).toList();
+        return ResponseEntity.ok().body(result);
     }
 
     @GetMapping("/projects/{id}")
-    ResponseEntity<Project> getEvent(@PathVariable Long id) {
+    ResponseEntity<ProjectDTO> getProject(@PathVariable Long id) {
         try {
             Optional<Project> optionalProject = projectService.findOne(id);
             if(optionalProject.isPresent()) {
-                optionalProject.get();
-                return ResponseEntity.ok().body(optionalProject.get());
+                Project project = optionalProject.get();
+                ProjectDTO result = projectMapper.toDto(project);
+                return ResponseEntity.ok().body(result);
             } else {
                 throw new ResourceNotFoundException(
                         "Ressource nicht gefunden. Kein Datensatz in der Datenbank zu finden ist."
@@ -79,13 +88,14 @@ public class ProjectController {
     }
 
     @DeleteMapping("/projects/{id}")
-    ResponseEntity<Project> deleteEvent(@PathVariable Long id) {
+    ResponseEntity<ProjectDTO> deleteProject(@PathVariable Long id) {
         try {
             Project projectToDelete = projectService.findOne(id).orElseThrow(() -> new ResourceNotFoundException(
                     "Ressource nicht gefunden. Kein Datensatz in der Datenbank zu finden ist."
             ));
             projectService.delete(id);
-            return new ResponseEntity<>(projectToDelete, HttpStatus.OK);
+            ProjectDTO result = projectMapper.toDto(projectToDelete);
+            return ResponseEntity.ok().body(result);
         } catch (ResourceNotFoundException e) {
             e.printStackTrace();
         }

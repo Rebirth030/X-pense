@@ -1,7 +1,6 @@
 package com.laborsoftware.xpense.service;
 
 import com.laborsoftware.xpense.domain.Company;
-import com.laborsoftware.xpense.interfaces.ICompanyService;
 import com.laborsoftware.xpense.repository.CompanyRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -13,7 +12,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class CompanyService implements ICompanyService {
+public class CompanyService implements ICrudService<Company, Long> {
 
     Logger logger = LoggerFactory.getLogger(CompanyService.class);
 

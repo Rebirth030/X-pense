@@ -1,13 +1,16 @@
 package com.laborsoftware.xpense.controller;
 
-import com.laborsoftware.xpense.domain.User;
+import com.laborsoftware.xpense.domain.ApplicationUser;
 import com.laborsoftware.xpense.domain.UserTimecard;
 import com.laborsoftware.xpense.domain.dto.UserDTO;
+import com.laborsoftware.xpense.domain.enumeration.ApplicationUserRole;
 import com.laborsoftware.xpense.exceptions.DuplicateEmailException;
 import com.laborsoftware.xpense.exceptions.ResourceNotFoundException;
 import com.laborsoftware.xpense.mapper.UserMapper;
 import com.laborsoftware.xpense.service.UserService;
 import com.laborsoftware.xpense.service.UserTimecardService;
+import liquibase.plugin.AbstractPlugin;
+import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,30 +42,30 @@ public class UserController {
 
 
     @PostMapping("/users")
-    ResponseEntity<User> createEvent(@RequestBody UserDTO userDTO) {
+    ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
         try {
             if (eMailIsPresent(userDTO.geteMail())) {
                 throw new DuplicateEmailException("Email-Adresse wird bereits von einem anderen Kunden verwendet");
             }
-            User user = userMapper.toEntity(userDTO);
-            if(user.getUserTimecard() == null) {
-                user = userService.save(user);
+            ApplicationUser applicationUser = userMapper.toEntity(userDTO);
+            if(applicationUser.getRole() == null) {
+                applicationUser.setRole(ApplicationUserRole.EMPLOYEE); // default
+            }
+            if(userDTO.getUserTimecardId() == null) {
+                //applicationUser = userService.save(applicationUser);
 
-                /**
-                 * TODO:
-                 * Create UserTimecard according the role of user (Freelancer/Werkstudent/Employess/...)
-                 * For example Werkstudent can max work 20 h per week
-                 */
-                UserTimecard userTimecard = new UserTimecard();
-                userTimecard.setWeeklyWorkingHours(0.0);
+                UserTimecard userTimecard = new UserTimecard(); // default initial user timecard
+                userTimecard.setWeeklyWorkingHours(40.0);
                 userTimecard.setBalance(0.0);
                 userTimecard.setUserBalance(0.0);
-                // userTimecard.setUser(user);
+
                 userTimecard = userTimecardService.save(userTimecard);
-                user.setUserTimecard(userTimecard);
+                applicationUser.setUserTimecard(userTimecard);
+
             }
-            user = userService.save(user);
-            return ResponseEntity.ok().body(user);
+            applicationUser = userService.save(applicationUser);
+            UserDTO result = userMapper.toDto(applicationUser);
+            return ResponseEntity.ok().body(result);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -70,11 +73,15 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}")
-    ResponseEntity<User> updateEvent(@RequestBody UserDTO userDTO, @PathVariable Long id) {
+    ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO, @PathVariable Long id) {
         try {
-            Optional<User> optionalUser = userService.findOne(id);
+            Optional<ApplicationUser> optionalUser = userService.findOne(id);
             if (optionalUser.isPresent()) {
-                return ResponseEntity.ok().body(userService.save(userMapper.toEntity(userDTO)));
+                ApplicationUser applicationUser = optionalUser.get();
+                applicationUser = userMapper.toEntity(userDTO);
+                applicationUser = userService.save(applicationUser);
+                UserDTO result = userMapper.toDto(applicationUser);
+                return ResponseEntity.ok().body(result);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -83,17 +90,20 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    ResponseEntity<List<User>> getAllEvents() {
-        return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
+    ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<ApplicationUser> users = userService.findAll();
+        List<UserDTO> result = users.stream().map(userMapper::toDto).toList();
+        return ResponseEntity.ok().body(result);
     }
 
     @GetMapping("/users/{id}")
-    ResponseEntity<User> getEvent(@PathVariable Long id) {
+    ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
         try {
-            Optional<User> optionalUser = userService.findOne(id);
+            Optional<ApplicationUser> optionalUser = userService.findOne(id);
             if (optionalUser.isPresent()) {
-                optionalUser.get();
-                return ResponseEntity.ok().body(optionalUser.get());
+                ApplicationUser user = optionalUser.get();
+                UserDTO result = userMapper.toDto(user);
+                return ResponseEntity.ok().body(result);
             } else {
                 throw new ResourceNotFoundException(
                         "Ressource nicht gefunden. Kein Datensatz in der Datenbank zu finden ist."
@@ -106,13 +116,14 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}")
-    ResponseEntity<User> deleteEvent(@PathVariable Long id) {
+    ResponseEntity<UserDTO> deleteUser(@PathVariable Long id) {
         try {
-            User userToDelete = userService.findOne(id).orElseThrow(() -> new ResourceNotFoundException(
+            ApplicationUser applicationUserToDelete = userService.findOne(id).orElseThrow(() -> new ResourceNotFoundException(
                     "Ressource nicht gefunden. Kein Datensatz in der Datenbank zu finden ist."
             ));
             userService.delete(id);
-            return new ResponseEntity<>(userToDelete, HttpStatus.OK);
+            UserDTO result = userMapper.toDto(applicationUserToDelete);
+            return ResponseEntity.ok().body(result);
         } catch (ResourceNotFoundException e) {
             e.printStackTrace();
         }
@@ -120,9 +131,9 @@ public class UserController {
     }
 
     private boolean eMailIsPresent(String email) {
-        List<User> allUsers = userService.findAll();
-        for (User user : allUsers) {
-            if (user.geteMail().equals(email)) {
+        List<ApplicationUser> allApplicationUsers = userService.findAll();
+        for (ApplicationUser applicationUser : allApplicationUsers) {
+            if (applicationUser.geteMail().equals(email)) {
                 return true;
             }
         }

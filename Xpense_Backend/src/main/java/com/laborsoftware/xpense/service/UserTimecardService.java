@@ -1,8 +1,6 @@
 package com.laborsoftware.xpense.service;
 
-import com.laborsoftware.xpense.domain.User;
 import com.laborsoftware.xpense.domain.UserTimecard;
-import com.laborsoftware.xpense.interfaces.IUserTimecardService;
 import com.laborsoftware.xpense.repository.UserTimecardRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -14,7 +12,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class UserTimecardService implements IUserTimecardService {
+public class UserTimecardService implements ICrudService<UserTimecard, Long> {
 
     Logger logger = LoggerFactory.getLogger(UserTimecardService.class);
 

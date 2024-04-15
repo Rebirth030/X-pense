@@ -1,13 +1,11 @@
 package com.laborsoftware.xpense.domain;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.laborsoftware.xpense.domain.enumeration.ApplicationUserRole;
 import jakarta.persistence.*;
 
-import java.util.Set;
-
 @Entity
-@Table(name = "user")
-public class User {
+@Table(name = "application_user")
+public class ApplicationUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -36,26 +34,10 @@ public class User {
     private String language;
 
     @Column(name = "weekly_working_hour")
-    private Integer weeklyWorkingHour;
+    private Double weeklyWorkingHour;
 
-    // holiday in days?
     @Column(name = "holiday_working_schedule")
-    private Integer holidayWorkingSchedule;
-
-    /*
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<Expense> expenses;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private Set<WeeklyTimecard> weeklyTimecards;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<Company> companies;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<Project> projects;
-
-     */
+    private Double holidayWorkingSchedule;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_timecard_id", referencedColumnName = "id")
@@ -63,7 +45,10 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "superior_id")
-    private User superior;
+    private ApplicationUser superior;
+
+    @Enumerated(EnumType.STRING)
+    private ApplicationUserRole role;
 
     // role - enum ? string : FREELANCER, EMPLOYEE, (STUDENT JOB)
 
@@ -131,56 +116,21 @@ public class User {
         this.language = language;
     }
 
-    public Integer getWeeklyWorkingHour() {
+    public Double getWeeklyWorkingHour() {
         return weeklyWorkingHour;
     }
 
-    public void setWeeklyWorkingHour(Integer weeklyWorkingHour) {
+    public void setWeeklyWorkingHour(Double weeklyWorkingHour) {
         this.weeklyWorkingHour = weeklyWorkingHour;
     }
 
-    public Integer getHolidayWorkingSchedule() {
+    public Double getHolidayWorkingSchedule() {
         return holidayWorkingSchedule;
     }
 
-    public void setHolidayWorkingSchedule(Integer holidayWorkingSchedule) {
+    public void setHolidayWorkingSchedule(Double holidayWorkingSchedule) {
         this.holidayWorkingSchedule = holidayWorkingSchedule;
     }
-
-    /*
-    public Set<Expense> getExpenses() {
-        return expenses;
-    }
-
-    public void setExpenses(Set<Expense> expenses) {
-        this.expenses = expenses;
-    }
-
-    public Set<WeeklyTimecard> getWeeklyTimecards() {
-        return weeklyTimecards;
-    }
-
-    public void setWeeklyTimecards(Set<WeeklyTimecard> weeklyTimecards) {
-        this.weeklyTimecards = weeklyTimecards;
-    }
-
-    public Set<Company> getCompanies() {
-        return companies;
-    }
-
-    public void setCompanies(Set<Company> companies) {
-        this.companies = companies;
-    }
-
-    public Set<Project> getProjects() {
-        return projects;
-    }
-
-    public void setProjects(Set<Project> projects) {
-        this.projects = projects;
-    }
-
-     */
 
     public UserTimecard getUserTimecard() {
         return userTimecard;
@@ -190,11 +140,19 @@ public class User {
         this.userTimecard = userTimecard;
     }
 
-    public User getSuperior() {
+    public ApplicationUser getSuperior() {
         return superior;
     }
 
-    public void setSuperior(User superior) {
+    public void setSuperior(ApplicationUser superior) {
         this.superior = superior;
+    }
+
+    public ApplicationUserRole getRole() {
+        return role;
+    }
+
+    public void setRole(ApplicationUserRole role) {
+        this.role = role;
     }
 }

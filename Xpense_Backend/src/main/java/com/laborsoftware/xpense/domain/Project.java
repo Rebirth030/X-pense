@@ -41,7 +41,7 @@ public class Project {
 
     @ManyToOne()
     @JoinColumn(name = "user_id")
-    private User user;
+    private ApplicationUser applicationUser;
 
     public Long getId() {
         return id;
@@ -109,11 +109,11 @@ public class Project {
         this.company = company;
     }
 
-    public User getUser() {
-        return user;
+    public ApplicationUser getUser() {
+        return applicationUser;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(ApplicationUser applicationUser) {
+        this.applicationUser = applicationUser;
     }
 }

@@ -7,7 +7,7 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
     <changeSet id="create-tables" author="luca">
-        <createTable tableName="user">
+        <createTable tableName="application_user">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -18,8 +18,9 @@
             <column name="password" type="varchar(255)"/>
             <column name="country" type="varchar(255)"/>
             <column name="language" type="varchar(255)"/>
-            <column name="weekly_working_hour" type="integer"/>
-            <column name="holiday_working_schedule" type="integer"/>
+            <column name="weekly_working_hour" type="double"/>
+            <column name="holiday_working_schedule" type="double"/>
+            <column name="role" type="varchar(255)"/>
 
             <!-- foreign key -->
             <column name="superior_id" type="bigint"/>
@@ -99,15 +100,15 @@
     <changeSet id="add_foreign_keys" author="luca">
         <!-- USER -->
         <addForeignKeyConstraint
-                baseTableName="user"
+                baseTableName="application_user"
                 baseColumnNames="superior_id"
                 constraintName="fk_superior_id_user"
-                referencedTableName="user"
+                referencedTableName="application_user"
                 referencedColumnNames="id"
                 onDelete="CASCADE"
                 onUpdate="CASCADE"/>
         <addForeignKeyConstraint
-                baseTableName="user"
+                baseTableName="application_user"
                 baseColumnNames="user_timecard_id"
                 constraintName="fk_user_user_timecard"
                 referencedTableName="user_timecard"
@@ -120,7 +121,7 @@
                 baseTableName="user_timecard"
                 baseColumnNames="user_id"
                 constraintName="fk_user_timecard_user"
-                referencedTableName="user"
+                referencedTableName="application_user"
                 referencedColumnNames="id"
                 onDelete="CASCADE"
                 onUpdate="CASCADE"/>-->
@@ -130,7 +131,7 @@
                 baseTableName="weekly_timecard"
                 baseColumnNames="user_id"
                 constraintName="fk_weekly_timecard_user"
-                referencedTableName="user"
+                referencedTableName="application_user"
                 referencedColumnNames="id"
                 onDelete="CASCADE"
                 onUpdate="CASCADE"/>
@@ -148,7 +149,7 @@
                 baseTableName="expense"
                 baseColumnNames="user_id"
                 constraintName="fk_expense_user"
-                referencedTableName="user"
+                referencedTableName="application_user"
                 referencedColumnNames="id"
                 onDelete="CASCADE"
                 onUpdate="CASCADE"/>
@@ -174,7 +175,7 @@
                 baseTableName="project"
                 baseColumnNames="user_id"
                 constraintName="fk_project_user"
-                referencedTableName="user"
+                referencedTableName="application_user"
                 referencedColumnNames="id"
                 onDelete="CASCADE"
                 onUpdate="CASCADE"/>
@@ -192,7 +193,7 @@
                 baseTableName="company"
                 baseColumnNames="user_id"
                 constraintName="fk_company_user"
-                referencedTableName="user"
+                referencedTableName="application_user"
                 referencedColumnNames="id"
                 onDelete="CASCADE"
                 onUpdate="CASCADE"/>

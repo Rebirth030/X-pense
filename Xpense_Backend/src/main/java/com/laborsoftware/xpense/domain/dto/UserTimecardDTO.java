@@ -11,10 +11,6 @@ public class UserTimecardDTO {
 
     private Double userBalance;
 
-    // private Set<WeeklyTimecardDTO> weeklyTimecards;
-
-    // private User user;
-
     public Long getId() {
         return id;
     }
@@ -46,23 +42,4 @@ public class UserTimecardDTO {
     public void setUserBalance(Double userBalance) {
         this.userBalance = userBalance;
     }
-/*
-    public Set<WeeklyTimecardDTO> getWeeklyTimecards() {
-        return weeklyTimecards;
-    }
-
-    public void setWeeklyTimecards(Set<WeeklyTimecardDTO> weeklyTimecards) {
-        this.weeklyTimecards = weeklyTimecards;
-    }
-
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-     */
 }

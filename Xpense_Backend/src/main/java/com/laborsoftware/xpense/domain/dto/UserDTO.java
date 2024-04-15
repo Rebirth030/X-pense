@@ -1,11 +1,6 @@
 package com.laborsoftware.xpense.domain.dto;
 
-import com.laborsoftware.xpense.domain.Project;
-import com.laborsoftware.xpense.domain.User;
-import com.laborsoftware.xpense.domain.UserTimecard;
-import com.laborsoftware.xpense.domain.WeeklyTimecard;
-
-import java.util.Set;
+import com.laborsoftware.xpense.domain.enumeration.ApplicationUserRole;
 
 public class UserDTO {
     private Long id;
@@ -24,23 +19,15 @@ public class UserDTO {
 
     private String language;
 
-    private Integer weeklyWorkingHour;
+    private Double weeklyWorkingHour;
 
-    private Integer holidayWorkingSchedule;
+    private Double holidayWorkingSchedule;
 
-    /*
-    private Set<ExpenseDTO> expenseDTOs;
+    private Long userTimecardId;
 
-    private Set<WeeklyTimecardDTO> weeklyTimecardDTOs;
+    private Long superiorId;
 
-    private Set<CompanyDTO> companyDTOs;
-
-    private Set<ProjectDTO> projectDTOs;
-     */
-
-    private UserTimecard userTimecard;
-
-    private User superior;
+    private ApplicationUserRole role;
 
     public Long getId() {
         return id;
@@ -98,64 +85,12 @@ public class UserDTO {
         this.language = language;
     }
 
-    public Integer getHolidayWorkingSchedule() {
+    public Double getHolidayWorkingSchedule() {
         return holidayWorkingSchedule;
     }
 
-    public void setHolidayWorkingSchedule(Integer holidayWorkingSchedule) {
+    public void setHolidayWorkingSchedule(Double holidayWorkingSchedule) {
         this.holidayWorkingSchedule = holidayWorkingSchedule;
-    }
-
-    /*
-    public Set<ExpenseDTO> getExpenseDTOs() {
-        return expenseDTOs;
-    }
-
-    public void setExpenseDTOs(Set<ExpenseDTO> expenseDTOs) {
-        this.expenseDTOs = expenseDTOs;
-    }
-
-    public Set<WeeklyTimecardDTO> getWeeklyTimecardDTOs() {
-        return weeklyTimecardDTOs;
-    }
-
-    public void setWeeklyTimecardDTOs(Set<WeeklyTimecardDTO> weeklyTimecardDTOs) {
-        this.weeklyTimecardDTOs = weeklyTimecardDTOs;
-    }
-
-    public Set<CompanyDTO> getCompanyDTOs() {
-        return companyDTOs;
-    }
-
-    public void setCompanyDTOs(Set<CompanyDTO> companyDTOs) {
-        this.companyDTOs = companyDTOs;
-    }
-
-
-
-    public Set<ProjectDTO> getProjectDTOs() {
-        return projectDTOs;
-    }
-
-    public void setProjectDTOs(Set<ProjectDTO> projectDTOs) {
-        this.projectDTOs = projectDTOs;
-    }
-    */
-
-    public UserTimecard getUserTimecard() {
-        return userTimecard;
-    }
-
-    public void setUserTimecard(UserTimecard userTimecard) {
-        this.userTimecard = userTimecard;
-    }
-
-    public User getSuperior() {
-        return superior;
-    }
-
-    public void setSuperior(User superior) {
-        this.superior = superior;
     }
 
     public String getCountry() {
@@ -166,11 +101,35 @@ public class UserDTO {
         this.country = country;
     }
 
-    public Integer getWeeklyWorkingHour() {
+    public Double getWeeklyWorkingHour() {
         return weeklyWorkingHour;
     }
 
-    public void setWeeklyWorkingHour(Integer weeklyWorkingHour) {
+    public void setWeeklyWorkingHour(Double weeklyWorkingHour) {
         this.weeklyWorkingHour = weeklyWorkingHour;
+    }
+
+    public Long getUserTimecardId() {
+        return userTimecardId;
+    }
+
+    public void setUserTimecardId(Long userTimecardId) {
+        this.userTimecardId = userTimecardId;
+    }
+
+    public Long getSuperiorId() {
+        return superiorId;
+    }
+
+    public void setSuperiorId(Long superiorId) {
+        this.superiorId = superiorId;
+    }
+
+    public ApplicationUserRole getRole() {
+        return role;
+    }
+
+    public void setRole(ApplicationUserRole role) {
+        this.role = role;
     }
 }

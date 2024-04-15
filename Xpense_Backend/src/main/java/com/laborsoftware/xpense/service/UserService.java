@@ -1,8 +1,6 @@
 package com.laborsoftware.xpense.service;
 
-import com.laborsoftware.xpense.domain.Project;
-import com.laborsoftware.xpense.domain.User;
-import com.laborsoftware.xpense.interfaces.IUserService;
+import com.laborsoftware.xpense.domain.ApplicationUser;
 import com.laborsoftware.xpense.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -14,7 +12,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class UserService implements IUserService {
+public class UserService implements ICrudService<ApplicationUser, Long> {
 
     Logger logger = LoggerFactory.getLogger(UserService.class);
 
@@ -28,11 +26,11 @@ public class UserService implements IUserService {
 
 
     @Override
-    public User save(User user) {
-        logger.debug("Request to save User {} ", user);
-        User result = null;
+    public ApplicationUser save(ApplicationUser applicationUser) {
+        logger.debug("Request to save User {} ", applicationUser);
+        ApplicationUser result = null;
         try {
-            result = userRepository.save(user);
+            result = userRepository.save(applicationUser);
         } catch (Exception ex) {
             ex.printStackTrace();
             logger.error(ex.toString());
@@ -52,16 +50,16 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<User> findAll() {
+    public List<ApplicationUser> findAll() {
         return userRepository.findAll();
     }
 
     @Override
-    public Optional<User> findOne(Long id) {
+    public Optional<ApplicationUser> findOne(Long id) {
         return userRepository.findById(id);
     }
 
-    public Optional<User> findUserByUserTimecardId(Long userTimecardId) {
+    public Optional<ApplicationUser> findUserByUserTimecardId(Long userTimecardId) {
         return userRepository.findByUserTimecardId(userTimecardId);
     }
 }

@@ -1,8 +1,6 @@
 package com.laborsoftware.xpense.service;
 
-import com.laborsoftware.xpense.domain.Expense;
 import com.laborsoftware.xpense.domain.Project;
-import com.laborsoftware.xpense.interfaces.IProjectService;
 import com.laborsoftware.xpense.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -14,7 +12,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class ProjectService implements IProjectService {
+public class ProjectService implements ICrudService<Project, Long> {
 
     Logger logger = LoggerFactory.getLogger(ProjectService.class);
 

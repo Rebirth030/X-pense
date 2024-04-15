@@ -9,9 +9,7 @@ public class CompanyDTO {
 
     private String address;
 
-    //private Set<ProjectDTO> projects;
-
-    private UserDTO user;
+    private Long userId;
 
     public Long getId() {
         return id;
@@ -37,22 +35,11 @@ public class CompanyDTO {
         this.address = address;
     }
 
-    /*
-    public Set<ProjectDTO> getProjects() {
-        return projects;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setProjects(Set<ProjectDTO> projects) {
-        this.projects = projects;
-    }
-
-     */
-
-    public UserDTO getUser() {
-        return user;
-    }
-
-    public void setUser(UserDTO user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

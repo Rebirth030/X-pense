@@ -1,7 +1,5 @@
 package com.laborsoftware.xpense.controller;
 
-import com.laborsoftware.xpense.domain.User;
-import com.laborsoftware.xpense.domain.UserTimecard;
 import com.laborsoftware.xpense.domain.WeeklyTimecard;
 import com.laborsoftware.xpense.domain.dto.WeeklyTimecardDTO;
 import com.laborsoftware.xpense.exceptions.ResourceNotFoundException;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @RestController
 @RequestMapping
@@ -46,32 +43,12 @@ public class WeeklyTimecardController {
 
 
     @PostMapping("/weekly-timecards")
-    ResponseEntity<WeeklyTimecard> createEvent(@RequestBody WeeklyTimecardDTO weeklyTimecardDTO) {
+    ResponseEntity<WeeklyTimecardDTO> createWeeklyTimecard(@RequestBody WeeklyTimecardDTO weeklyTimecardDTO) {
         try {
             WeeklyTimecard weeklyTimecard = weeklyTimecardMapper.toEntity(weeklyTimecardDTO);
             weeklyTimecard = weeklyTimecardService.save(weeklyTimecard);
-
-            /*
-            Optional<User> optionalUser = userService.findOne(weeklyTimecard.getUser().getId());
-            if(optionalUser.isPresent()) {
-                User user = optionalUser.get();
-                Set<WeeklyTimecard> userWeeklyTimecards = user.getWeeklyTimecards();
-                userWeeklyTimecards.add(weeklyTimecard);
-                user.setWeeklyTimecards(userWeeklyTimecards);
-                userService.save(user);
-            }
-
-
-            Optional<UserTimecard> optionalUserTimecard = userTimecardService.findOne(weeklyTimecard.getUserTimecard().getId());
-            if(optionalUserTimecard.isPresent()) {
-                UserTimecard userTimecard = optionalUserTimecard.get();
-                Set<WeeklyTimecard> userTimecardWeeklyTimecards = userTimecard.getWeeklyTimecards();
-                userTimecardWeeklyTimecards.add(weeklyTimecard);
-                userTimecard.setWeeklyTimecards(userTimecardWeeklyTimecards);
-                userTimecardService.save(userTimecard);
-            }
-            */
-            return ResponseEntity.ok().body(weeklyTimecard);
+            WeeklyTimecardDTO result = weeklyTimecardMapper.toDto(weeklyTimecard);
+            return ResponseEntity.ok().body(result);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -79,11 +56,15 @@ public class WeeklyTimecardController {
     }
 
     @PutMapping("/weekly-timecards/{id}")
-    ResponseEntity<WeeklyTimecard> updateEvent(@RequestBody WeeklyTimecardDTO weeklyTimecardDTO, @PathVariable Long id) {
+    ResponseEntity<WeeklyTimecardDTO> updateWeeklyTimecard(@RequestBody WeeklyTimecardDTO weeklyTimecardDTO, @PathVariable Long id) {
         try {
             Optional<WeeklyTimecard> optionalWeeklyTimecard = weeklyTimecardService.findOne(id);
             if(optionalWeeklyTimecard.isPresent()) {
-                return ResponseEntity.ok().body(weeklyTimecardService.save(weeklyTimecardMapper.toEntity(weeklyTimecardDTO)));
+                WeeklyTimecard weeklyTimecard = optionalWeeklyTimecard.get();
+                weeklyTimecard =  weeklyTimecardMapper.toEntity(weeklyTimecardDTO);
+                weeklyTimecard = weeklyTimecardService.save(weeklyTimecard);
+                WeeklyTimecardDTO result = weeklyTimecardMapper.toDto(weeklyTimecard);
+                return ResponseEntity.ok().body(result);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -92,17 +73,20 @@ public class WeeklyTimecardController {
     }
 
     @GetMapping("/weekly-timecards")
-    ResponseEntity<List<WeeklyTimecard>> getAllEvents() {
-        return new ResponseEntity<>(weeklyTimecardService.findAll(), HttpStatus.OK);
+    ResponseEntity<List<WeeklyTimecardDTO>> getAllWeeklyTimecards() {
+        List<WeeklyTimecard> weeklyTimecards = weeklyTimecardService.findAll();
+        List<WeeklyTimecardDTO> result = weeklyTimecards.stream().map(weeklyTimecardMapper::toDto).toList();
+        return ResponseEntity.ok().body(result);
     }
 
     @GetMapping("/weekly-timecards/{id}")
-    ResponseEntity<WeeklyTimecard> getEvent(@PathVariable Long id) {
+    ResponseEntity<WeeklyTimecardDTO> getWeeklyTimecard(@PathVariable Long id) {
         try {
             Optional<WeeklyTimecard> optionalWeeklyTimecard = weeklyTimecardService.findOne(id);
             if(optionalWeeklyTimecard.isPresent()) {
-                optionalWeeklyTimecard.get();
-                return ResponseEntity.ok().body(optionalWeeklyTimecard.get());
+                WeeklyTimecard weeklyTimecard = optionalWeeklyTimecard.get();
+                WeeklyTimecardDTO result = weeklyTimecardMapper.toDto(weeklyTimecard);
+                return ResponseEntity.ok().body(result);
             } else {
                 throw new ResourceNotFoundException(
                         "Ressource nicht gefunden. Kein Datensatz in der Datenbank zu finden ist."
@@ -115,13 +99,14 @@ public class WeeklyTimecardController {
     }
 
     @DeleteMapping("/weekly-timecards/{id}")
-    ResponseEntity<WeeklyTimecard> deleteEvent(@PathVariable Long id) {
+    ResponseEntity<WeeklyTimecardDTO> deleteWeeklyTimecard(@PathVariable Long id) {
         try {
             WeeklyTimecard weeklyTimecardToDelete = weeklyTimecardService.findOne(id).orElseThrow(() -> new ResourceNotFoundException(
                     "Ressource nicht gefunden. Kein Datensatz in der Datenbank zu finden ist."
             ));
             weeklyTimecardService.delete(id);
-            return new ResponseEntity<>(weeklyTimecardToDelete, HttpStatus.OK);
+            WeeklyTimecardDTO result = weeklyTimecardMapper.toDto(weeklyTimecardToDelete);
+            return ResponseEntity.ok().body(result);
         } catch (ResourceNotFoundException e) {
             e.printStackTrace();
         }

@@ -32,10 +32,12 @@ public class CompanyController {
     }
 
     @PostMapping("/companies")
-    ResponseEntity<Company> createEvent(@RequestBody CompanyDTO companyDTO) {
+    ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyDTO companyDTO) {
         try {
             Company company = companyMapper.toEntity(companyDTO);
-            return ResponseEntity.ok().body(companyService.save(company));
+            company = companyService.save(company);
+            CompanyDTO result = companyMapper.toDto(company);
+            return ResponseEntity.ok().body(result);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -43,11 +45,14 @@ public class CompanyController {
     }
 
     @PutMapping("/companies/{id}")
-    ResponseEntity<Company> updateEvent(@RequestBody CompanyDTO companyDTO, @PathVariable Long id) {
+    ResponseEntity<CompanyDTO> updateCompany(@RequestBody CompanyDTO companyDTO, @PathVariable Long id) {
         try {
             Optional<Company> optionalEvent = companyService.findOne(id);
             if(optionalEvent.isPresent()) {
-                return ResponseEntity.ok().body(companyService.save(companyMapper.toEntity(companyDTO)));
+                Company company = companyMapper.toEntity(companyDTO);
+                company = companyService.save(company);
+                CompanyDTO result = companyMapper.toDto(company);
+                return ResponseEntity.ok().body(result);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -56,17 +61,21 @@ public class CompanyController {
     }
 
     @GetMapping("/companies")
-    ResponseEntity<List<Company>> getAllEvents() {
-        return new ResponseEntity<>(companyService.findAll(), HttpStatus.OK);
+    ResponseEntity<List<CompanyDTO>> getAllCompanies() {
+        List<Company> companies = companyService.findAll();
+        List<CompanyDTO> result = companies.stream().map(companyMapper::toDto).toList();
+        return ResponseEntity.ok().body(result);
     }
 
     @GetMapping("/companies/{id}")
-    ResponseEntity<Company> getEvent(@PathVariable Long id) {
+    ResponseEntity<CompanyDTO> getCompany(@PathVariable Long id) {
         try {
             Optional<Company> optionalEvent = companyService.findOne(id);
             if(optionalEvent.isPresent()) {
                 optionalEvent.get();
-                return ResponseEntity.ok().body(optionalEvent.get());
+                Company company = optionalEvent.get();
+                CompanyDTO result = companyMapper.toDto(company);
+                return ResponseEntity.ok().body(result);
             } else {
                 throw new ResourceNotFoundException(
                         "Ressource nicht gefunden. Kein Datensatz in der Datenbank zu finden ist."
@@ -79,13 +88,14 @@ public class CompanyController {
     }
 
     @DeleteMapping("/companies/{id}")
-    ResponseEntity<Company> deleteEvent(@PathVariable Long id) {
+    ResponseEntity<CompanyDTO> deleteCompany(@PathVariable Long id) {
         try {
             Company companyToDelete = companyService.findOne(id).orElseThrow(() -> new ResourceNotFoundException(
                     "Ressource nicht gefunden. Kein Datensatz in der Datenbank zu finden ist."
             ));
             companyService.delete(id);
-            return new ResponseEntity<>(companyToDelete, HttpStatus.OK);
+            CompanyDTO result = companyMapper.toDto(companyToDelete);
+            return ResponseEntity.ok().body(result);
         } catch (ResourceNotFoundException e) {
             e.printStackTrace();
         }

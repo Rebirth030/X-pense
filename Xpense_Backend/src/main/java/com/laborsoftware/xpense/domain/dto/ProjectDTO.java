@@ -16,11 +16,9 @@ public class ProjectDTO {
 
     private Double currentExpense;
 
-    // private Set<ExpenseDTO> expenses;
+    private Long companyId;
 
-    private CompanyDTO company;
-
-    private UserDTO user;
+    private Long userId;
 
     public Long getId() {
         return id;
@@ -70,30 +68,20 @@ public class ProjectDTO {
         this.currentExpense = currentExpense;
     }
 
-    /*
-    public Set<ExpenseDTO> getExpenses() {
-        return expenses;
+
+    public Long getCompanyId() {
+        return companyId;
     }
 
-    public void setExpenses(Set<ExpenseDTO> expenses) {
-        this.expenses = expenses;
+    public void setCompanyId(Long companyId) {
+        this.companyId = companyId;
     }
 
-     */
-
-    public CompanyDTO getCompany() {
-        return company;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setCompany(CompanyDTO company) {
-        this.company = company;
-    }
-
-    public UserDTO getUser() {
-        return user;
-    }
-
-    public void setUser(UserDTO user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

@@ -1,10 +1,8 @@
 package com.laborsoftware.xpense.domain;
 
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
 
 import java.time.ZonedDateTime;
-import java.util.Set;
 
 @Entity
 @Table(name = "weekly_timecard")
@@ -30,15 +28,9 @@ public class WeeklyTimecard {
     @Column(name = "weekly_balance")
     private Double weeklyBalance;
 
-    /*
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "weeklyTimecard", cascade = CascadeType.ALL)
-    private Set<Expense> expenses;
-
-     */
-
     @ManyToOne()
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    private ApplicationUser applicationUser;
 
     @ManyToOne()
     @JoinColumn(name = "user_timecard_id", referencedColumnName = "id")
@@ -111,11 +103,11 @@ public class WeeklyTimecard {
         this.userTimecard = userTimecard;
     }
 
-    public User getUser() {
-        return user;
+    public ApplicationUser getUser() {
+        return applicationUser;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(ApplicationUser applicationUser) {
+        this.applicationUser = applicationUser;
     }
 }

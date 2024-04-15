@@ -16,11 +16,9 @@ public class WeeklyTimecardDTO {
 
     private Double weeklyBalance;
 
-    // private Set<ExpenseDTO> expenses;
+    private Long userId;
 
-    private UserDTO user;
-
-    private UserTimecardDTO userTimecard;
+    private Long userTimecardId;
 
     public Long getId() {
         return id;
@@ -70,30 +68,19 @@ public class WeeklyTimecardDTO {
         this.weeklyBalance = weeklyBalance;
     }
 
-    /*
-    public Set<ExpenseDTO> getExpenses() {
-        return expenses;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setExpenses(Set<ExpenseDTO> expenses) {
-        this.expenses = expenses;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-     */
-
-    public UserDTO getUser() {
-        return user;
+    public Long getUserTimecardId() {
+        return userTimecardId;
     }
 
-    public void setUser(UserDTO user) {
-        this.user = user;
-    }
-
-    public UserTimecardDTO getUserTimecard() {
-        return userTimecard;
-    }
-
-    public void setUserTimecard(UserTimecardDTO userTimecard) {
-        this.userTimecard = userTimecard;
+    public void setUserTimecardId(Long userTimecardId) {
+        this.userTimecardId = userTimecardId;
     }
 }

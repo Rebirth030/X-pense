@@ -7,4 +7,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface UserTimecardMapper {
     UserTimecard toEntity(UserTimecardDTO userTimecardDTO);
+
+    UserTimecardDTO toDto(UserTimecard userTimecard);
 }

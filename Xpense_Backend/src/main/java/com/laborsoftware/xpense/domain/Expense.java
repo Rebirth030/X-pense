@@ -1,5 +1,7 @@
 package com.laborsoftware.xpense.domain;
 
+import com.laborsoftware.xpense.domain.enumeration.ExpenseState;
+import com.laborsoftware.xpense.service.ExpenseService;
 import jakarta.persistence.*;
 
 import java.time.ZonedDateTime;
@@ -21,13 +23,12 @@ public class Expense {
     @Column(name = "end_date_time")
     private ZonedDateTime endDateTime;
 
-    // enum ?
-    @Column(name = "state")
-    private String state;
+    @Enumerated(EnumType.STRING)
+    private ExpenseState state;
 
     @ManyToOne()
     @JoinColumn(name = "user_id")
-    private User user;
+    private ApplicationUser applicationUser;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "project_id")
@@ -62,20 +63,20 @@ public class Expense {
         this.endDateTime = endDateTime;
     }
 
-    public String getState() {
+    public ExpenseState getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(ExpenseState state) {
         this.state = state;
     }
 
-    public User getUser() {
-        return user;
+    public ApplicationUser getUser() {
+        return applicationUser;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(ApplicationUser applicationUser) {
+        this.applicationUser = applicationUser;
     }
 
     public Project getProject() {

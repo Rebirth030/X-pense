@@ -1,5 +1,7 @@
 package com.laborsoftware.xpense.domain.dto;
 
+import com.laborsoftware.xpense.domain.enumeration.ExpenseState;
+
 import java.time.ZonedDateTime;
 
 public class ExpenseDTO {
@@ -9,13 +11,13 @@ public class ExpenseDTO {
 
     private ZonedDateTime endDateTime;
 
-    private String state;
+    private ExpenseState state;
 
-    private UserDTO user;
+    private Long userId;
 
-    private ProjectDTO project;
+    private Long projectId;
 
-    private WeeklyTimecardDTO weeklyTimecard;
+    private Long weeklyTimecardId;
 
     public Long getId() {
         return id;
@@ -41,35 +43,36 @@ public class ExpenseDTO {
         this.endDateTime = endDateTime;
     }
 
-    public String getState() {
+    public ExpenseState getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(ExpenseState state) {
         this.state = state;
     }
 
-    public UserDTO getUser() {
-        return user;
+
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(UserDTO user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public ProjectDTO getProject() {
-        return project;
+    public Long getProjectId() {
+        return projectId;
     }
 
-    public void setProject(ProjectDTO project) {
-        this.project = project;
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 
-    public WeeklyTimecardDTO getWeeklyTimecard() {
-        return weeklyTimecard;
+    public Long getWeeklyTimecardId() {
+        return weeklyTimecardId;
     }
 
-    public void setWeeklyTimecard(WeeklyTimecardDTO weeklyTimecard) {
-        this.weeklyTimecard = weeklyTimecard;
+    public void setWeeklyTimecardId(Long weeklyTimecardId) {
+        this.weeklyTimecardId = weeklyTimecardId;
     }
 }
