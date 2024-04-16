@@ -31,14 +31,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.xpense_app.R
-import com.example.xpense_app.model.DateTimeModel
-import com.example.xpense_app.model.ExpenseViewModel
 import com.example.xpense_app.controller.service.Expense
+import com.example.xpense_app.controller.service.ExpenseService
 import com.example.xpense_app.view.theme.Typography
 import kotlinx.coroutines.delay
 import java.time.Clock
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
 
@@ -121,9 +122,10 @@ fun ExpenseTimer() {
         mutableStateOf(
             Expense(
                 null,
-                DateTimeModel(
-                    Instant.now(Clock.system(ZoneId.systemDefault())).toEpochMilli()
-                ).getLocalDateTime(),
+                LocalDateTime.ofInstant(
+                    Instant.ofEpochMilli(Instant.now(Clock.system(ZoneId.systemDefault())).toEpochMilli()),
+                    TimeZone.getDefault().toZoneId()
+                ),
                 null,
                 "PENDING",
                 userId,
@@ -134,7 +136,7 @@ fun ExpenseTimer() {
     }
 
     val context = LocalContext.current
-    val expenseViewModel = ExpenseViewModel()
+    val expenseViewModel = ExpenseService()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -172,9 +174,10 @@ fun ExpenseTimer() {
                 time = 0
                 isRunning = false
                 expense = expense.copy(
-                    endDateTime = DateTimeModel(
-                        Instant.now(Clock.system(ZoneId.systemDefault())).toEpochMilli()
-                    ).getLocalDateTime()
+                    endDateTime = LocalDateTime.ofInstant(
+                        Instant.ofEpochMilli(Instant.now(Clock.system(ZoneId.systemDefault())).toEpochMilli()),
+                        TimeZone.getDefault().toZoneId()
+                    )
                 )
             }) {
                 Icon(painterResource(id = R.drawable.stop_solid), contentDescription = "Stop timer")
