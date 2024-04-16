@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.xpense_app.navigation.navGraph
+import com.example.xpense_app.navigation.NavGraph
 import com.example.xpense_app.ui.theme.XPense_AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    navGraph(applicationContext)
+                    NavGraph(applicationContext)
                 }
             }
         }
