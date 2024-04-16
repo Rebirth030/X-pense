@@ -1,4 +1,4 @@
-package com.example.xpense_app.home.service
+package com.example.xpense_app.controller.service
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

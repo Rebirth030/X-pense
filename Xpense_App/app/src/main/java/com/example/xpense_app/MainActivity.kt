@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.xpense_app.navigation.NavGraph
-import com.example.xpense_app.ui.theme.XPense_AppTheme
+import com.example.xpense_app.view.theme.XPense_AppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,4 +1,4 @@
-package com.example.xpense_app.login
+package com.example.xpense_app.view.login
 
 
 import androidx.compose.foundation.clickable

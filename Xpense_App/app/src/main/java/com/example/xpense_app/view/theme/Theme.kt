@@ -1,4 +1,4 @@
-package com.example.xpense_app.ui.theme
+package com.example.xpense_app.view.theme
 
 import android.app.Activity
 import android.os.Build

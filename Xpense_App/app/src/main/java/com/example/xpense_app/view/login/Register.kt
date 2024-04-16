@@ -1,4 +1,4 @@
-package com.example.xpense_app.login
+package com.example.xpense_app.view.login
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create

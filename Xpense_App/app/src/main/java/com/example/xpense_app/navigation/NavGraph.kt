@@ -30,8 +30,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.xpense_app.login.CreateRegister
-import com.example.xpense_app.login.LoginForm
+import com.example.xpense_app.view.TimerHead
+import com.example.xpense_app.view.login.CreateRegister
+import com.example.xpense_app.view.login.LoginForm
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -63,15 +64,13 @@ fun NavGraph(context: Context) {
                         Icon(Icons.Rounded.Menu, contentDescription = "Menu", modifier = Modifier.padding(horizontal = 8.dp))
                     }
             })
-        }) {
-            NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
-                composable(NavigationItem.Login.route) { LoginForm() }
-                composable(NavigationItem.Register.route) { CreateRegister() }
-                composable(NavigationItem.Home.route) { Timer() }
-                composable(NavigationItem.Profiles.route) { Profiles() }
-                composable(NavigationItem.Manual.route) { Manual() }
-            }
-        }
+        }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
+            composable(NavigationItem.Login.route) { LoginForm() }
+            composable(NavigationItem.Register.route) { CreateRegister() }
+            composable(NavigationItem.Home.route) { TimerHead() }
+            composable(NavigationItem.Profiles.route) {  }
+            composable(NavigationItem.Manual.route) {  }
+        }})
     }
 }
 
@@ -95,37 +94,4 @@ private fun CreateNavigationItem(
             }
         }
     )
-}
-
-@Composable
-fun Timer(){
-    Box(modifier = Modifier
-        .fillMaxSize()){
-        Column(modifier = Modifier.fillMaxSize().align(Alignment.Center),
-            verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "Timer")
-        }
-    }
-}
-
-@Composable
-fun Profiles(){
-    Box(modifier = Modifier
-        .fillMaxSize()){
-        Column(modifier = Modifier.fillMaxSize().align(Alignment.Center),
-            verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "Profiles")
-        }
-    }
-}
-
-@Composable
-fun Manual(){
-    Box(modifier = Modifier
-        .fillMaxSize()){
-        Column(modifier = Modifier.fillMaxSize().align(Alignment.Center),
-            verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "Manual Booking")
-        }
-    }
 }

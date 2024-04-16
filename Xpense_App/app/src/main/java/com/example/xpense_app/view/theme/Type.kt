@@ -1,4 +1,4 @@
-package com.example.xpense_app.ui.theme
+package com.example.xpense_app.view.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
