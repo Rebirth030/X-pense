@@ -1,5 +1,15 @@
 package com.example.xpense_app.view.login
 
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Email
@@ -7,76 +17,100 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.example.xpense_app.MainActivity
+import com.example.xpense_app.controller.services.UserService
+import com.example.xpense_app.model.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Base64
 
 @Composable
 fun CreateRegister() {
-    val email = createRegisterField("email")
-    val username = createRegisterField("username")
-    val password = createRegisterField("password");
-    val submit = registerButton()
-    if (submit.value) {
-        LaunchedEffect(key1 = submit.value) {
-            //TODO: registerUser(email.value, username.value, password.value)
+    Surface {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 30.dp)
+        ) {
+            RegisterForm()
         }
     }
 }
 
+/**
+ * Creates the form for the registration
+ * with a button to submit the form
+ */
 @Composable
-fun createRegisterField(fieldname: String): MutableState<String> {
-    val text = remember { mutableStateOf("") }
-    var isPasswordVisible = remember { mutableStateOf(false) }
-    TextField(
-        value = text.value,
-        onValueChange = { it: String -> text.value = it },
-        label = { Text(fieldname.uppercase()) },
-        placeholder = { Text("Enter your $fieldname") },
-        trailingIcon = { isPasswordVisible = createTrailingIcon(fieldname) },
-        leadingIcon = { CreateLeadingIcon(fieldname) },
-        visualTransformation = if(fieldname == "password" && isPasswordVisible.value) PasswordVisualTransformation() else VisualTransformation.None,
-    )
-    return text
-}
+fun RegisterForm() {
+    val email = createTextField("email")
+    val prename = createTextField("prename")
+    val lastname = createTextField("lastname")
+    val country = "Deutschland"
+    val language = "DE"
+    val username = createTextField("username")
+    val password = createPasswordField(false)
+    val repeatPassword = createPasswordField()
+    val context = LocalContext.current
 
-@Composable
-fun CreateLeadingIcon(fieldname: String) {
-    Icon(
-        when (fieldname) {
-            "email" -> Icons.Default.Email
-            "username" -> Icons.Default.Person
-            "password" -> Icons.Default.Lock
-            else -> Icons.Default.Create
-        },
-        contentDescription = "",
-        tint = MaterialTheme.colorScheme.primary
-    )
-}
-
-@Composable
-fun createTrailingIcon(fieldname: String): MutableState<Boolean> {
-    val isPasswordVisible = remember { mutableStateOf(false) }
-    if (fieldname == "password") {
-        IconButton(onClick = { isPasswordVisible.value = !isPasswordVisible.value }) {
-            Icon(
-                if (isPasswordVisible.value) Icons.Default.Person else Icons.Default.Lock,
-                contentDescription = "",
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-    return isPasswordVisible
-}
-
-@Composable
-fun registerButton(): MutableState<Boolean> {
-    val submit = remember { mutableStateOf(false) }
-    Button(onClick = { submit.value = true }) {
+    Spacer(modifier = Modifier.height(10.dp))
+    LabeledCheckbox()
+    Spacer(modifier = Modifier.height(20.dp))
+    Button(
+        onClick = { submitAction(prename, lastname, email, username, password, repeatPassword, country, language, context) },
+        shape = RoundedCornerShape(5.dp),
+        modifier = Modifier.fillMaxWidth()
+    ){
         Text("Register")
     }
-    return submit
+}
+
+/**
+ * Submits the form to the server
+ * and navigates to the login page if successful
+  */
+fun submitAction(
+    prename: MutableState<String>,
+    lastname: MutableState<String>,
+    email: MutableState<String>,
+    username: MutableState<String>,
+    password: MutableState<String>,
+    repeatPassword: MutableState<String>,
+    country: String,
+    language: String,
+    context: Context
+) {
+    if (password.value != repeatPassword.value) {
+        Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+        return
+    }
+    // TODO: Add good encryption
+    val encoder = Base64.getEncoder()
+    val user = User(
+        id = null,
+        prename = prename.value,
+        lastname = lastname.value,
+        email = email.value,
+        username = username.value,
+        password = String(encoder.encode(password.value.toByteArray())),
+        country = country,
+        language = language,
+        weeklyWorkingHours = null,
+        holidayWorkingSchedule = null
+    )
+    CoroutineScope(Dispatchers.IO).launch {
+        val userService = UserService()
+        userService.registerUser(
+            user = user,
+            onSuccess = { user -> /* TODO: Navigate to login */ Toast.makeText(context, "Registry Successful", Toast.LENGTH_SHORT).show()},
+            onError = { exception -> /* TODO: Implement better exception handling */ Toast.makeText(context, exception.message, Toast.LENGTH_SHORT).show()})
+    }
 }
 

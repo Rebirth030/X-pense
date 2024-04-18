@@ -33,8 +33,8 @@ fun LoginForm() {
                 .fillMaxSize()
                 .padding(horizontal = 30.dp)
         ) {
-            var username = EntryField()
-            var password = EntryField(true)
+            var username = createTextField(fieldName = "username")
+            var password = createPasswordField()
             Spacer(modifier = Modifier.height(10.dp))
             LabeledCheckbox()
             Spacer(modifier = Modifier.height(20.dp))
@@ -50,67 +50,6 @@ fun LoginForm() {
     }
 }
 
-@Composable
-fun EntryField(isPassword: Boolean = false): MutableState<String> {
-    val value = remember { mutableStateOf("") }
-    val focusManager = LocalFocusManager.current
-    var isPasswordVisible by remember { mutableStateOf(false) }
 
-    val trailingIcon = if (isPassword) {
-        null
-    } else {
-        null
-    }
-    val leadingIcon = @Composable {
-        Icon(
-            if (isPassword) Icons.Default.Lock else Icons.Default.Person,
-            contentDescription = "",
-            tint = MaterialTheme.colorScheme.primary
-        )
-    }
-
-    TextField(
-        value = value.value,
-        onValueChange = { it: String -> value.value = it },
-        modifier = Modifier.fillMaxWidth(),
-        leadingIcon = leadingIcon,
-        trailingIcon = {isPasswordVisible = createTrailingIcon(if(isPassword) "password" else "username").value},
-        keyboardOptions = if (isPassword) {
-            KeyboardOptions(
-                imeAction = ImeAction.Done,
-                keyboardType = KeyboardType.Password
-            )
-        } else {
-            KeyboardOptions(imeAction = ImeAction.Next)
-        },
-        keyboardActions = if (isPassword) KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }) else KeyboardActions(
-            onDone = { } //TODO add Sumbit
-        ),
-        placeholder = { if (isPassword) Text("Enter your Password") else Text("Enter your Username") },
-        label = { if (isPassword) Text("Password") else Text("Username") },
-        singleLine = true,
-        visualTransformation = if (isPassword) {
-            if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
-        } else VisualTransformation.None
-    )
-    return value
-}
-
-@Composable
-fun LabeledCheckbox(
-    isChecked: Boolean = true
-) {
-    Row(
-        Modifier
-            .clickable(
-                onClick = {} //TODO Add remember me
-            )
-            .padding(4.dp)
-    ) {
-        Checkbox(checked = isChecked, onCheckedChange = null)
-        Spacer(Modifier.size(6.dp))
-        Text("Remember Me")
-    }
-}
 
 
