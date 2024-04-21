@@ -1,4 +1,4 @@
-package com.example.xpense_app.view
+package com.example.xpense_app.view.timer
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -44,13 +44,13 @@ import java.util.concurrent.TimeUnit
 
 
 @Composable
-fun TimerHead() {
+fun Timer(expenseViewModel: ExpenseService) {
     Column(
         modifier = Modifier.padding(10.dp)
     ) {
         TopSection()
         Spacer(modifier = Modifier.height(10.dp))
-        ExpenseTimer()
+        ExpenseTimer(expenseViewModel)
     }
 
 }
@@ -99,7 +99,7 @@ fun CurrentDateTime() {
 }
 
 @Composable
-fun ExpenseTimer() {
+fun ExpenseTimer(expenseViewModel : ExpenseService) {
     var time by remember {
         mutableStateOf(0L)
     }
@@ -136,7 +136,7 @@ fun ExpenseTimer() {
     }
 
     val context = LocalContext.current
-    val expenseViewModel = ExpenseService()
+    //val expenseViewModel = ExpenseService()
 
     Column(
         modifier = Modifier
