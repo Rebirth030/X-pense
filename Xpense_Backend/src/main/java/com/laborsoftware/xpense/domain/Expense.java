@@ -30,7 +30,7 @@ public class Expense {
     @JoinColumn(name = "user_id")
     private ApplicationUser applicationUser;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name = "project_id")
     private Project project;
 

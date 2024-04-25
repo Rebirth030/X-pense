@@ -1,46 +1,90 @@
 package com.laborsoftware.xpense.service;
 
+import com.laborsoftware.xpense.domain.ApplicationUser;
 import com.laborsoftware.xpense.domain.Company;
+import com.laborsoftware.xpense.domain.dto.CompanyDTO;
+import com.laborsoftware.xpense.domain.dto.UserDTO;
+import com.laborsoftware.xpense.exceptions.ResourceNotFoundException;
+import com.laborsoftware.xpense.mapper.CompanyMapper;
 import com.laborsoftware.xpense.repository.CompanyRepository;
+import com.laborsoftware.xpense.service.crud.ICrudService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @Transactional
-public class CompanyService implements ICrudService<Company, Long> {
+@RestController
+@RequestMapping
+public class CompanyService implements ICrudService<CompanyDTO, Long> {
 
     Logger logger = LoggerFactory.getLogger(CompanyService.class);
 
     private final CompanyRepository companyRepository;
 
+    @Autowired
+    public final CompanyMapper companyMapper;
+
     public CompanyService(
-            CompanyRepository companyRepository
+            CompanyRepository companyRepository,
+            CompanyMapper companyMapper
     ) {
         this.companyRepository = companyRepository;
+        this.companyMapper = companyMapper;
     }
 
     @Override
-    public Company save(Company company) {
-        logger.debug("Request to save Company {} ", company);
-        Company result = null;
+    @PostMapping("/companies")
+    public ResponseEntity<CompanyDTO> save(@RequestBody CompanyDTO companyDTO) {
+        logger.debug("Request to save Company {} ", companyDTO);
         try {
-            result = companyRepository.save(company);
+            Company company = companyMapper.toEntity(companyDTO);
+            company = companyRepository.save(company);
+            CompanyDTO result = companyMapper.toDto(company);
+            return ResponseEntity.ok().body(result);
         } catch (Exception ex) {
             ex.printStackTrace();
             logger.error(ex.toString());
         }
-        return result;
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
+    @PutMapping("/companies/{id}")
+    public ResponseEntity<CompanyDTO> update(@RequestBody CompanyDTO companyDTO, @PathVariable Long id) {
+        try {
+            Optional<Company> optionalEvent = companyRepository.findById(id);
+            if(optionalEvent.isPresent()) {
+                Company company = companyMapper.toEntity(companyDTO);
+                company = companyRepository.save(company);
+                CompanyDTO result = companyMapper.toDto(company);
+                return ResponseEntity.ok().body(result);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    @DeleteMapping("/companies/{id}")
     public void delete(Long id) {
         logger.debug("Request to delete ");
         try {
+            Optional<Company> companyToDelete = companyRepository.findById(id);
+            if (companyToDelete.isEmpty()) {
+                throw new ResourceNotFoundException(
+                        "Ressource nicht gefunden. Kein Datensatz in der Datenbank zu finden ist."
+                );
+            }
             companyRepository.deleteById(id);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -49,14 +93,31 @@ public class CompanyService implements ICrudService<Company, Long> {
     }
 
     @Override
-    public List<Company> findAll() {
+    @GetMapping("/companies")
+    public ResponseEntity<List<CompanyDTO>> findAll() {
         logger.debug("Request to get all Companies");
-        return companyRepository.findAll();
+        List<Company> companies = companyRepository.findAll();
+        List<CompanyDTO> result = companies.stream().map(companyMapper::toDto).toList();
+        return ResponseEntity.ok().body(result);
     }
 
     @Override
-    public Optional<Company> findOne(Long id) {
-        logger.debug("Request to get all Company");
-        return companyRepository.findById(id);
+    @GetMapping("/companies/{id}")
+    public ResponseEntity<CompanyDTO> findOne(Long id) {
+        try {
+            Optional<Company> optionalCompany  = companyRepository.findById(id);
+            if(optionalCompany.isPresent()) {
+                Company company = optionalCompany.get();
+                CompanyDTO result = companyMapper.toDto(company);
+                return ResponseEntity.ok().body(result);
+            } else {
+                throw new ResourceNotFoundException(
+                        "Ressource nicht gefunden. Kein Datensatz in der Datenbank zu finden ist."
+                );
+            }
+        } catch (ResourceNotFoundException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }

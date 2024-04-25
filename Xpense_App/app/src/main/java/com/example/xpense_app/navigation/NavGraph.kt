@@ -74,7 +74,7 @@ fun NavGraph(context: Context, timerViewModel: TimerViewModel) {
         }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
             composable(NavigationItem.Login.route) { LoginForm() }
             composable(NavigationItem.Register.route) { CreateRegister() }
-            composable(NavigationItem.Home.route) { Timer(timerViewModel) }
+            composable(NavigationItem.Timer.route) { Timer(timerViewModel) }
             composable(NavigationItem.Profiles.route) {  }
             composable(NavigationItem.Manual.route) {  }
         }})

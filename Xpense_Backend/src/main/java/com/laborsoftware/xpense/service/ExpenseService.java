@@ -1,46 +1,92 @@
 package com.laborsoftware.xpense.service;
 
 import com.laborsoftware.xpense.domain.Expense;
+import com.laborsoftware.xpense.domain.dto.ExpenseDTO;
+import com.laborsoftware.xpense.domain.dto.ProjectDTO;
+import com.laborsoftware.xpense.exceptions.ResourceNotFoundException;
+import com.laborsoftware.xpense.mapper.ExpenseMapper;
 import com.laborsoftware.xpense.repository.ExpenseRepository;
+import com.laborsoftware.xpense.service.crud.ICrudService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
+
+@RestController
+@RequestMapping
 @Service
 @Transactional
-public class ExpenseService implements ICrudService<Expense, Long> {
+public class ExpenseService implements ICrudService<ExpenseDTO, Long> {
 
     Logger logger = LoggerFactory.getLogger(ExpenseService.class);
 
     private final ExpenseRepository expenseRepository;
 
+    @Autowired
+    public final ExpenseMapper expenseMapper;
+
     public ExpenseService(
-            ExpenseRepository expenseRepository
+            ExpenseRepository expenseRepository,
+            ExpenseMapper expenseMapper
     ) {
         this.expenseRepository = expenseRepository;
+        this.expenseMapper = expenseMapper;
     }
 
     @Override
-    public Expense save(Expense expense) {
-        logger.debug("Request to save Expense {} ", expense);
-        Expense result = null;
+    @PostMapping("/expenses")
+    public ResponseEntity<ExpenseDTO> save(@RequestBody ExpenseDTO expenseDTO) {
+        logger.debug("Request to save Expense {} ", expenseDTO);
         try {
-            result = expenseRepository.save(expense);
+            Expense expense = expenseMapper.toEntity(expenseDTO);
+            expense = expenseRepository.save(expense);
+            ExpenseDTO result = expenseMapper.toDto(expense);
+            return ResponseEntity.ok().body(result);
         } catch (Exception ex) {
             ex.printStackTrace();
             logger.error(ex.toString());
         }
-        return result;
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+
+    @Override
+    @PutMapping("/expenses/{id}")
+    public ResponseEntity<ExpenseDTO> update(@RequestBody ExpenseDTO expenseDTO, @PathVariable Long id) {
+        try {
+            Optional<Expense> optionalExpense = expenseRepository.findById(id);
+            if (optionalExpense.isPresent()) {
+                Expense expense = optionalExpense.get();
+                expense = expenseMapper.toEntity(expenseDTO);
+                expense = expenseRepository.save(expense);
+                ExpenseDTO result = expenseMapper.toDto(expense);
+                return ResponseEntity.ok().body(result);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
+    @DeleteMapping("/expenses/{id}")
     public void delete(Long id) {
         logger.debug("Request to delete Expense {} ", id);
         try {
+            Optional<Expense> expenseToDelete = expenseRepository.findById(id);
+            if (expenseToDelete.isEmpty()) {
+                throw new ResourceNotFoundException(
+                        "Ressource nicht gefunden. Kein Datensatz in der Datenbank zu finden ist."
+                );
+            }
             expenseRepository.deleteById(id);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -49,14 +95,39 @@ public class ExpenseService implements ICrudService<Expense, Long> {
     }
 
     @Override
-    public List<Expense> findAll() {
+    @GetMapping("/expenses")
+    public ResponseEntity<List<ExpenseDTO>> findAll() {
         logger.debug("Request to get all Expense");
-        return expenseRepository.findAll();
+        List<Expense> expenses = expenseRepository.findAll();
+        List<ExpenseDTO> result = expenses.stream().map(expenseMapper::toDto).toList();
+        return ResponseEntity.ok().body(result);
     }
 
     @Override
-    public Optional<Expense> findOne(Long id) {
+    @GetMapping("/expenses/{id}")
+    public ResponseEntity<ExpenseDTO> findOne(Long id) {
         logger.debug("Request to get all Expense");
-        return expenseRepository.findById(id);
+        try {
+            Optional<Expense> optionalExpense = expenseRepository.findById(id);
+            if(optionalExpense.isPresent()) {
+                Expense expense = optionalExpense.get();
+                ExpenseDTO result = expenseMapper.toDto(expense);
+                return ResponseEntity.ok().body(result);
+            } else {
+                throw new ResourceNotFoundException(
+                        "Ressource nicht gefunden. Kein Datensatz in der Datenbank zu finden ist."
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("/expenses/project/{id}")
+    public ResponseEntity<List<ExpenseDTO>> findAllExpensesOfProject(@PathVariable Long id) {
+        List<Expense> allProjectExpenses = expenseRepository.findAllByProjectId(id);
+        List<ExpenseDTO> result = allProjectExpenses.stream().map(expenseMapper::toDto).toList();
+        return ResponseEntity.ok().body(result);
     }
 }
