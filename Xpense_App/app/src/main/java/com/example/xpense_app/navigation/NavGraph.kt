@@ -3,10 +3,7 @@ package com.example.xpense_app.navigation
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,12 +21,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -53,6 +48,7 @@ fun NavGraph(context: Context) {
     val selectedNavItem = remember {
         mutableStateOf<NavigationItem?>(null)
     }
+    val title = getTitle(selectedNavItem.value)
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = true,
@@ -60,16 +56,16 @@ fun NavGraph(context: Context) {
             ModalDrawerSheet {
                 // Drawer content goes here
 
-               // CreateNavigationItem("Login", coroutineScope, drawerState, navController, NavigationItem.Login, selectedNavItem)
-               // CreateNavigationItem("Register", coroutineScope, drawerState, navController, NavigationItem.Register, selectedNavItem)
-                CreateNavigationItem("Timer", coroutineScope, drawerState, navController, NavigationItem.Home, selectedNavItem)
-                CreateNavigationItem("Profiles", coroutineScope, drawerState, navController, NavigationItem.Profiles, selectedNavItem)
-                CreateNavigationItem("Manual Booking", coroutineScope, drawerState, navController, NavigationItem.Manual, selectedNavItem)
+               // CreateNavigationItem(NavigationItem.Login.name, coroutineScope, drawerState, navController, NavigationItem.Login, selectedNavItem)
+               // CreateNavigationItem(NavigationItem.Register.name, coroutineScope, drawerState, navController, NavigationItem.Register, selectedNavItem)
+                CreateNavigationItem(NavigationItem.Timer.name, coroutineScope, drawerState, navController, NavigationItem.Timer, selectedNavItem)
+                CreateNavigationItem(NavigationItem.Profiles.name, coroutineScope, drawerState, navController, NavigationItem.Profiles, selectedNavItem)
+                CreateNavigationItem(NavigationItem.Manual.name, coroutineScope, drawerState, navController, NavigationItem.Manual, selectedNavItem)
             }
         }
     ) {
         Scaffold(topBar = {
-            TopAppBar(title = { Text(text = "") }, navigationIcon = {
+            TopAppBar(title = { Text(text = title) }, navigationIcon = {
                 IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
                         Icon(Icons.Rounded.Menu, contentDescription = "Menu", modifier = Modifier.padding(horizontal = 8.dp))
                     }
@@ -77,7 +73,7 @@ fun NavGraph(context: Context) {
         }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
             composable(NavigationItem.Login.route) { LoginForm() }
             composable(NavigationItem.Register.route) { CreateRegister() }
-            composable(NavigationItem.Home.route) { TimerHead() }
+            composable(NavigationItem.Timer.route) { TimerHead() }
             composable(NavigationItem.Profiles.route) {  }
             composable(NavigationItem.Manual.route) {  }
         }})
@@ -120,3 +116,8 @@ private fun CreateNavigationItem(
         }
     )
 }}
+
+@Composable
+private fun getTitle(selectedNavItem: NavigationItem?): String {
+    return selectedNavItem?.name ?: "Default Title"
+}
