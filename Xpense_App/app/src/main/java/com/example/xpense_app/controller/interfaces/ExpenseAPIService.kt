@@ -1,5 +1,6 @@
 package com.example.xpense_app.controller.service
 
+import Expense
 import com.google.gson.GsonBuilder
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -14,11 +15,14 @@ import retrofit2.http.Path
 
 const val BASE_URL_API = "http://10.0.2.2:8080/"
 
-interface APIService {
+interface ExpenseAPIService {
 
     @Headers("Content-Type: application/json")
     @GET("expenses/{id}")
     suspend fun getExpense(@Path("id") id: Int): Expense
+
+    @GET("expenses/project/{id}")
+    suspend fun getExpensesOfProject(@Path("id") id: Long): List<Expense>
 
     @GET("expenses")
     suspend fun getExpenses(): Response<List<Expense>>
@@ -40,13 +44,13 @@ interface APIService {
             .setLenient()
             .create()
 
-        var apiService: APIService? = null
-        fun getInstance(): APIService {
+        var apiService: ExpenseAPIService? = null
+        fun getInstance(): ExpenseAPIService {
             if (apiService == null) {
                 apiService = Retrofit.Builder()
                     .baseUrl(BASE_URL_API)
                     .addConverterFactory(GsonConverterFactory.create(json))
-                    .build().create(APIService::class.java)
+                    .build().create(ExpenseAPIService::class.java)
             }
             return apiService!!
         }

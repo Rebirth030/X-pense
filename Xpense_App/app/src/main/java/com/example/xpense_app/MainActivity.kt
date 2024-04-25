@@ -3,15 +3,18 @@ package com.example.xpense_app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.xpense_app.controller.service.ExpenseService
+import com.example.xpense_app.controller.services.ExpenseService
 import com.example.xpense_app.navigation.NavGraph
 import com.example.xpense_app.view.theme.XPense_AppTheme
+import com.example.xpense_app.view.timer.view_model.TimerViewModel
 
 class MainActivity : ComponentActivity() {
+    private val timerViewModel: TimerViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         val expenseService: ExpenseService = ExpenseService()
         super.onCreate(savedInstanceState)
@@ -22,7 +25,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    NavGraph(applicationContext, expenseService)
+                    NavGraph(applicationContext, timerViewModel)
                 }
             }
         }
