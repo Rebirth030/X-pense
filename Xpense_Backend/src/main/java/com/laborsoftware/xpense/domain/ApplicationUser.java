@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "application_user")
-public class ApplicationUser {
+public class ApplicationUser implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
