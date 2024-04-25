@@ -32,16 +32,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.xpense_app.view.TimerHead
+import com.example.xpense_app.view.timer.Timer
 import com.example.xpense_app.view.login.CreateRegister
 import com.example.xpense_app.view.login.LoginForm
+import com.example.xpense_app.view.timer.view_model.TimerViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavGraph(context: Context) {
+fun NavGraph(context: Context, timerViewModel: TimerViewModel) {
     val navController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -73,7 +74,7 @@ fun NavGraph(context: Context) {
         }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
             composable(NavigationItem.Login.route) { LoginForm() }
             composable(NavigationItem.Register.route) { CreateRegister() }
-            composable(NavigationItem.Timer.route) { TimerHead() }
+            composable(NavigationItem.Home.route) { Timer(timerViewModel) }
             composable(NavigationItem.Profiles.route) {  }
             composable(NavigationItem.Manual.route) {  }
         }})
