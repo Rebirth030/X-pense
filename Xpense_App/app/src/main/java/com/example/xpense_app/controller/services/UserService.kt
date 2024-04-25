@@ -11,12 +11,10 @@ import kotlinx.coroutines.launch
 
 class UserService {
 
-    var errorMessage: String by mutableStateOf("")
-
     fun registerUser(
         user: User,
-        onSuccess: (User) -> Unit,
-        onError: (Exception) -> Unit
+        onSuccess: suspend (User) -> Unit,
+        onError: suspend (Exception) -> Unit
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             val apiService = UserAPIService.getInstance()

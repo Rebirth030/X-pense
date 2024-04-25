@@ -4,27 +4,20 @@ package com.example.xpense_app.view.login
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextDecoration
 
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.example.xpense_app.navigation.NavigationItem
 
 
 @Composable
-fun LoginForm() {
+fun LoginForm(navHostController: NavHostController) {
     Surface {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -37,6 +30,13 @@ fun LoginForm() {
             var password = createPasswordField()
             Spacer(modifier = Modifier.height(10.dp))
             LabeledCheckbox()
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                "Registrieren",
+                textDecoration = TextDecoration.Underline,
+                color = Color.Blue,
+                modifier = Modifier.clickable( onClick = {navHostController.navigate(NavigationItem.Register.route)})
+            )
             Spacer(modifier = Modifier.height(20.dp))
             Button(
                 onClick = {}, //TODO Save

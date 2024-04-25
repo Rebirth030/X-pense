@@ -10,27 +10,28 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.xpense_app.MainActivity
+import androidx.navigation.NavHostController
 import com.example.xpense_app.controller.services.UserService
 import com.example.xpense_app.model.User
+import com.example.xpense_app.navigation.NavigationItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Base64
 
+// optional TODO: Add good encryption
+// optional TODO: Add error handling
+// optional TODO: Make fields required or optional
+
 @Composable
-fun CreateRegister() {
+fun CreateRegister(navController: NavHostController) {
     Surface {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -39,7 +40,7 @@ fun CreateRegister() {
                 .fillMaxSize()
                 .padding(horizontal = 30.dp)
         ) {
-            RegisterForm()
+            RegisterForm(navController)
         }
     }
 }
@@ -49,9 +50,9 @@ fun CreateRegister() {
  * with a button to submit the form
  */
 @Composable
-fun RegisterForm() {
+fun RegisterForm(navController: NavHostController) {
     val email = createTextField("email")
-    val prename = createTextField("prename")
+    val firstname = createTextField("firstname")
     val lastname = createTextField("lastname")
     val country = "Deutschland"
     val language = "DE"
@@ -60,14 +61,25 @@ fun RegisterForm() {
     val repeatPassword = createPasswordField()
     val context = LocalContext.current
 
-    Spacer(modifier = Modifier.height(10.dp))
-    LabeledCheckbox()
     Spacer(modifier = Modifier.height(20.dp))
     Button(
-        onClick = { submitAction(prename, lastname, email, username, password, repeatPassword, country, language, context) },
+        onClick = {
+            submitAction(
+                firstname,
+                lastname,
+                email,
+                username,
+                password,
+                repeatPassword,
+                country,
+                language,
+                context,
+                navController
+            )
+        },
         shape = RoundedCornerShape(5.dp),
         modifier = Modifier.fillMaxWidth()
-    ){
+    ) {
         Text("Register")
     }
 }
@@ -75,9 +87,9 @@ fun RegisterForm() {
 /**
  * Submits the form to the server
  * and navigates to the login page if successful
-  */
+ */
 fun submitAction(
-    prename: MutableState<String>,
+    firstname: MutableState<String>,
     lastname: MutableState<String>,
     email: MutableState<String>,
     username: MutableState<String>,
@@ -85,17 +97,17 @@ fun submitAction(
     repeatPassword: MutableState<String>,
     country: String,
     language: String,
-    context: Context
+    context: Context,
+    navController: NavHostController
 ) {
     if (password.value != repeatPassword.value) {
         Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
         return
     }
-    // TODO: Add good encryption
     val encoder = Base64.getEncoder()
     val user = User(
         id = null,
-        prename = prename.value,
+        prename = firstname.value,
         lastname = lastname.value,
         email = email.value,
         username = username.value,
@@ -109,8 +121,21 @@ fun submitAction(
         val userService = UserService()
         userService.registerUser(
             user = user,
-            onSuccess = { user -> /* TODO: Navigate to login */ Toast.makeText(context, "Registry Successful", Toast.LENGTH_SHORT).show()},
-            onError = { exception -> /* TODO: Implement better exception handling */ Toast.makeText(context, exception.message, Toast.LENGTH_SHORT).show()})
+            onSuccess = {
+                withContext(Dispatchers.Main) {
+                    navController.navigate(NavigationItem.Login.route)
+                }
+            },
+            onError = {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "An Error has occurred while creating a user!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        )
     }
 }
 

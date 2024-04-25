@@ -39,6 +39,7 @@ import com.example.xpense_app.view.timer.view_model.TimerViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +59,7 @@ fun NavGraph(context: Context, timerViewModel: TimerViewModel) {
                 // Drawer content goes here
 
                // CreateNavigationItem(NavigationItem.Login.name, coroutineScope, drawerState, navController, NavigationItem.Login, selectedNavItem)
-               // CreateNavigationItem(NavigationItem.Register.name, coroutineScope, drawerState, navController, NavigationItem.Register, selectedNavItem)
+                CreateNavigationItem(NavigationItem.Register.name, coroutineScope, drawerState, navController, NavigationItem.Register, selectedNavItem)
                 CreateNavigationItem(NavigationItem.Timer.name, coroutineScope, drawerState, navController, NavigationItem.Timer, selectedNavItem)
                 CreateNavigationItem(NavigationItem.Profiles.name, coroutineScope, drawerState, navController, NavigationItem.Profiles, selectedNavItem)
                 CreateNavigationItem(NavigationItem.Manual.name, coroutineScope, drawerState, navController, NavigationItem.Manual, selectedNavItem)
@@ -72,8 +73,8 @@ fun NavGraph(context: Context, timerViewModel: TimerViewModel) {
                     }
             })
         }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
-            composable(NavigationItem.Login.route) { LoginForm() }
-            composable(NavigationItem.Register.route) { CreateRegister() }
+            composable(NavigationItem.Login.route) { LoginForm(navController) }
+            composable(NavigationItem.Register.route) { CreateRegister(navController) }
             composable(NavigationItem.Timer.route) { Timer(timerViewModel) }
             composable(NavigationItem.Profiles.route) {  }
             composable(NavigationItem.Manual.route) {  }
