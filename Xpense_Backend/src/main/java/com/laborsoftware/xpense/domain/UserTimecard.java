@@ -1,10 +1,6 @@
 package com.laborsoftware.xpense.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
-import java.util.Set;
 
 @Entity
 @Table(name = "user_timecard")

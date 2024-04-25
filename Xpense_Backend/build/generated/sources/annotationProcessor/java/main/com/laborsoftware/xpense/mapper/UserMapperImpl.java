@@ -1,39 +1,95 @@
 package com.laborsoftware.xpense.mapper;
 
-import com.laborsoftware.xpense.domain.User;
+import com.laborsoftware.xpense.domain.ApplicationUser;
+import com.laborsoftware.xpense.domain.UserTimecard;
 import com.laborsoftware.xpense.domain.dto.UserDTO;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-04-09T13:36:14+0200",
+    date = "2024-04-25T16:16:19+0200",
     comments = "version: 1.5.5.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-8.6.jar, environment: Java 21.0.1 (Oracle Corporation)"
 )
 @Component
 public class UserMapperImpl implements UserMapper {
 
     @Override
-    public User toEntity(UserDTO userDTO) {
+    public ApplicationUser toEntity(UserDTO userDTO) {
         if ( userDTO == null ) {
             return null;
         }
 
-        User user = new User();
+        ApplicationUser applicationUser = new ApplicationUser();
 
-        user.setId( userDTO.getId() );
-        user.setPrename( userDTO.getPrename() );
-        user.setLastname( userDTO.getLastname() );
-        user.seteMail( userDTO.geteMail() );
-        user.setUsername( userDTO.getUsername() );
-        user.setPassword( userDTO.getPassword() );
-        user.setCountry( userDTO.getCountry() );
-        user.setLanguage( userDTO.getLanguage() );
-        user.setWeeklyWorkingHour( userDTO.getWeeklyWorkingHour() );
-        user.setHolidayWorkingSchedule( userDTO.getHolidayWorkingSchedule() );
-        user.setUserTimecard( userDTO.getUserTimecard() );
-        user.setSuperior( userDTO.getSuperior() );
+        applicationUser.setUserTimecard( userDTOToUserTimecard( userDTO ) );
+        applicationUser.setId( userDTO.getId() );
+        applicationUser.setPrename( userDTO.getPrename() );
+        applicationUser.setLastname( userDTO.getLastname() );
+        applicationUser.seteMail( userDTO.geteMail() );
+        applicationUser.setUsername( userDTO.getUsername() );
+        applicationUser.setPassword( userDTO.getPassword() );
+        applicationUser.setCountry( userDTO.getCountry() );
+        applicationUser.setLanguage( userDTO.getLanguage() );
+        applicationUser.setWeeklyWorkingHour( userDTO.getWeeklyWorkingHour() );
+        applicationUser.setHolidayWorkingSchedule( userDTO.getHolidayWorkingSchedule() );
+        applicationUser.setRole( userDTO.getRole() );
+        applicationUser.setToken( userDTO.getToken() );
+        applicationUser.setTokenExpirationDate( userDTO.getTokenExpirationDate() );
 
-        return user;
+        return applicationUser;
+    }
+
+    @Override
+    public UserDTO toDto(ApplicationUser applicationUser) {
+        if ( applicationUser == null ) {
+            return null;
+        }
+
+        UserDTO userDTO = new UserDTO();
+
+        userDTO.setUserTimecardId( applicationUserUserTimecardId( applicationUser ) );
+        userDTO.setId( applicationUser.getId() );
+        userDTO.setPrename( applicationUser.getPrename() );
+        userDTO.setLastname( applicationUser.getLastname() );
+        userDTO.seteMail( applicationUser.geteMail() );
+        userDTO.setUsername( applicationUser.getUsername() );
+        userDTO.setPassword( applicationUser.getPassword() );
+        userDTO.setLanguage( applicationUser.getLanguage() );
+        userDTO.setHolidayWorkingSchedule( applicationUser.getHolidayWorkingSchedule() );
+        userDTO.setCountry( applicationUser.getCountry() );
+        userDTO.setWeeklyWorkingHour( applicationUser.getWeeklyWorkingHour() );
+        userDTO.setRole( applicationUser.getRole() );
+        userDTO.setToken( applicationUser.getToken() );
+        userDTO.setTokenExpirationDate( applicationUser.getTokenExpirationDate() );
+
+        return userDTO;
+    }
+
+    protected UserTimecard userDTOToUserTimecard(UserDTO userDTO) {
+        if ( userDTO == null ) {
+            return null;
+        }
+
+        UserTimecard userTimecard = new UserTimecard();
+
+        userTimecard.setId( userDTO.getUserTimecardId() );
+
+        return userTimecard;
+    }
+
+    private Long applicationUserUserTimecardId(ApplicationUser applicationUser) {
+        if ( applicationUser == null ) {
+            return null;
+        }
+        UserTimecard userTimecard = applicationUser.getUserTimecard();
+        if ( userTimecard == null ) {
+            return null;
+        }
+        Long id = userTimecard.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
     }
 }

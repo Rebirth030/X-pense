@@ -1,7 +1,6 @@
 package com.laborsoftware.xpense.domain;
 
 import com.laborsoftware.xpense.domain.enumeration.ExpenseState;
-import com.laborsoftware.xpense.service.ExpenseService;
 import jakarta.persistence.*;
 
 import java.time.ZonedDateTime;

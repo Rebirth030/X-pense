@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.cors.CorsConfiguration;
@@ -16,7 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = LiquibaseAutoConfiguration.class)
+
 public class XPenseApplication {
 	private static final Logger logger = LoggerFactory.getLogger(XPenseApplication.class);
 	private static final List<String> requiredOptions = Arrays.asList("dbUrl", "dbUser", "dbPwd");

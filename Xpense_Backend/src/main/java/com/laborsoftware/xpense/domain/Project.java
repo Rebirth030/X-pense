@@ -10,23 +10,19 @@ public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
     private String name;
-
-    @Column(name = "description")
     private String description;
 
     // just date ?
-    @Column(name = "release_date")
+
     private ZonedDateTime releaseDate;
 
-    @Column(name = "expected_expense")
+
     private Double expectedExpense;
 
-    @Column(name = "current_expense")
+
     private Double currentExpense;
 
     /*
@@ -36,11 +32,9 @@ public class Project {
      */
 
     @ManyToOne()
-    @JoinColumn(name = "company_id")
     private Company company;
 
     @ManyToOne()
-    @JoinColumn(name = "user_id")
     private ApplicationUser applicationUser;
 
     public Long getId() {

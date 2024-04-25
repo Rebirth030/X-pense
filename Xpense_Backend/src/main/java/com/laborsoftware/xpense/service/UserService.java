@@ -5,7 +5,6 @@ import com.laborsoftware.xpense.domain.UserTimecard;
 import com.laborsoftware.xpense.domain.dto.UserDTO;
 import com.laborsoftware.xpense.domain.dto.UserTimecardDTO;
 import com.laborsoftware.xpense.domain.enumeration.ApplicationUserRole;
-import com.laborsoftware.xpense.exceptions.DuplicateEmailException;
 import com.laborsoftware.xpense.exceptions.ResourceNotFoundException;
 import com.laborsoftware.xpense.mapper.UserMapper;
 import com.laborsoftware.xpense.mapper.UserTimecardMapper;

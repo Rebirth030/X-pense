@@ -2,6 +2,11 @@ package com.laborsoftware.xpense.domain;
 
 import com.laborsoftware.xpense.domain.enumeration.ApplicationUserRole;
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Date;
 
 @Entity
 @Table(name = "application_user")
@@ -9,49 +14,32 @@ public class ApplicationUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "prename")
+    //region Properties
     private String prename;
-
-    @Column(name = "lastname")
     private String lastname;
-
-    @Column(name = "e_mail")
     private String eMail;
-
-    @Column(name = "username")
+    @Column(unique = true)
     private String username;
-
-    @Column(name = "password")
     private String password;
-
-    @Column(name = "country")
     private String country;
-
-    @Column(name = "language")
     private String language;
-
-    @Column(name = "weekly_working_hour")
     private Double weeklyWorkingHour;
-
-    @Column(name = "holiday_working_schedule")
     private Double holidayWorkingSchedule;
-
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_timecard_id", referencedColumnName = "id")
     private UserTimecard userTimecard;
-
     @ManyToOne
-    @JoinColumn(name = "superior_id")
     private ApplicationUser superior;
-
     @Enumerated(EnumType.STRING)
     private ApplicationUserRole role;
+    private String token;
+    private Date tokenExpirationDate;
 
     // role - enum ? string : FREELANCER, EMPLOYEE, (STUDENT JOB)
+    //endregion
 
+    //region Getter and Setter
     public Long getId() {
         return id;
     }
@@ -88,9 +76,11 @@ public class ApplicationUser {
         return username;
     }
 
+
     public void setUsername(String username) {
         this.username = username;
     }
+
 
     public String getPassword() {
         return password;
@@ -154,5 +144,50 @@ public class ApplicationUser {
 
     public void setRole(ApplicationUserRole role) {
         this.role = role;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Date getTokenExpirationDate() {
+        return tokenExpirationDate;
+    }
+
+    public void setTokenExpirationDate(Date tokenExpirationDate) {
+        this.tokenExpirationDate = tokenExpirationDate;
+    }
+    //endregion
+
+
+
+    //TODO: implement Methods and Properties from UserDetails
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
     }
 }
