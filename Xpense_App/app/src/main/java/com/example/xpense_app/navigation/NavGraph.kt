@@ -2,11 +2,13 @@ package com.example.xpense_app.navigation
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.DrawerState
@@ -22,9 +24,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -43,18 +50,21 @@ fun NavGraph(context: Context) {
     val navController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
+    val selectedNavItem = remember {
+        mutableStateOf<NavigationItem?>(null)
+    }
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = true,
         drawerContent = {
             ModalDrawerSheet {
                 // Drawer content goes here
-                CreateNavigationItem("Login", coroutineScope, drawerState, navController, NavigationItem.Login)
-                CreateNavigationItem("Register", coroutineScope, drawerState, navController, NavigationItem.Register)
-                CreateNavigationItem("Timer", coroutineScope, drawerState, navController, NavigationItem.Home)
-                CreateNavigationItem("Profiles", coroutineScope, drawerState, navController, NavigationItem.Profiles)
-                CreateNavigationItem("Manual Booking", coroutineScope, drawerState, navController, NavigationItem.Manual)
+
+               // CreateNavigationItem("Login", coroutineScope, drawerState, navController, NavigationItem.Login, selectedNavItem)
+               // CreateNavigationItem("Register", coroutineScope, drawerState, navController, NavigationItem.Register, selectedNavItem)
+                CreateNavigationItem("Timer", coroutineScope, drawerState, navController, NavigationItem.Home, selectedNavItem)
+                CreateNavigationItem("Profiles", coroutineScope, drawerState, navController, NavigationItem.Profiles, selectedNavItem)
+                CreateNavigationItem("Manual Booking", coroutineScope, drawerState, navController, NavigationItem.Manual, selectedNavItem)
             }
         }
     ) {
@@ -80,12 +90,27 @@ private fun CreateNavigationItem(
     coroutineScope: CoroutineScope,
     drawerState: DrawerState,
     navController: NavHostController,
-    navRoute: NavigationItem
+    navRoute: NavigationItem,
+    selectedNavItem: MutableState<NavigationItem?>
 ) {
+    val isSelected = selectedNavItem.value == navRoute
+
+    val itemColor = when {
+        isSelected -> Color.LightGray
+        else -> Color.White
+    }
+
+    Box(
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .padding(horizontal = 8.dp)
+            .background(itemColor, shape = RoundedCornerShape(26.dp))
+    ) {
     NavigationDrawerItem(
         label = { Text(text = text) },
-        selected = false,
+        selected = isSelected,
         onClick = {
+            selectedNavItem.value = navRoute
             coroutineScope.launch {
                 drawerState.close()
             }
@@ -94,4 +119,4 @@ private fun CreateNavigationItem(
             }
         }
     )
-}
+}}
