@@ -1,6 +1,8 @@
 package com.example.xpense_app.view.login
 
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,15 +11,23 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.xpense_app.controller.services.UserService
+import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.NavigationItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.*
 
 
 @Composable
-fun LoginForm(navHostController: NavHostController) {
+fun LoginForm(navHostController: NavHostController, user: MutableState<User>) {
     Surface {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -28,8 +38,7 @@ fun LoginForm(navHostController: NavHostController) {
         ) {
             var username = createTextField(fieldName = "username")
             var password = createPasswordField()
-            Spacer(modifier = Modifier.height(10.dp))
-            LabeledCheckbox()
+            val context = LocalContext.current
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 "Registrieren",
@@ -39,7 +48,7 @@ fun LoginForm(navHostController: NavHostController) {
             )
             Spacer(modifier = Modifier.height(20.dp))
             Button(
-                onClick = {}, //TODO Save
+                onClick = { loginAction(username.value, password.value, navHostController, context, user) },
                 enabled = true,
                 shape = RoundedCornerShape(5.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -47,6 +56,44 @@ fun LoginForm(navHostController: NavHostController) {
                 Text("Login")
             }
         }
+    }
+}
+
+/**
+ * Submits the form to the server
+ * and navigates to the login page if successful
+ */
+fun loginAction(
+    username: String,
+    password: String,
+    navController: NavHostController,
+    context: Context,
+    userResult: MutableState<User>,
+) {
+    val encoder = Base64.getEncoder()
+    CoroutineScope(Dispatchers.IO).launch {
+        val userService = UserService()
+        userService.loginUser(
+            user = User(
+                username = username,
+                password = String(encoder.encode(password.toByteArray()))
+            ),
+            onSuccess = {user ->
+                withContext(Dispatchers.Main) {
+                    navController.navigate(NavigationItem.Register.route)
+                    userResult.value = user
+                }
+            },
+            onError = {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "An Error has occurred while login!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        )
     }
 }
 

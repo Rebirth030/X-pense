@@ -1,7 +1,6 @@
 package com.laborsoftware.xpense.domain;
 
 import com.laborsoftware.xpense.domain.enumeration.ExpenseState;
-import com.laborsoftware.xpense.service.ExpenseService;
 import jakarta.persistence.*;
 
 import java.time.ZonedDateTime;
@@ -12,30 +11,24 @@ public class Expense {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
     private Long id;
 
     // description
 
-    @Column(name = "start_date_time")
     private ZonedDateTime startDateTime;
 
-    @Column(name = "end_date_time")
     private ZonedDateTime endDateTime;
 
     @Enumerated(EnumType.STRING)
     private ExpenseState state;
 
     @ManyToOne()
-    @JoinColumn(name = "user_id")
     private ApplicationUser applicationUser;
 
     @ManyToOne()
-    @JoinColumn(name = "project_id")
     private Project project;
 
     @ManyToOne()
-    @JoinColumn(name = "weekly_timecard_id")
     private WeeklyTimecard weeklyTimecard;
 
 

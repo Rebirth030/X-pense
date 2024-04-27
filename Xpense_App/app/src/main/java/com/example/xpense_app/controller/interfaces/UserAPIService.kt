@@ -22,11 +22,14 @@ interface UserAPIService {
     @GET("users")
     suspend fun getUsers(): Response<List<User>>
 
-    @POST("users")
+    @POST("/auth/signup")
     suspend fun registerUser(@Body user: User): User
 
     @PUT("users/{id}")
     suspend fun updateUser(@Path("id") id: Int, @Body user: User): User
+
+    @POST("/auth/login")
+    suspend fun loginUser(@Body user: User): User
 
     /*
     @DELETE("expenses/{id}")

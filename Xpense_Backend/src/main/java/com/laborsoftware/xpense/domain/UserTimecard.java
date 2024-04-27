@@ -1,10 +1,6 @@
 package com.laborsoftware.xpense.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
-import java.util.Set;
 
 @Entity
 @Table(name = "user_timecard")
@@ -12,16 +8,12 @@ public class UserTimecard {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "weekly_working_hours")
     private Double weeklyWorkingHours;
 
-    @Column(name = "balance")
     private Double balance;
 
-    @Column(name = "user_balance")
     private Double userBalance;
 /*
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "userTimecard")

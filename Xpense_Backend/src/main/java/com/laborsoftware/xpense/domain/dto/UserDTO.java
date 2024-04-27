@@ -2,6 +2,8 @@ package com.laborsoftware.xpense.domain.dto;
 
 import com.laborsoftware.xpense.domain.enumeration.ApplicationUserRole;
 
+import java.util.Date;
+
 public class UserDTO {
     private Long id;
 
@@ -26,6 +28,9 @@ public class UserDTO {
     private Long userTimecardId;
 
     private Long superiorId;
+
+    private String token;
+    private Date tokenExpirationDate;
 
     private ApplicationUserRole role;
 
@@ -131,5 +136,21 @@ public class UserDTO {
 
     public void setRole(ApplicationUserRole role) {
         this.role = role;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Date getTokenExpirationDate() {
+        return tokenExpirationDate;
+    }
+
+    public void setTokenExpirationDate(Date tokenExpirationDate) {
+        this.tokenExpirationDate = tokenExpirationDate;
     }
 }

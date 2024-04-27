@@ -1,0 +1,111 @@
+package com.laborsoftware.xpense.mapper;
+
+import com.laborsoftware.xpense.domain.ApplicationUser;
+import com.laborsoftware.xpense.domain.Company;
+import com.laborsoftware.xpense.domain.Project;
+import com.laborsoftware.xpense.domain.dto.ProjectDTO;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2024-04-25T15:43:36+0200",
+    comments = "version: 1.5.5.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-8.6.jar, environment: Java 21.0.1 (Oracle Corporation)"
+)
+@Component
+public class ProjectMapperImpl implements ProjectMapper {
+
+    @Override
+    public Project toEntity(ProjectDTO projectDTO) {
+        if ( projectDTO == null ) {
+            return null;
+        }
+
+        Project project = new Project();
+
+        project.setCompany( projectDTOToCompany( projectDTO ) );
+        project.setUser( projectDTOToApplicationUser( projectDTO ) );
+        project.setId( projectDTO.getId() );
+        project.setName( projectDTO.getName() );
+        project.setDescription( projectDTO.getDescription() );
+        project.setReleaseDate( projectDTO.getReleaseDate() );
+        project.setExpectedExpense( projectDTO.getExpectedExpense() );
+        project.setCurrentExpense( projectDTO.getCurrentExpense() );
+
+        return project;
+    }
+
+    @Override
+    public ProjectDTO toDto(Project project) {
+        if ( project == null ) {
+            return null;
+        }
+
+        ProjectDTO projectDTO = new ProjectDTO();
+
+        projectDTO.setCompanyId( projectCompanyId( project ) );
+        projectDTO.setUserId( projectUserId( project ) );
+        projectDTO.setId( project.getId() );
+        projectDTO.setName( project.getName() );
+        projectDTO.setDescription( project.getDescription() );
+        projectDTO.setReleaseDate( project.getReleaseDate() );
+        projectDTO.setExpectedExpense( project.getExpectedExpense() );
+        projectDTO.setCurrentExpense( project.getCurrentExpense() );
+
+        return projectDTO;
+    }
+
+    protected Company projectDTOToCompany(ProjectDTO projectDTO) {
+        if ( projectDTO == null ) {
+            return null;
+        }
+
+        Company company = new Company();
+
+        company.setId( projectDTO.getCompanyId() );
+
+        return company;
+    }
+
+    protected ApplicationUser projectDTOToApplicationUser(ProjectDTO projectDTO) {
+        if ( projectDTO == null ) {
+            return null;
+        }
+
+        ApplicationUser applicationUser = new ApplicationUser();
+
+        applicationUser.setId( projectDTO.getUserId() );
+
+        return applicationUser;
+    }
+
+    private Long projectCompanyId(Project project) {
+        if ( project == null ) {
+            return null;
+        }
+        Company company = project.getCompany();
+        if ( company == null ) {
+            return null;
+        }
+        Long id = company.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+
+    private Long projectUserId(Project project) {
+        if ( project == null ) {
+            return null;
+        }
+        ApplicationUser user = project.getUser();
+        if ( user == null ) {
+            return null;
+        }
+        Long id = user.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+}

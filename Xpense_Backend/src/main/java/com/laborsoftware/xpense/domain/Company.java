@@ -8,13 +8,13 @@ public class Company {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+
     private Long id;
 
-    @Column(name = "name")
+
     private String name;
 
-    @Column(name = "address")
+
     private String address;
 
     /*
@@ -24,7 +24,7 @@ public class Company {
      */
 
     @ManyToOne()
-    @JoinColumn(name = "user_id")
+
     private ApplicationUser applicationUser;
 
     public Long getId() {

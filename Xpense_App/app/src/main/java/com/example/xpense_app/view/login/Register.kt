@@ -2,6 +2,7 @@ package com.example.xpense_app.view.login
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +15,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.xpense_app.controller.services.UserService
@@ -61,6 +64,13 @@ fun RegisterForm(navController: NavHostController) {
     val repeatPassword = createPasswordField()
     val context = LocalContext.current
 
+    Spacer(modifier = Modifier.height(20.dp))
+    Text(
+        "Registrieren",
+        textDecoration = TextDecoration.Underline,
+        color = Color.Blue,
+        modifier = Modifier.clickable( onClick = {navController.navigate(NavigationItem.Login.route)})
+    )
     Spacer(modifier = Modifier.height(20.dp))
     Button(
         onClick = {

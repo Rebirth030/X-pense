@@ -10,30 +10,21 @@ public class WeeklyTimecard {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "start_date_time")
     private ZonedDateTime startDateTime;
 
-    @Column(name = "end_date_time")
     private ZonedDateTime endDateTime;
 
-    @Column(name = "calendar_week")
     private Integer calendarWeek;
 
-    @Column(name = "weekly_working_hours")
     private Double weeklyWorkingHours;
-
-    @Column(name = "weekly_balance")
     private Double weeklyBalance;
 
     @ManyToOne()
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private ApplicationUser applicationUser;
 
     @ManyToOne()
-    @JoinColumn(name = "user_timecard_id", referencedColumnName = "id")
     private UserTimecard userTimecard;
 
     public Long getId() {

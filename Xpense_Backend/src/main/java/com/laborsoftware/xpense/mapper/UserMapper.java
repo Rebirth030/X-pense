@@ -12,4 +12,6 @@ public interface UserMapper {
 
     @Mapping(source = "userTimecard.id", target = "userTimecardId")
     UserDTO toDto(ApplicationUser applicationUser);
+
+
 }
