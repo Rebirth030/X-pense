@@ -22,6 +22,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -31,14 +32,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.xpense_app.model.User
 import com.example.xpense_app.view.timer.Timer
 import com.example.xpense_app.view.login.CreateRegister
 import com.example.xpense_app.view.login.LoginForm
 import com.example.xpense_app.view.timer.view_model.TimerViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,7 +52,8 @@ fun NavGraph(context: Context, timerViewModel: TimerViewModel) {
     val selectedNavItem = remember {
         mutableStateOf<NavigationItem?>(null)
     }
-    val title = getTitle(selectedNavItem.value)
+    val title = getTitle(navController)
+    val currentUser = remember { mutableStateOf(User(password = "", username = "")) }
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = true,
@@ -73,7 +76,7 @@ fun NavGraph(context: Context, timerViewModel: TimerViewModel) {
                     }
             })
         }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
-            composable(NavigationItem.Login.route) { LoginForm(navController) }
+            composable(NavigationItem.Login.route) { LoginForm(navController, currentUser) }
             composable(NavigationItem.Register.route) { CreateRegister(navController) }
             composable(NavigationItem.Timer.route) { Timer(timerViewModel) }
             composable(NavigationItem.Profiles.route) {  }
@@ -120,6 +123,12 @@ private fun CreateNavigationItem(
 }}
 
 @Composable
-private fun getTitle(selectedNavItem: NavigationItem?): String {
-    return selectedNavItem?.name ?: "Default Title"
+private fun getTitle(navHostController: NavHostController): String {
+    val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    try {
+        return NavigationItem.fromRoute(currentRoute ?: NavigationItem.Login.route).name
+    } catch (e: IllegalArgumentException) {
+        return "Title not found"
+    }
 }

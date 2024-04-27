@@ -22,5 +22,17 @@ sealed class NavigationItem(val route: String, val name:String) {
     data object Profiles : NavigationItem(Screen.PROFILES.name, "Profiles")
     data object Manual : NavigationItem(Screen.MANUAL.name, "Manual Booking")
 
+    companion object {
+        fun fromRoute(route: String): NavigationItem {
+            return when(route) {
+                Screen.TIMER.name -> Timer
+                Screen.LOGIN.name -> Login
+                Screen.REGISTER.name -> Register
+                Screen.PROFILES.name -> Profiles
+                Screen.MANUAL.name -> Manual
+                else -> throw IllegalArgumentException("Route $route not found")
+            }
+        }
+    }
 
 }
