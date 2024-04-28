@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.xpense_app.controller.services.UserService
+import com.example.xpense_app.controller.services.AuthenticationService
 import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.NavigationItem
 import kotlinx.coroutines.CoroutineScope
@@ -66,10 +66,10 @@ fun RegisterForm(navController: NavHostController) {
 
     Spacer(modifier = Modifier.height(20.dp))
     Text(
-        "Registrieren",
+        "Login",
         textDecoration = TextDecoration.Underline,
         color = Color.Blue,
-        modifier = Modifier.clickable( onClick = {navController.navigate(NavigationItem.Login.route)})
+        modifier = Modifier.clickable(onClick = { navController.navigate(NavigationItem.Login.route) })
     )
     Spacer(modifier = Modifier.height(20.dp))
     Button(
@@ -127,25 +127,25 @@ fun submitAction(
         weeklyWorkingHours = null,
         holidayWorkingSchedule = null
     )
-    CoroutineScope(Dispatchers.IO).launch {
-        val userService = UserService()
-        userService.registerUser(
-            user = user,
-            onSuccess = {
-                withContext(Dispatchers.Main) {
-                    navController.navigate(NavigationItem.Login.route)
-                }
-            },
-            onError = {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        "An Error has occurred while creating a user!",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+
+    AuthenticationService.registerUser(
+        user = user,
+        onSuccess = {
+            withContext(Dispatchers.Main) {
+                navController.navigate(NavigationItem.Login.route)
             }
-        )
-    }
+        },
+        onError = { e ->
+            e.printStackTrace()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    "An Error has occurred while creating a user!",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    )
+
 }
 
