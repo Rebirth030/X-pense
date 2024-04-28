@@ -1,6 +1,7 @@
 package com.example.xpense_app.controller.services
 
 import Expense
+import com.example.xpense_app.controller.RetrofitInstance
 import com.example.xpense_app.controller.service.ExpenseAPIService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -8,22 +9,41 @@ import kotlinx.coroutines.launch
 
 
 class ExpenseService {
-    private var _expenses = mutableListOf<Expense>()
+    companion object {
+        private val apiService =
+            RetrofitInstance.getAPIService(ExpenseAPIService::class) as ExpenseAPIService
 
+        fun getExpenses(
+            token: String,
+            onSuccess: suspend (List<Expense>) -> Unit,
+            onError: suspend (Exception) -> Unit
+        ) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val response = apiService.getExpenses(token)
+                    println(response.body())
+                    onSuccess(response.body().orEmpty())
+                } catch (e: Exception) {
+                    onError(e)
+                }
+            }
+        }
+    }
+/*
     fun saveExpense(
         expense: Expense,
         onSuccess: (Expense) -> Unit,
         onError: (Exception) -> Unit
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            val apiService = ExpenseAPIService.getInstance()
+
             try {
                 val response = if (expense.id == null) {
                     apiService.createExpense(expense)
                 } else {
                     apiService.updateExpense(expense.id, expense)
                 }
-                val expense = Expense(
+                val returnExpense = Expense(
                     response.id,
                     response.startDateTime,
                     response.endDateTime,
@@ -32,7 +52,7 @@ class ExpenseService {
                     response.userId,
                     response.weeklyTimecardId
                 )
-                onSuccess(expense)
+                onSuccess(returnExpense)
             } catch (e: Exception) {
                 onError(e)
             }
@@ -45,7 +65,6 @@ class ExpenseService {
         onError: (Exception) -> Unit
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            val apiService = ExpenseAPIService.getInstance()
             try {
                 val response = apiService.getExpenses()
                 System.out.println(response)
@@ -64,7 +83,6 @@ class ExpenseService {
         onError: (Exception) -> Unit
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            val apiService = ExpenseAPIService.getInstance()
             try {
                 val response = apiService.getExpensesOfProject(id)
                 onSuccess(response)
@@ -73,4 +91,6 @@ class ExpenseService {
             }
         }
     }
+
+ */
 }

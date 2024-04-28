@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextDecoration
 
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.xpense_app.controller.services.AuthenticationService
 import com.example.xpense_app.controller.services.UserService
 import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.NavigationItem
@@ -44,15 +45,23 @@ fun LoginForm(navHostController: NavHostController, user: MutableState<User>) {
                 "Registrieren",
                 textDecoration = TextDecoration.Underline,
                 color = Color.Blue,
-                modifier = Modifier.clickable( onClick = {navHostController.navigate(NavigationItem.Register.route)})
+                modifier = Modifier.clickable(onClick = { navHostController.navigate(NavigationItem.Register.route) })
             )
             Spacer(modifier = Modifier.height(20.dp))
             Button(
-                onClick = { loginAction(username.value, password.value, navHostController, context, user) },
+                onClick = {
+                    loginAction(
+                        username.value,
+                        password.value,
+                        navHostController,
+                        context,
+                        user
+                    )
+                },
                 enabled = true,
                 shape = RoundedCornerShape(5.dp),
                 modifier = Modifier.fillMaxWidth()
-            ){
+            ) {
                 Text("Login")
             }
         }
@@ -71,30 +80,29 @@ fun loginAction(
     userResult: MutableState<User>,
 ) {
     val encoder = Base64.getEncoder()
-    CoroutineScope(Dispatchers.IO).launch {
-        val userService = UserService()
-        userService.loginUser(
-            user = User(
-                username = username,
-                password = String(encoder.encode(password.toByteArray()))
-            ),
-            onSuccess = {user ->
-                withContext(Dispatchers.Main) {
-                    navController.navigate(NavigationItem.Register.route)
-                    userResult.value = user
-                }
-            },
-            onError = {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        "An Error has occurred while login!",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+    val authenticationService = AuthenticationService()
+    authenticationService.loginUser(
+        user = User(
+            username = username,
+            password = String(encoder.encode(password.toByteArray()))
+        ),
+        onSuccess = { user ->
+            withContext(Dispatchers.Main) {
+                navController.navigate(NavigationItem.Overview.route)
+                userResult.value = user
+                userResult.value.token = "Bearer " + user.token
             }
-        )
-    }
+        },
+        onError = {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    "An Error has occurred while login!",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    )
 }
 
 
