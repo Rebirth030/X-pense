@@ -128,8 +128,7 @@ fun submitAction(
         holidayWorkingSchedule = null
     )
 
-    val authService = AuthenticationService()
-    authService.registerUser(
+    AuthenticationService.registerUser(
         user = user,
         onSuccess = {
             withContext(Dispatchers.Main) {

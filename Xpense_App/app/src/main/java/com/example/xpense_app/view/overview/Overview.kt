@@ -4,6 +4,7 @@ import Expense
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -78,7 +79,11 @@ fun CreateOverview(user: User, navController: NavController, padding: PaddingVal
         ) {
             val context = LocalContext.current
             GetExpenses(user, expenses, context)
-            Schedule(expenses = expenses.value, startDate = currentStartOfWeek.value, endDate = currentEndOfWeek.value)
+            Schedule(
+                expenses = expenses.value,
+                startDate = currentStartOfWeek.value,
+                endDate = currentEndOfWeek.value
+            )
         }
     }
 }
@@ -103,6 +108,33 @@ fun GetExpenses(user: User, expenses: MutableState<List<Expense>>, context: Cont
 }
 
 @Composable
+fun Schedule(
+    expenses: List<Expense>,
+    startDate: LocalDateTime,
+    endDate: LocalDateTime,
+    modifier: Modifier = Modifier
+) {
+    val verticalScrollState = rememberScrollState()
+    val horizontalScrollState = rememberScrollState()
+    Column(modifier = modifier) {
+        ScheduleHeader(
+            startDate = startDate,
+            endDate = endDate,
+            modifier = Modifier.horizontalScroll(horizontalScrollState)
+        )
+        DailySchedule(
+            expenses = expenses,
+            startDate = startDate,
+            endDate = endDate,
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(verticalScrollState)
+                .horizontalScroll(horizontalScrollState)
+        )
+    }
+}
+
+@Composable
 fun BasicDayHeader(
     day: LocalDateTime,
     modifier: Modifier = Modifier,
@@ -121,7 +153,7 @@ fun ScheduleHeader(
     startDate: LocalDateTime,
     endDate: LocalDateTime,
     modifier: Modifier = Modifier,
-    days: Int = 5,
+    days: Int = 7,
     dayHeader: @Composable (day: LocalDateTime) -> Unit = { BasicDayHeader(day = it) },
 ) {
     Row(modifier = modifier) {
@@ -134,7 +166,7 @@ fun ScheduleHeader(
 }
 
 @Composable
-fun Schedule(
+fun DailySchedule(
     expenses: List<Expense>,
     modifier: Modifier = Modifier,
     expenseCard: @Composable (expense: Expense) -> Unit = { ExpenseCard(expense = it) },
@@ -149,9 +181,10 @@ fun Schedule(
                 }
             }
         },
-        modifier = modifier.verticalScroll(rememberScrollState()),
+        modifier = modifier,
     ) { measureables, constraints ->
         val height = HOUR_HEIGT.roundToPx() * 24
+        val width = DAY_WIDTH.roundToPx() * 7
         val placeables = measureables.map { measurable ->
             val expense = measurable.parentData as Expense
             val startDateTime = parseDateTime(expense.startDateTime)
@@ -161,18 +194,22 @@ fun Schedule(
             val placeable = measurable.measure(
                 constraints.copy(
                     minHeight = expenseHeight,
-                    maxHeight = expenseHeight
+                    maxHeight = expenseHeight,
+                    minWidth = DAY_WIDTH.roundToPx(),
+                    maxWidth = DAY_WIDTH.roundToPx()
                 )
             )
             Pair(placeable, expense)
         }
-        layout(constraints.maxWidth, height) {
+        layout(width, height) {
             placeables.forEach { (placeable, expense) ->
                 val startDateTime = parseDateTime(expense.startDateTime)
                 val expenseOffsetMinutes =
                     ChronoUnit.MINUTES.between(LocalTime.MIN, startDateTime.toLocalTime())
                 val expenseY = ((expenseOffsetMinutes / 60f) * HOUR_HEIGT.toPx()).roundToInt()
-                placeable.place(0, expenseY)
+                val expenseOffSetDays = ChronoUnit.DAYS.between(startDate, startDateTime)
+                val expenseX = expenseOffSetDays * DAY_WIDTH.roundToPx()
+                placeable.place(expenseX.toInt(), expenseY)
             }
         }
     }

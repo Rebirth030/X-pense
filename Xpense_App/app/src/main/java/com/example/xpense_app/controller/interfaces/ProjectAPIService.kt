@@ -15,8 +15,6 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 
-//const val BASE_URL_API = "http://10.0.2.2:8080/"
-
 interface ProjectAPIService: APIService {
 
 

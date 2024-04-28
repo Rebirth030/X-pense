@@ -80,8 +80,7 @@ fun loginAction(
     userResult: MutableState<User>,
 ) {
     val encoder = Base64.getEncoder()
-    val authenticationService = AuthenticationService()
-    authenticationService.loginUser(
+    AuthenticationService.loginUser(
         user = User(
             username = username,
             password = String(encoder.encode(password.toByteArray()))
