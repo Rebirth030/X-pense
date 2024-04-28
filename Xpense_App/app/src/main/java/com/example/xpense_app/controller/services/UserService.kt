@@ -11,35 +11,5 @@ import kotlinx.coroutines.launch
 
 class UserService {
 
-    fun registerUser(
-        user: User,
-        onSuccess: suspend (User) -> Unit,
-        onError: suspend (Exception) -> Unit
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val apiService = UserAPIService.getInstance()
-            try {
-                apiService.registerUser(user)
-                onSuccess(user)
-            } catch (e: Exception) {
-                onError(e)
-            }
-        }
-    }
 
-    fun loginUser(
-        user: User,
-        onSuccess: suspend (User) -> Unit,
-        onError: suspend (Exception) -> Unit
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val apiService = UserAPIService.getInstance()
-            try {
-                apiService.loginUser(user)
-                onSuccess(user)
-            } catch (e: Exception) {
-                onError(e)
-            }
-        }
-    }
 }

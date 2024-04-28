@@ -9,45 +9,25 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 
-//const val BASE_URL_API = "http://10.0.2.2:8080/"
-
-interface ProjectAPIService {
+interface ProjectAPIService: APIService {
 
 
     @GET("projects")
     suspend fun getProjects(): Response<List<Project>>
 
     @POST("projects")
-    suspend fun createExpense(@Body project: Project): Project
+    suspend fun createExpense(@Header("Authorization") token: String, @Body project: Project): Project
 
     @PUT("projects/{id}")
-    suspend fun updateExpense(@Path("id") id: Int, @Body project: Project): Project
+    suspend fun updateExpense(@Header("Authorization") token: String, @Path("id") id: Int, @Body project: Project): Project
 
     @DELETE("projects/{id}")
-    suspend fun deleteExpense(@Path("id") id: Int): Response<Unit>
+    suspend fun deleteExpense(@Header("Authorization") token: String, @Path("id") id: Int): Response<Unit>
 
-    /**
-     * Creates API Service Calls
-     */
-    companion object {
-        private val json = GsonBuilder()
-            .setLenient()
-            .create()
-
-        var apiService: ProjectAPIService? = null
-        fun getInstance(): ProjectAPIService {
-            if (apiService == null) {
-                apiService = Retrofit.Builder()
-                    .baseUrl(BASE_URL_API)
-                    .addConverterFactory(GsonConverterFactory.create(json))
-                    .build().create(ProjectAPIService::class.java)
-            }
-            return apiService!!
-        }
-    }
 }
