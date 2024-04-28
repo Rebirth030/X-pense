@@ -76,12 +76,12 @@ fun NavGraph(context: Context, timerViewModel: TimerViewModel) {
                         Icon(Icons.Rounded.Menu, contentDescription = "Menu", modifier = Modifier.padding(horizontal = 8.dp))
                     }
             })
-        }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Manual.route) {
+        }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
             composable(NavigationItem.Login.route) { LoginForm(navController, currentUser) }
             composable(NavigationItem.Register.route) { CreateRegister(navController) }
             composable(NavigationItem.Timer.route) { Timer(timerViewModel) }
             composable(NavigationItem.Profiles.route) {  }
-            composable(NavigationItem.Manual.route) { AddExpense() }
+            composable(NavigationItem.Manual.route) { AddExpense(navController, user = currentUser) }
         }})
     }
 }

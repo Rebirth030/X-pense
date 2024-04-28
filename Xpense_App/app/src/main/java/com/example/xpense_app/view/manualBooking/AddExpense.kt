@@ -3,14 +3,20 @@ package com.example.xpense_app.view.manualBooking
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,10 +32,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.xpense_app.model.User
 import java.text.ParseException
 import java.util.Date
 import java.text.SimpleDateFormat
@@ -37,7 +46,7 @@ import java.text.SimpleDateFormat
 
 @Composable
 @ExperimentalMaterial3Api
-fun AddExpense() {
+fun AddExpense(navController: NavController, user: MutableState<User>) {
 
 
     var date by remember {
@@ -76,18 +85,28 @@ fun AddExpense() {
     }
 
     if (showStartBreakPicker) {
-        TimeDialog(time = breakStartTime, onDismiss = { showStartBreakPicker = false
-            showEndBreakePicker = true }, title = "Break Start Time")
+        TimeDialog(time = breakStartTime, onDismiss = {
+            showStartBreakPicker = false
+            showEndBreakePicker = true
+        }, title = "Break Start Time")
     }
     if (showEndBreakePicker) {
-        TimeDialog(time = breakEndTime, onDismiss = { showEndBreakePicker = false }, title = "Break End Time")
+        TimeDialog(
+            time = breakEndTime,
+            onDismiss = { showEndBreakePicker = false },
+            title = "Break End Time"
+        )
     }
 
     if (showDatePicker) {
         DateDialog(onDateSelected = { date = it }, onDismiss = { showDatePicker = false })
     }
     if (showStartTimePicker) {
-        TimeDialog(time = startTime, onDismiss = { showStartTimePicker = false }, title = "Start Time")
+        TimeDialog(
+            time = startTime,
+            onDismiss = { showStartTimePicker = false },
+            title = "Start Time"
+        )
     }
     if (showEndTimePicker) {
         TimeDialog(time = endTime, onDismiss = { showEndTimePicker = false }, title = "End Time")
@@ -118,10 +137,11 @@ fun AddExpense() {
                 modifier = Modifier
                     .padding(top = 16.dp, start = 16.dp, end = 16.dp)
                     .fillMaxWidth()
-                    .clickable { showStartTimePicker = true }
+                    .clickable { showStartTimePicker = true },
+                colors = CardDefaults.cardColors(containerColor = Color.LightGray)
             ) {
                 Text(
-                    text = "Start Time: ${convertTo12HourFormat(startTime)}",
+                    text = "Start Time: ${convertTo12HourFormat(startTime.value)}",
                     style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(16.dp)
                 )
@@ -136,10 +156,11 @@ fun AddExpense() {
                         bottom = 16.dp
                     ) // Reduzierter Abstand nach oben
                     .fillMaxWidth()
-                    .clickable { showEndTimePicker = true }
+                    .clickable { showEndTimePicker = true },
+                colors = CardDefaults.cardColors(containerColor = Color.LightGray)
             ) {
                 Text(
-                    text = "End Time: ${convertTo12HourFormat(endTime)}",
+                    text = "End Time: ${convertTo12HourFormat(endTime.value)}",
                     style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(16.dp)
                 )
@@ -153,20 +174,58 @@ fun AddExpense() {
             })
             if (breakStartTime.value.hour != breakEndTime.value.hour || breakStartTime.value.minute != breakEndTime.value.minute) {
                 BreakTimeField(
-                    startTime = breakStartTime,
-                    endTime = breakEndTime
+                    startTime = breakStartTime.value,
+                    endTime = breakEndTime.value
                 )
             }
-            Button(onClick = { saveExpense(date, startTime.value, endTime.value, breakStartTime.value, breakEndTime.value) }) {
-                Text(text = "Save")
-            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    onClick = {
+                        saveExpense(
+                            date,
+                            startTime.value,
+                            endTime.value,
+                            breakStartTime.value,
+                            breakEndTime.value
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                    modifier = Modifier
+                        .height(IntrinsicSize.Min)
+                ) {
+                    Text(
+                        text = "Save",
+                        )
+                }
+                Button(
+                    onClick = { navController.popBackStack() },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                    modifier = Modifier
 
+                        .height(IntrinsicSize.Min)
+                ) {
+                    Text(
+                        text = "Cancel",
+                        )
+                }
+            }
         }
 
     }
 }
 
-fun saveExpense(date: String, startTime: Time, endTime: Time, breakStartTime: Time, breakEndTime: Time) {
+fun saveExpense(
+    date: String,
+    startTime: Time,
+    endTime: Time,
+    breakStartTime: Time,
+    breakEndTime: Time
+) {
     if (isValidDate(date)) {
         // Führen Sie hier den Code aus, der ausgeführt werden soll, wenn das Datum gültig ist
     } else {
@@ -175,16 +234,19 @@ fun saveExpense(date: String, startTime: Time, endTime: Time, breakStartTime: Ti
 }
 
 
-
-
 @Composable
 @ExperimentalMaterial3Api
 fun BreakTimeField(
-    startTime: MutableState<Time>,
-    endTime: MutableState<Time>
+    startTime: Time,
+    endTime: Time
 ) {
 
-    val breakTime = remember { mutableStateOf("Break: " + convertTo12HourFormat(startTime) + " - " + convertTo12HourFormat(endTime))
+    val breakTime = remember {
+        mutableStateOf(
+            "Break: " + convertTo12HourFormat(startTime) + " - " + convertTo12HourFormat(
+                endTime
+            )
+        )
     }
     OutlinedTextField(
         value = breakTime.value,
@@ -195,23 +257,20 @@ fun BreakTimeField(
 }
 
 
-
-
 fun getCurrentDate(): String {
     val formatter = SimpleDateFormat.getDateInstance()
     return formatter.format(Date())
 }
 
 
-
-fun convertTo12HourFormat(time: MutableState<Time>): String {
-    return if (time.value.is24hour) {
-        String.format("%02d:%02d", time.value.hour, time.value.minute)
+fun convertTo12HourFormat(time: Time): String {
+    return if (time.is24hour) {
+        String.format("%02d:%02d", time.hour, time.minute)
     } else {
         val hourIn12Format =
-            if (time.value.hour > 12) time.value.hour - 12 else if (time.value.hour == 0) 12 else time.value.hour
-        val period = if (time.value.hour >= 12) "PM" else "AM"
-        String.format("%02d:%02d %s", hourIn12Format, time.value.minute, period)
+            if (time.hour > 12) time.hour - 12 else if (time.hour == 0) 12 else time.hour
+        val period = if (time.hour >= 12) "PM" else "AM"
+        String.format("%02d:%02d %s", hourIn12Format, time.minute, period)
     }
 }
 
