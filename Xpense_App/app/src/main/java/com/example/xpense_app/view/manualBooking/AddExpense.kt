@@ -1,5 +1,8 @@
 package com.example.xpense_app.view.manualBooking
 
+import Expense
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +18,6 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -23,8 +25,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,25 +36,43 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.xpense_app.controller.services.ExpenseService
+import com.example.xpense_app.controller.services.ProjectService
+import com.example.xpense_app.model.Project
 import com.example.xpense_app.model.User
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.text.ParseException
 import java.util.Date
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 @Composable
 @ExperimentalMaterial3Api
 fun AddExpense(navController: NavController, user: MutableState<User>) {
 
-
+    //region variables
     var date by remember {
         mutableStateOf(getCurrentDate())
     }
+    var description by remember{
+        mutableStateOf("")
+    }
+    var selectedProject by remember {
+        mutableStateOf<Project?>(null)
+    }
+    val projects = remember {
+        mutableStateOf<List<Project>>(listOf())
+    }
+
     var showDatePicker by remember {
         mutableStateOf(false)
     }
@@ -83,7 +104,9 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
     val breakEndTime = remember {
         mutableStateOf(Time(12, 0))
     }
-
+    val context = LocalContext.current
+    //endregion
+    //region openDialogs
     if (showStartBreakPicker) {
         TimeDialog(time = breakStartTime, onDismiss = {
             showStartBreakPicker = false
@@ -111,7 +134,15 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
     if (showEndTimePicker) {
         TimeDialog(time = endTime, onDismiss = { showEndTimePicker = false }, title = "End Time")
     }
+    //endregion
 
+    LaunchedEffect(key1 = Unit) {
+        ProjectService.getProjects(
+            token = user.value.token,
+            onSuccess = { projects.value = it },
+            onError = { withContext(Dispatchers.Main) {Toast.makeText(context, "Error loading projects", Toast.LENGTH_SHORT).show()}}
+        )
+    }
 
     Surface {
         Column(
@@ -178,6 +209,12 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                     endTime = breakEndTime.value
                 )
             }
+            TextField(
+                value = description,
+                onValueChange = { description = it },
+                label = { Text("Description") },
+                modifier = Modifier.padding(16.dp)
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -187,11 +224,14 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                 Button(
                     onClick = {
                         saveExpense(
+                            context,
                             date,
                             startTime.value,
                             endTime.value,
                             breakStartTime.value,
-                            breakEndTime.value
+                            breakEndTime.value,
+                            description,
+                            user.value
                         )
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
@@ -200,7 +240,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                 ) {
                     Text(
                         text = "Save",
-                        )
+                    )
                 }
                 Button(
                     onClick = { navController.popBackStack() },
@@ -211,7 +251,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                 ) {
                     Text(
                         text = "Cancel",
-                        )
+                    )
                 }
             }
         }
@@ -220,17 +260,65 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
 }
 
 fun saveExpense(
+    context: Context,
     date: String,
     startTime: Time,
     endTime: Time,
     breakStartTime: Time,
-    breakEndTime: Time
+    breakEndTime: Time,
+    description: String,
+    user: User
 ) {
     if (isValidDate(date)) {
-        // Führen Sie hier den Code aus, der ausgeführt werden soll, wenn das Datum gültig ist
-    } else {
+        if (breakStartTime.hour != breakEndTime.hour || breakStartTime.minute != breakEndTime.minute) {
+            //Vor der Pause
+            createExpense(context, date, startTime, breakStartTime, description, user)
+            //Nach der Pause
+            createExpense(context, date, breakEndTime, endTime ,description, user)
 
+        } else {
+            createExpense(context, date, startTime, endTime, description, user)
+        }
+
+    } else {
+        Toast.makeText(
+            context,
+            "Invalid date format. Please enter a valid date in the format dd.mm.yyyy",
+            Toast.LENGTH_SHORT
+        ).show()
     }
+}
+
+private fun createExpense(
+    context: Context,
+    date: String,
+    startTime: Time,
+    endTime: Time,
+    description: String,
+    user: User
+) {
+    ExpenseService.createExpense(expense = Expense(
+        id = null,
+        startDateTime = LocalDateTime.parse(date).plusHours(startTime.hour.toLong())
+            .plusMinutes(startTime.minute.toLong()).format(
+                DateTimeFormatter.ISO_DATE_TIME
+            ),
+        endDateTime = LocalDateTime.parse(date).plusHours(endTime.hour.toLong())
+            .plusMinutes(endTime.minute.toLong()).format(
+                DateTimeFormatter.ISO_DATE_TIME
+            ),
+        state = null,
+        userId = user.id,
+        projectId = null,
+        weeklyTimecardId = null,
+        description = description
+    ),
+        token = user.token,
+        onSuccess = { Toast.makeText(context, "Expense saved", Toast.LENGTH_SHORT).show() },
+        onError = {
+            Toast.makeText(context, "Error saving expense", Toast.LENGTH_SHORT).show()
+
+        })
 }
 
 

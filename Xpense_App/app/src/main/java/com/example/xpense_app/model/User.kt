@@ -3,7 +3,7 @@ package com.example.xpense_app.model
 import com.google.gson.annotations.SerializedName
 
 data class User (
-    @SerializedName("id") val id: Int? = null,
+    @SerializedName("id") val id: Long? = null,
     @SerializedName("prename") val prename: String = "",
     @SerializedName("lastname") val lastname: String = "",
     @SerializedName("email") val email: String = "",

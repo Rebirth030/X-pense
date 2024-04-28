@@ -21,6 +21,9 @@ interface ProjectAPIService: APIService {
     @GET("projects")
     suspend fun getProjects(): Response<List<Project>>
 
+    @GET("projects")
+    suspend fun getProjects(@Header("Authorization") token: String): Response<List<Project>>
+
     @POST("projects")
     suspend fun createExpense(@Header("Authorization") token: String, @Body project: Project): Project
 

@@ -36,6 +36,24 @@ class ProjectService {
             }
         }
     }
+    companion object {
+        private val apiService = RetrofitInstance.getAPIService(ProjectAPIService::class) as ProjectAPIService
+
+        fun getProjects(
+            token: String,
+            onSuccess: suspend (List<Project>) -> Unit,
+            onError: suspend (Exception) -> Unit
+        ) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val response = apiService.getProjects(token)
+                    onSuccess(response.body().orEmpty())
+                } catch (e: Exception) {
+                    onError(e)
+                }
+            }
+        }
+    }
 
 
 }
