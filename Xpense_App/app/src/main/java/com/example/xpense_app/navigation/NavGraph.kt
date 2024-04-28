@@ -38,6 +38,7 @@ import com.example.xpense_app.model.User
 import com.example.xpense_app.view.timer.Timer
 import com.example.xpense_app.view.login.CreateRegister
 import com.example.xpense_app.view.login.LoginForm
+import com.example.xpense_app.view.manualBooking.AddExpense
 import com.example.xpense_app.view.timer.view_model.TimerViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -75,12 +76,12 @@ fun NavGraph(context: Context, timerViewModel: TimerViewModel) {
                         Icon(Icons.Rounded.Menu, contentDescription = "Menu", modifier = Modifier.padding(horizontal = 8.dp))
                     }
             })
-        }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
+        }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Manual.route) {
             composable(NavigationItem.Login.route) { LoginForm(navController, currentUser) }
             composable(NavigationItem.Register.route) { CreateRegister(navController) }
             composable(NavigationItem.Timer.route) { Timer(timerViewModel) }
             composable(NavigationItem.Profiles.route) {  }
-            composable(NavigationItem.Manual.route) {  }
+            composable(NavigationItem.Manual.route) { AddExpense() }
         }})
     }
 }
