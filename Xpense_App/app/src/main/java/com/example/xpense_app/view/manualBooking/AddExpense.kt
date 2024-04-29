@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.xpense_app.model.User
+import com.example.xpense_app.navigation.AppViewModel
 import java.text.ParseException
 import java.util.Date
 import java.text.SimpleDateFormat
@@ -47,7 +48,6 @@ import java.text.SimpleDateFormat
 @Composable
 @ExperimentalMaterial3Api
 fun AddExpense(navController: NavController, user: MutableState<User>) {
-
 
     var date by remember {
         mutableStateOf(getCurrentDate())
