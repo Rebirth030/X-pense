@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -59,6 +60,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import kotlin.math.exp
 import kotlin.math.roundToInt
 
 const val EXPENSE_TIME_FORMAT = "dd.MM.yyyy HH:mm"
@@ -136,7 +138,7 @@ fun Schedule(
     startTime: LocalTime = LocalTime.MIN,
     endTime: LocalTime = LocalTime.MAX
 ) {
-    val sidebarWidth by remember { mutableStateOf(0) }
+    val sidebarWidth by remember { mutableIntStateOf(0) }
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
     Column(modifier = modifier) {
@@ -362,21 +364,21 @@ fun ExpenseCard(expense: Expense, modifier: Modifier = Modifier) {
         ) {
             // TODO : Make prettier maybe get Project instead of only id
             Text(
-                text = parseDateTime(expense.startDateTime).format(
+                text = "Startzeit: ${parseDateTime(expense.startDateTime).format(
                     DateTimeFormatter.ofPattern(
                         EXPENSE_TIME_FORMAT
                     )
-                )
+                )}"
             )
             Text(
-                text = parseDateTime(expense.endDateTime).format(
+                text = "Endzeit: ${parseDateTime(expense.endDateTime).format(
                     DateTimeFormatter.ofPattern(
                         EXPENSE_TIME_FORMAT
                     )
-                )
+                )}"
             )
-            Text(text = expense.description)
-            Text(text = expense.projectId.toString())
+            Text(text = "Beschreibung: ${expense.description.orEmpty()}")
+            Text(text = "Projektnummer: ${expense.projectId.toString()}")
         }
     }
 }

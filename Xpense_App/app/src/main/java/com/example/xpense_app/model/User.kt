@@ -14,5 +14,5 @@ data class User (
     @SerializedName("weeklyWorkingHours") val weeklyWorkingHours: Int? = null,
     @SerializedName("holidayWorkingSchedule") val holidayWorkingSchedule: Int? = null,
     @SerializedName("role") val role: String = "EMPLOYEE",
-    @SerializedName("token") var token: String = ""
+    @SerializedName("token") var token: String = "",
 )
