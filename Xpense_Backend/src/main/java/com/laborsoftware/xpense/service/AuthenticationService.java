@@ -83,7 +83,7 @@ public class AuthenticationService {
     @PostMapping("/login")
     public ResponseEntity<UserDTO> authenticate(@RequestBody UserDTO loginUserDto) {
         ApplicationUser authenticatedUser = this.login(loginUserDto);
-        if (authenticatedUser.getTokenExpirationDate().isAfter(LocalDateTime.now())) {
+        if (authenticatedUser.getTokenExpirationDate() == null || authenticatedUser.getTokenExpirationDate().isAfter(LocalDateTime.now())) {
             String jwtToken = jwtService.generateToken(authenticatedUser);
             authenticatedUser.setToken(jwtToken);
             authenticatedUser.setTokenExpirationDate(LocalDateTime.ofInstant(new Date().toInstant(), ZoneId.systemDefault()).plusSeconds(jwtService.getExpirationTime()));
