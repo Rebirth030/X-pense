@@ -21,14 +21,30 @@ class ExpenseService {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val response = apiService.getExpenses(token)
-                    println(response.body())
                     onSuccess(response.body().orEmpty())
                 } catch (e: Exception) {
                     onError(e)
                 }
             }
         }
+        fun createExpense(
+            expense: Expense,
+            token: String,
+            onSuccess: suspend (Expense) -> Unit,
+            onError: suspend (Exception) -> Unit
+        ) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val response = apiService.createExpense(token, expense)
+                    onSuccess(response)
+                } catch (e: Exception) {
+                    onError(e)
+                }
+            }
+
+        }
     }
+
 /*
     fun saveExpense(
         expense: Expense,
