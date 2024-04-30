@@ -8,5 +8,5 @@ data class Expense(
     @SerializedName("userId") val userId: Long?,
     @SerializedName("projectId") val projectId: Long?,
     @SerializedName("weeklyTimecardId") val weeklyTimecardId: Long?,
-    @SerializedName("description") val description: String? = "Test Description"
+    @SerializedName("description") val description: String? = ""
 )

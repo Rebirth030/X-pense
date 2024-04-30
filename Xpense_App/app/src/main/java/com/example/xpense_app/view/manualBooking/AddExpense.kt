@@ -50,16 +50,15 @@ import com.example.xpense_app.controller.services.ExpenseService
 import com.example.xpense_app.controller.services.ProjectService
 import com.example.xpense_app.model.Project
 import com.example.xpense_app.model.User
+import com.example.xpense_app.navigation.NavigationItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.ZonedDateTime
 import java.text.DateFormat
-import com.example.xpense_app.navigation.AppViewModel
-import java.text.ParseException
-import java.util.Date
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Date
 import java.util.Locale
 
 
@@ -232,17 +231,27 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
             ) {
                 Button(
                     onClick = {
-                        saveExpense(
-                            context,
-                            date,
-                            startTime.value,
-                            endTime.value,
-                            breakStartTime.value,
-                            breakEndTime.value,
-                            description,
-                            user.value,
-                            selectedProject.value
-                        )
+                        if (selectedProject.value.id != null ) { //TODO: Implement weeklyTimecardId validation
+                            if (breakStartTime.value.hour < breakEndTime.value.hour ||
+                                (breakStartTime.value.hour == breakEndTime.value.hour && breakStartTime.value.minute < breakEndTime.value.minute)) {
+                                saveExpense(
+                                    context,
+                                    date,
+                                    startTime.value,
+                                    endTime.value,
+                                    breakStartTime.value,
+                                    breakEndTime.value,
+                                    description,
+                                    user.value,
+                                    selectedProject.value
+                                )
+                                navController.navigate(NavigationItem.Overview.route)
+                            } else {
+                                Toast.makeText(context, "Break start time must be before break end time", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(context, "Please select a project", Toast.LENGTH_SHORT).show()
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                     modifier = Modifier
@@ -253,7 +262,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                     )
                 }
                 Button(
-                    onClick = { navController.popBackStack() },
+                    onClick = { navController.navigate(NavigationItem.Overview.route) },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                     modifier = Modifier
 
@@ -300,15 +309,17 @@ private fun createExpense(
     user: User,
     project: Project
 ) {
-    val startDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+
+    val startDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
         .withHour(startTime.hour)
         .withMinute(startTime.minute)
-        .format(DateTimeFormatter.ISO_DATE_TIME)
+        .format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
 
-    val endDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+
+    val endDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
         .withHour(endTime.hour)
         .withMinute(endTime.minute)
-        .format(DateTimeFormatter.ISO_DATE_TIME)
+        .format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
 
     ExpenseService.createExpense(expense = Expense(
         id = null,
@@ -317,11 +328,11 @@ private fun createExpense(
         state = null,
         userId = user.id,
         projectId = project.id,
-        weeklyTimecardId = null,
+        weeklyTimecardId = 1, //TODO: Implement weeklyTimecardId
         description = description
     ),
         token = user.token,
-        onSuccess = { Toast.makeText(context, "Expense saved", Toast.LENGTH_SHORT).show() },
+        onSuccess = { withContext(Dispatchers.Main) {Toast.makeText(context, "Expense saved", Toast.LENGTH_SHORT).show() }},
         onError = {
             withContext(Dispatchers.Main) {Toast.makeText(context, "Error saving expense", Toast.LENGTH_SHORT).show()}
             it.printStackTrace()
