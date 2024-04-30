@@ -50,16 +50,15 @@ import com.example.xpense_app.controller.services.ExpenseService
 import com.example.xpense_app.controller.services.ProjectService
 import com.example.xpense_app.model.Project
 import com.example.xpense_app.model.User
+import com.example.xpense_app.navigation.NavigationItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.ZonedDateTime
 import java.text.DateFormat
-import com.example.xpense_app.navigation.AppViewModel
-import java.text.ParseException
-import java.util.Date
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Date
 import java.util.Locale
 
 
@@ -72,7 +71,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
     var date by remember {
         mutableStateOf(Date())
     }
-    var description by remember{
+    var description by remember {
         mutableStateOf("")
     }
     val projects = remember {
@@ -148,7 +147,15 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
         ProjectService.getProjects(
             token = user.value.token,
             onSuccess = { projects.addAll(it) },
-            onError = { withContext(Dispatchers.Main) {Toast.makeText(context, "Error loading projects", Toast.LENGTH_SHORT).show()}}
+            onError = {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "Error loading projects",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         )
     }
 
@@ -161,7 +168,8 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                 .padding(horizontal = 30.dp)
         ) {
             OutlinedTextField(
-                value = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault()).format(date),
+                value = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault())
+                    .format(date),
                 onValueChange = {},
                 label = { Text("Date") },
                 readOnly = true,
@@ -217,6 +225,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                     endTime = breakEndTime.value
                 )
             }
+
             DropDown(projects = projects, selectedProject = selectedProject)
             TextField(
                 value = description,
@@ -232,17 +241,33 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
             ) {
                 Button(
                     onClick = {
-                        saveExpense(
-                            context,
-                            date,
-                            startTime.value,
-                            endTime.value,
-                            breakStartTime.value,
-                            breakEndTime.value,
-                            description,
-                            user.value,
-                            selectedProject.value
-                        )
+                        if (selectedProject.value.id != null) { //TODO: Implement weeklyTimecardId validation
+                            if (breakStartTime.value.hour < breakEndTime.value.hour ||
+                                (breakStartTime.value.hour == breakEndTime.value.hour && breakStartTime.value.minute < breakEndTime.value.minute)
+                            ) {
+                                saveExpense(
+                                    context,
+                                    date,
+                                    startTime.value,
+                                    endTime.value,
+                                    breakStartTime.value,
+                                    breakEndTime.value,
+                                    description,
+                                    user.value,
+                                    selectedProject.value
+                                )
+                                navController.navigate(NavigationItem.Overview.route)
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Break start time must be before break end time",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        } else {
+                            Toast.makeText(context, "Please select a project", Toast.LENGTH_SHORT)
+                                .show()
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                     modifier = Modifier
@@ -253,7 +278,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                     )
                 }
                 Button(
-                    onClick = { navController.popBackStack() },
+                    onClick = { navController.navigate(NavigationItem.Overview.route) },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                     modifier = Modifier
 
@@ -280,15 +305,15 @@ fun saveExpense(
     user: User,
     project: Project
 ) {
-        if (breakStartTime.hour != breakEndTime.hour || breakStartTime.minute != breakEndTime.minute) {
-            //Vor der Pause
-            createExpense(context, date, startTime, breakStartTime, description, user, project)
-            //Nach der Pause
-            createExpense(context, date, breakEndTime, endTime ,description, user, project)
+    if (breakStartTime.hour != breakEndTime.hour || breakStartTime.minute != breakEndTime.minute) {
+        //Vor der Pause
+        createExpense(context, date, startTime, breakStartTime, description, user, project)
+        //Nach der Pause
+        createExpense(context, date, breakEndTime, endTime, description, user, project)
 
-        } else {
-            createExpense(context, date, startTime, endTime, description, user, project)
-        }
+    } else {
+        createExpense(context, date, startTime, endTime, description, user, project)
+    }
 }
 
 private fun createExpense(
@@ -300,15 +325,17 @@ private fun createExpense(
     user: User,
     project: Project
 ) {
-    val startDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+
+    val startDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
         .withHour(startTime.hour)
         .withMinute(startTime.minute)
-        .format(DateTimeFormatter.ISO_DATE_TIME)
+        .format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
 
-    val endDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+
+    val endDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
         .withHour(endTime.hour)
         .withMinute(endTime.minute)
-        .format(DateTimeFormatter.ISO_DATE_TIME)
+        .format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
 
     ExpenseService.createExpense(expense = Expense(
         id = null,
@@ -317,13 +344,27 @@ private fun createExpense(
         state = null,
         userId = user.id,
         projectId = project.id,
-        weeklyTimecardId = null,
+        weeklyTimecardId = 1, //TODO: Implement weeklyTimecardId
         description = description
     ),
         token = user.token,
-        onSuccess = { Toast.makeText(context, "Expense saved", Toast.LENGTH_SHORT).show() },
+        onSuccess = {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    "Expense saved",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        },
         onError = {
-            withContext(Dispatchers.Main) {Toast.makeText(context, "Error saving expense", Toast.LENGTH_SHORT).show()}
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    "Error saving expense",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             it.printStackTrace()
         })
 }
@@ -335,16 +376,10 @@ fun BreakTimeField(
     startTime: Time,
     endTime: Time
 ) {
+    val breakTime = "Break: " + convertTo12HourFormat(startTime) + " - " + convertTo12HourFormat(endTime)
 
-    val breakTime = remember {
-        mutableStateOf(
-            "Break: " + convertTo12HourFormat(startTime) + " - " + convertTo12HourFormat(
-                endTime
-            )
-        )
-    }
     OutlinedTextField(
-        value = breakTime.value,
+        value = breakTime,
         onValueChange = {},
         readOnly = true,
         modifier = Modifier.padding(16.dp)
@@ -395,6 +430,7 @@ fun DropDown(
         }
     }
 }
+
 fun convertTo12HourFormat(time: Time): String {
     return if (time.is24hour) {
         String.format("%02d:%02d", time.hour, time.minute)
