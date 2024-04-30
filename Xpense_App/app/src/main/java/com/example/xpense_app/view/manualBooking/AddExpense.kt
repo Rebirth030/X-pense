@@ -5,6 +5,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -19,7 +20,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -48,11 +52,14 @@ import com.example.xpense_app.model.Project
 import com.example.xpense_app.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.text.DateFormat
 import java.text.ParseException
 import java.util.Date
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
 @Composable
@@ -61,18 +68,17 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
 
     //region variables
     var date by remember {
-        mutableStateOf(getCurrentDate())
+        mutableStateOf(Date())
     }
     var description by remember{
         mutableStateOf("")
     }
-    var selectedProject by remember {
-        mutableStateOf<Project?>(null)
-    }
     val projects = remember {
-        mutableStateOf<List<Project>>(listOf())
+        mutableListOf<Project>()
     }
-
+    val selectedProject = remember {
+        mutableStateOf(Project(null, "None", null, null, null, null))
+    }
     var showDatePicker by remember {
         mutableStateOf(false)
     }
@@ -139,7 +145,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
     LaunchedEffect(key1 = Unit) {
         ProjectService.getProjects(
             token = user.value.token,
-            onSuccess = { projects.value = it },
+            onSuccess = { projects.addAll(it) },
             onError = { withContext(Dispatchers.Main) {Toast.makeText(context, "Error loading projects", Toast.LENGTH_SHORT).show()}}
         )
     }
@@ -153,7 +159,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                 .padding(horizontal = 30.dp)
         ) {
             OutlinedTextField(
-                value = date,
+                value = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault()).format(date),
                 onValueChange = {},
                 label = { Text("Date") },
                 readOnly = true,
@@ -209,6 +215,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                     endTime = breakEndTime.value
                 )
             }
+            DropDown(projects = projects, selectedProject = selectedProject)
             TextField(
                 value = description,
                 onValueChange = { description = it },
@@ -231,7 +238,8 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                             breakStartTime.value,
                             breakEndTime.value,
                             description,
-                            user.value
+                            user.value,
+                            selectedProject.value
                         )
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
@@ -261,63 +269,60 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
 
 fun saveExpense(
     context: Context,
-    date: String,
+    date: Date,
     startTime: Time,
     endTime: Time,
     breakStartTime: Time,
     breakEndTime: Time,
     description: String,
-    user: User
+    user: User,
+    project: Project
 ) {
-    if (isValidDate(date)) {
         if (breakStartTime.hour != breakEndTime.hour || breakStartTime.minute != breakEndTime.minute) {
             //Vor der Pause
-            createExpense(context, date, startTime, breakStartTime, description, user)
+            createExpense(context, date, startTime, breakStartTime, description, user, project)
             //Nach der Pause
-            createExpense(context, date, breakEndTime, endTime ,description, user)
+            createExpense(context, date, breakEndTime, endTime ,description, user, project)
 
         } else {
-            createExpense(context, date, startTime, endTime, description, user)
+            createExpense(context, date, startTime, endTime, description, user, project)
         }
-
-    } else {
-        Toast.makeText(
-            context,
-            "Invalid date format. Please enter a valid date in the format dd.mm.yyyy",
-            Toast.LENGTH_SHORT
-        ).show()
-    }
 }
 
 private fun createExpense(
     context: Context,
-    date: String,
+    date: Date,
     startTime: Time,
     endTime: Time,
     description: String,
-    user: User
+    user: User,
+    project: Project
 ) {
+    val startDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+        .withHour(startTime.hour)
+        .withMinute(startTime.minute)
+        .format(DateTimeFormatter.ISO_DATE_TIME)
+
+    val endDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+        .withHour(endTime.hour)
+        .withMinute(endTime.minute)
+        .format(DateTimeFormatter.ISO_DATE_TIME)
+
     ExpenseService.createExpense(expense = Expense(
         id = null,
-        startDateTime = LocalDateTime.parse(date).plusHours(startTime.hour.toLong())
-            .plusMinutes(startTime.minute.toLong()).format(
-                DateTimeFormatter.ISO_DATE_TIME
-            ),
-        endDateTime = LocalDateTime.parse(date).plusHours(endTime.hour.toLong())
-            .plusMinutes(endTime.minute.toLong()).format(
-                DateTimeFormatter.ISO_DATE_TIME
-            ),
+        startDateTime = startDateTime,
+        endDateTime = endDateTime,
         state = null,
         userId = user.id,
-        projectId = null,
+        projectId = project.id,
         weeklyTimecardId = null,
         description = description
     ),
         token = user.token,
         onSuccess = { Toast.makeText(context, "Expense saved", Toast.LENGTH_SHORT).show() },
         onError = {
-            Toast.makeText(context, "Error saving expense", Toast.LENGTH_SHORT).show()
-
+            withContext(Dispatchers.Main) {Toast.makeText(context, "Error saving expense", Toast.LENGTH_SHORT).show()}
+            it.printStackTrace()
         })
 }
 
@@ -344,13 +349,50 @@ fun BreakTimeField(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropDown(
+    projects: List<Project>,
+    selectedProject: MutableState<Project>
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = {
+                expanded = !expanded
+            },
+            modifier = Modifier.align(Alignment.Center)
+        ) {
+            TextField(
+                value = selectedProject.value.name!!,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.menuAnchor()
+            )
 
-fun getCurrentDate(): String {
-    val formatter = SimpleDateFormat.getDateInstance()
-    return formatter.format(Date())
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                projects.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(text = item.name!!) },
+                        onClick = {
+                            selectedProject.value = item
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
 }
-
-
 fun convertTo12HourFormat(time: Time): String {
     return if (time.is24hour) {
         String.format("%02d:%02d", time.hour, time.minute)
@@ -359,17 +401,6 @@ fun convertTo12HourFormat(time: Time): String {
             if (time.hour > 12) time.hour - 12 else if (time.hour == 0) 12 else time.hour
         val period = if (time.hour >= 12) "PM" else "AM"
         String.format("%02d:%02d %s", hourIn12Format, time.minute, period)
-    }
-}
-
-fun isValidDate(date: String): Boolean {
-    return try {
-        val formatter = SimpleDateFormat.getDateInstance()
-        formatter.isLenient = false
-        formatter.parse(date)
-        true
-    } catch (e: ParseException) {
-        false
     }
 }
 

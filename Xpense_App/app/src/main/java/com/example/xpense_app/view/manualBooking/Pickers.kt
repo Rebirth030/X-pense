@@ -1,5 +1,6 @@
 package com.example.xpense_app.view.manualBooking
 
+import android.icu.text.DateFormat
 import android.icu.text.SimpleDateFormat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,21 +33,19 @@ import java.util.Date
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateDialog(
-    onDateSelected: (String) -> Unit,
+    onDateSelected: (Date) -> Unit,
     onDismiss: () -> Unit
 ) {
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = Date().time,
     )
 
-    val selectedDate = datePickerState.selectedDateMillis?.let {
-        convertMillisToDate(it)
-    } ?: ""
 
     DatePickerDialog(
         onDismissRequest = { onDismiss() },
         confirmButton = {
             Button(onClick = {
+                val selectedDate = datePickerState.selectedDateMillis?.let { Date(it) } ?: Date()
                 onDateSelected(selectedDate)
                 onDismiss()
             }
@@ -67,11 +66,6 @@ fun DateDialog(
             state = datePickerState
         )
     }
-}
-
-private fun convertMillisToDate(millis: Long): String {
-    val formatter = SimpleDateFormat.getDateInstance()
-    return formatter.format(Date(millis))
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
