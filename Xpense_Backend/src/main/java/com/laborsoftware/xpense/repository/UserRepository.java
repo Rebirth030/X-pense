@@ -11,4 +11,10 @@ public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
     Optional<ApplicationUser> findByUserTimecardId(Long userTimecardId);
 
     Optional<ApplicationUser> findByUsername(String username);
+
+    Optional<ApplicationUser> findByPassword(String password);
+
+    Optional<ApplicationUser> findByUsernameAndPassword(String username, String password);
+
+    Optional<ApplicationUser> findByToken(String token);
 }

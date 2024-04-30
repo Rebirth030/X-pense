@@ -7,6 +7,7 @@ import com.laborsoftware.xpense.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 @Service
 @Transactional
@@ -45,43 +51,48 @@ public class AuthenticationService {
     public ApplicationUser signup(UserDTO input) {
         input.setPassword(passwordEncoder.encode(input.getPassword()));
         ApplicationUser user = userMapper.toEntity(input);
-
-
         return userRepository.save(user);
     }
 
     public ApplicationUser login(UserDTO input) {
+        UsernamePasswordAuthenticationToken token;
         try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            input.getUsername(),
-                            input.getPassword()
-                    )
+            token = new UsernamePasswordAuthenticationToken(
+                    input.getUsername(),
+                    input.getPassword()
             );
-        } catch (Exception e){
+            authenticationManager.authenticate(
+                    token
+            );
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return userRepository.findByUsername(input.getUsername()).orElseThrow();
+        ApplicationUser user = userRepository.findByUsername(input.getUsername()).get();
+        if(passwordEncoder.matches(input.getPassword(), user.getPassword())) {
+            return user;
+        }
+        throw new BadCredentialsException("Invalid credentials");
     }
 
     @PostMapping("/signup")
     public ResponseEntity<ApplicationUser> register(@RequestBody UserDTO registerUserDto) {
         ApplicationUser registeredUser = this.signup(registerUserDto);
-
         return ResponseEntity.ok(registeredUser);
     }
 
     @PostMapping("/login")
     public ResponseEntity<UserDTO> authenticate(@RequestBody UserDTO loginUserDto) {
         ApplicationUser authenticatedUser = this.login(loginUserDto);
-
-        String jwtToken = jwtService.generateToken(authenticatedUser);
-
-        loginUserDto.setToken(jwtToken);
-        loginUserDto.setTokenExpirationDate(authenticatedUser.getTokenExpirationDate());
-
-        return ResponseEntity.ok(loginUserDto);
+        if (authenticatedUser.getTokenExpirationDate().isAfter(LocalDateTime.now())) {
+            String jwtToken = jwtService.generateToken(authenticatedUser);
+            authenticatedUser.setToken(jwtToken);
+            authenticatedUser.setTokenExpirationDate(LocalDateTime.ofInstant(new Date().toInstant(), ZoneId.systemDefault()).plusSeconds(jwtService.getExpirationTime()));
+            UserDTO responseUserDTO = userMapper.toDto(authenticatedUser);
+            userRepository.save(authenticatedUser);
+            return ResponseEntity.ok(responseUserDTO);
+        } else {
+            return ResponseEntity.ok(userMapper.toDto(authenticatedUser));
+        }
     }
 
 }

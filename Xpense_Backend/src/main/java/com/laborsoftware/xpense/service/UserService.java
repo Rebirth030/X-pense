@@ -55,7 +55,7 @@ public class UserService implements ICrudService<UserDTO, Long> {
 
     @Override
     @PostMapping("/users")
-    public ResponseEntity<UserDTO> save(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> save(@RequestHeader("Authorization") String token,@RequestBody UserDTO userDTO) {
         logger.debug("Request to save User {} ", userDTO);
         try {
 
@@ -86,7 +86,7 @@ public class UserService implements ICrudService<UserDTO, Long> {
 
     @Override
     @PutMapping("/users/{id}")
-    public ResponseEntity<UserDTO> update(@RequestBody UserDTO userDTO, @PathVariable Long id) {
+    public ResponseEntity<UserDTO> update(@RequestHeader("Authorization") String token,@RequestBody UserDTO userDTO, @PathVariable Long id) {
         try {
             Optional<ApplicationUser> optionalUser = userRepository.findById(id);
             if (optionalUser.isPresent()) {
@@ -104,7 +104,7 @@ public class UserService implements ICrudService<UserDTO, Long> {
 
     @Override
     @DeleteMapping("/users/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@RequestHeader("Authorization") String token,@PathVariable Long id) {
         logger.debug("Request to delete User {} ", id);
         try {
             userRepository.deleteById(id);
@@ -116,7 +116,7 @@ public class UserService implements ICrudService<UserDTO, Long> {
 
     @Override
     @GetMapping("/users")
-    public ResponseEntity<List<UserDTO>> findAll() {
+    public ResponseEntity<List<UserDTO>> findAll(@RequestHeader("Authorization") String token) {
         List<ApplicationUser> users = userRepository.findAll();
         List<UserDTO> result = users.stream().map(userMapper::toDto).toList();
         return ResponseEntity.ok().body(result);
@@ -124,7 +124,7 @@ public class UserService implements ICrudService<UserDTO, Long> {
 
     @Override
     @GetMapping("/users/{id}")
-    public ResponseEntity<UserDTO> findOne(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> findOne(@RequestHeader("Authorization") String token,@PathVariable Long id) {
         try {
             Optional<ApplicationUser> optionalApplicationUser = userRepository.findById(id);
             if(optionalApplicationUser.isPresent()) {
