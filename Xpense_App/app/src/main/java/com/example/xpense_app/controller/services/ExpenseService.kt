@@ -36,7 +36,7 @@ class ExpenseService {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val response = apiService.createExpense(token, expense)
-                    onSuccess(response)
+                    onSuccess(response.body()!!)
                 } catch (e: Exception) {
                     onError(e)
                 }
