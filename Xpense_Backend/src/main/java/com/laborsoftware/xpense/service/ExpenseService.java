@@ -6,6 +6,7 @@ import com.laborsoftware.xpense.domain.dto.ProjectDTO;
 import com.laborsoftware.xpense.exceptions.ResourceNotFoundException;
 import com.laborsoftware.xpense.mapper.ExpenseMapper;
 import com.laborsoftware.xpense.repository.ExpenseRepository;
+import com.laborsoftware.xpense.repository.UserRepository;
 import com.laborsoftware.xpense.service.crud.ICrudService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -33,17 +34,21 @@ public class ExpenseService implements ICrudService<ExpenseDTO, Long> {
     @Autowired
     public final ExpenseMapper expenseMapper;
 
+    public final UserRepository userRepository;
+
     public ExpenseService(
             ExpenseRepository expenseRepository,
-            ExpenseMapper expenseMapper
+            ExpenseMapper expenseMapper,
+            UserRepository userRepository
     ) {
         this.expenseRepository = expenseRepository;
         this.expenseMapper = expenseMapper;
+        this.userRepository = userRepository;
     }
 
     @Override
     @PostMapping("/expenses")
-    public ResponseEntity<ExpenseDTO> save(@RequestBody ExpenseDTO expenseDTO) {
+    public ResponseEntity<ExpenseDTO> save(@RequestHeader("Authorization") String token,@RequestBody ExpenseDTO expenseDTO) {
         logger.debug("Request to save Expense {} ", expenseDTO);
         try {
             Expense expense = expenseMapper.toEntity(expenseDTO);
@@ -60,7 +65,7 @@ public class ExpenseService implements ICrudService<ExpenseDTO, Long> {
 
     @Override
     @PutMapping("/expenses/{id}")
-    public ResponseEntity<ExpenseDTO> update(@RequestBody ExpenseDTO expenseDTO, @PathVariable Long id) {
+    public ResponseEntity<ExpenseDTO> update(@RequestHeader("Authorization") String token,@RequestBody ExpenseDTO expenseDTO, @PathVariable Long id) {
         try {
             Optional<Expense> optionalExpense = expenseRepository.findById(id);
             if (optionalExpense.isPresent()) {
@@ -78,7 +83,7 @@ public class ExpenseService implements ICrudService<ExpenseDTO, Long> {
 
     @Override
     @DeleteMapping("/expenses/{id}")
-    public void delete(Long id) {
+    public void delete(@RequestHeader("Authorization") String token, @PathVariable Long id) {
         logger.debug("Request to delete Expense {} ", id);
         try {
             Optional<Expense> expenseToDelete = expenseRepository.findById(id);
@@ -96,16 +101,17 @@ public class ExpenseService implements ICrudService<ExpenseDTO, Long> {
 
     @Override
     @GetMapping("/expenses")
-    public ResponseEntity<List<ExpenseDTO>> findAll() {
+    public ResponseEntity<List<ExpenseDTO>> findAll(@RequestHeader("Authorization") String token){
         logger.debug("Request to get all Expense");
-        List<Expense> expenses = expenseRepository.findAll();
+        String tokenValue = token.split(" ")[1];
+        List<Expense> expenses = expenseRepository.findAllByApplicationUser(userRepository.findByToken(tokenValue).orElseThrow());
         List<ExpenseDTO> result = expenses.stream().map(expenseMapper::toDto).toList();
         return ResponseEntity.ok().body(result);
     }
 
     @Override
     @GetMapping("/expenses/{id}")
-    public ResponseEntity<ExpenseDTO> findOne(Long id) {
+    public ResponseEntity<ExpenseDTO> findOne(@RequestHeader("Authorization") String token, @PathVariable Long id) {
         logger.debug("Request to get all Expense");
         try {
             Optional<Expense> optionalExpense = expenseRepository.findById(id);

@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 
@@ -34,7 +36,7 @@ public class ApplicationUser implements UserDetails {
     @Enumerated(EnumType.STRING)
     private ApplicationUserRole role;
     private String token;
-    private Date tokenExpirationDate;
+    private LocalDateTime tokenExpirationDate;
 
     // role - enum ? string : FREELANCER, EMPLOYEE, (STUDENT JOB)
     //endregion
@@ -154,11 +156,11 @@ public class ApplicationUser implements UserDetails {
         this.token = token;
     }
 
-    public Date getTokenExpirationDate() {
+    public LocalDateTime getTokenExpirationDate() {
         return tokenExpirationDate;
     }
 
-    public void setTokenExpirationDate(Date tokenExpirationDate) {
+    public void setTokenExpirationDate(LocalDateTime tokenExpirationDate) {
         this.tokenExpirationDate = tokenExpirationDate;
     }
     //endregion

@@ -42,7 +42,7 @@ public class ProjectService implements ICrudService<ProjectDTO, Long> {
 
     @Override
     @PostMapping("/projects")
-    public ResponseEntity<ProjectDTO> save(@RequestBody ProjectDTO projectDTO) {
+    public ResponseEntity<ProjectDTO> save(@RequestHeader("Authorization") String token,@RequestBody ProjectDTO projectDTO) {
         logger.debug("Request to save Project {} ", projectDTO);
         try {
             Project project = projectMapper.toEntity(projectDTO);
@@ -58,7 +58,7 @@ public class ProjectService implements ICrudService<ProjectDTO, Long> {
 
     @Override
     @PutMapping("/projects/{id}")
-    public ResponseEntity<ProjectDTO> update(@RequestBody ProjectDTO projectDTO, @PathVariable Long id) {
+    public ResponseEntity<ProjectDTO> update(@RequestHeader("Authorization") String token,@RequestBody ProjectDTO projectDTO, @PathVariable Long id) {
         try {
             Optional<Project> optionalProject = projectRepository.findById(id);
             if(optionalProject.isPresent()) {
@@ -76,7 +76,7 @@ public class ProjectService implements ICrudService<ProjectDTO, Long> {
 
     @Override
     @DeleteMapping("/projects/{id}")
-    public void delete(Long id) {
+    public void delete(@RequestHeader("Authorization") String token,Long id) {
         logger.debug("Request to delete Project {} ", id);
         try {
             Optional<Project> projectToDelete = projectRepository.findById(id);
@@ -94,7 +94,7 @@ public class ProjectService implements ICrudService<ProjectDTO, Long> {
 
     @Override
     @GetMapping("/projects")
-    public ResponseEntity<List<ProjectDTO>> findAll() {
+    public ResponseEntity<List<ProjectDTO>> findAll(@RequestHeader("Authorization") String token) {
         List<Project> projects = projectRepository.findAll();
         List<ProjectDTO> result = projects.stream().map(projectMapper::toDto).toList();
         return ResponseEntity.ok().body(result);
@@ -102,7 +102,7 @@ public class ProjectService implements ICrudService<ProjectDTO, Long> {
 
     @Override
     @GetMapping("/projects/{id}")
-    public ResponseEntity<ProjectDTO> findOne(Long id) {
+    public ResponseEntity<ProjectDTO> findOne(@RequestHeader("Authorization") String token,Long id) {
         try {
             Optional<Project> optionalProject = projectRepository.findById(id);
             if (optionalProject.isPresent()) {

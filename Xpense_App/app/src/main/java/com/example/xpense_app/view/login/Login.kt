@@ -86,24 +86,24 @@ fun loginAction(
     context: Context,
     userResult: MutableState<User>,
 ) {
-    val encoder = Base64.getEncoder()
+
     AuthenticationService.loginUser(
         user = User(
             username = username,
-            password = String(encoder.encode(password.toByteArray()))
+            password = password
         ),
         onSuccess = { user ->
             withContext(Dispatchers.Main) {
-                navController.navigate(NavigationItem.Overview.route)
                 userResult.value = user
                 userResult.value.token = "Bearer " + user.token
+                navController.navigate(NavigationItem.Overview.route)
             }
         },
         onError = {
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     context,
-                    "An Error has occurred while login!",
+                    "An Error has occurred while login!: ${it.message}",
                     Toast.LENGTH_LONG
                 ).show()
             }

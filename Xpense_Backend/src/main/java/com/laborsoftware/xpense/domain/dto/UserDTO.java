@@ -2,6 +2,8 @@ package com.laborsoftware.xpense.domain.dto;
 
 import com.laborsoftware.xpense.domain.enumeration.ApplicationUserRole;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class UserDTO {
@@ -30,7 +32,7 @@ public class UserDTO {
     private Long superiorId;
 
     private String token;
-    private Date tokenExpirationDate;
+    private LocalDateTime tokenExpirationDate;
 
     private ApplicationUserRole role;
 
@@ -146,11 +148,12 @@ public class UserDTO {
         this.token = token;
     }
 
-    public Date getTokenExpirationDate() {
+
+    public LocalDateTime getTokenExpirationDate() {
         return tokenExpirationDate;
     }
 
-    public void setTokenExpirationDate(Date tokenExpirationDate) {
+    public void setTokenExpirationDate(LocalDateTime tokenExpirationDate) {
         this.tokenExpirationDate = tokenExpirationDate;
     }
 }

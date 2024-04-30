@@ -43,7 +43,7 @@ public class CompanyService implements ICrudService<CompanyDTO, Long> {
 
     @Override
     @PostMapping("/companies")
-    public ResponseEntity<CompanyDTO> save(@RequestBody CompanyDTO companyDTO) {
+    public ResponseEntity<CompanyDTO> save(@RequestHeader("Authorization") String token,@RequestBody CompanyDTO companyDTO) {
         logger.debug("Request to save Company {} ", companyDTO);
         try {
             Company company = companyMapper.toEntity(companyDTO);
@@ -59,7 +59,7 @@ public class CompanyService implements ICrudService<CompanyDTO, Long> {
 
     @Override
     @PutMapping("/companies/{id}")
-    public ResponseEntity<CompanyDTO> update(@RequestBody CompanyDTO companyDTO, @PathVariable Long id) {
+    public ResponseEntity<CompanyDTO> update(@RequestHeader("Authorization") String token,@RequestBody CompanyDTO companyDTO, @PathVariable Long id) {
         try {
             Optional<Company> optionalEvent = companyRepository.findById(id);
             if(optionalEvent.isPresent()) {
@@ -76,7 +76,7 @@ public class CompanyService implements ICrudService<CompanyDTO, Long> {
 
     @Override
     @DeleteMapping("/companies/{id}")
-    public void delete(Long id) {
+    public void delete(@RequestHeader("Authorization") String token,Long id) {
         logger.debug("Request to delete ");
         try {
             Optional<Company> companyToDelete = companyRepository.findById(id);
@@ -94,7 +94,7 @@ public class CompanyService implements ICrudService<CompanyDTO, Long> {
 
     @Override
     @GetMapping("/companies")
-    public ResponseEntity<List<CompanyDTO>> findAll() {
+    public ResponseEntity<List<CompanyDTO>> findAll(@RequestHeader("Authorization") String token) {
         logger.debug("Request to get all Companies");
         List<Company> companies = companyRepository.findAll();
         List<CompanyDTO> result = companies.stream().map(companyMapper::toDto).toList();
@@ -103,7 +103,7 @@ public class CompanyService implements ICrudService<CompanyDTO, Long> {
 
     @Override
     @GetMapping("/companies/{id}")
-    public ResponseEntity<CompanyDTO> findOne(Long id) {
+    public ResponseEntity<CompanyDTO> findOne(@RequestHeader("Authorization") String token, Long id) {
         try {
             Optional<Company> optionalCompany  = companyRepository.findById(id);
             if(optionalCompany.isPresent()) {
