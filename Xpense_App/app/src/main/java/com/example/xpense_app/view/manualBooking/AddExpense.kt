@@ -53,6 +53,7 @@ import com.example.xpense_app.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.DateFormat
+import com.example.xpense_app.navigation.AppViewModel
 import java.text.ParseException
 import java.util.Date
 import java.text.SimpleDateFormat
@@ -65,6 +66,7 @@ import java.util.Locale
 @Composable
 @ExperimentalMaterial3Api
 fun AddExpense(navController: NavController, user: MutableState<User>) {
+
 
     //region variables
     var date by remember {

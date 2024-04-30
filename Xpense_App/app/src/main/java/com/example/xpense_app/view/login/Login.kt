@@ -15,20 +15,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.example.xpense_app.controller.services.AuthenticationService
 import com.example.xpense_app.controller.services.UserService
 import com.example.xpense_app.model.User
+import com.example.xpense_app.navigation.AppViewModel
 import com.example.xpense_app.navigation.NavigationItem
+import com.example.xpense_app.view.timer.Timer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 
 
 @Composable
-fun LoginForm(navHostController: NavHostController, user: MutableState<User>) {
+fun LoginForm(navHostController: NavHostController, user: MutableState<User>, appViewModel: AppViewModel) {
     Surface {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -57,6 +62,7 @@ fun LoginForm(navHostController: NavHostController, user: MutableState<User>) {
                         context,
                         user
                     )
+                    appViewModel.setLoggedIn(true)
                 },
                 enabled = true,
                 shape = RoundedCornerShape(5.dp),
@@ -67,6 +73,7 @@ fun LoginForm(navHostController: NavHostController, user: MutableState<User>) {
         }
     }
 }
+
 
 /**
  * Submits the form to the server
@@ -79,24 +86,24 @@ fun loginAction(
     context: Context,
     userResult: MutableState<User>,
 ) {
-    val encoder = Base64.getEncoder()
+
     AuthenticationService.loginUser(
         user = User(
             username = username,
-            password = String(encoder.encode(password.toByteArray()))
+            password = password
         ),
         onSuccess = { user ->
             withContext(Dispatchers.Main) {
-                navController.navigate(NavigationItem.Overview.route)
                 userResult.value = user
                 userResult.value.token = "Bearer " + user.token
+                navController.navigate(NavigationItem.Overview.route)
             }
         },
         onError = {
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     context,
-                    "An Error has occurred while login!",
+                    "An Error has occurred while login!: ${it.message}",
                     Toast.LENGTH_LONG
                 ).show()
             }

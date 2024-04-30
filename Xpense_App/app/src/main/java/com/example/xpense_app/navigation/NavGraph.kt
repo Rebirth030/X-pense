@@ -22,6 +22,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +30,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -47,7 +50,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavGraph(context: Context, timerViewModel: TimerViewModel) {
+fun NavGraph(context: Context, timerViewModel: TimerViewModel, appViewModel: AppViewModel) {
     val navController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -64,23 +67,27 @@ fun NavGraph(context: Context, timerViewModel: TimerViewModel) {
                 // Drawer content goes here
 
                // CreateNavigationItem(NavigationItem.Login.name, coroutineScope, drawerState, navController, NavigationItem.Login, selectedNavItem)
-                CreateNavigationItem(NavigationItem.Register.name, coroutineScope, drawerState, navController, NavigationItem.Register, selectedNavItem)
+                //CreateNavigationItem(NavigationItem.Register.name, coroutineScope, drawerState, navController, NavigationItem.Register, selectedNavItem)
                 CreateNavigationItem(NavigationItem.Timer.name, coroutineScope, drawerState, navController, NavigationItem.Timer, selectedNavItem)
                 CreateNavigationItem(NavigationItem.Profiles.name, coroutineScope, drawerState, navController, NavigationItem.Profiles, selectedNavItem)
                 CreateNavigationItem(NavigationItem.Manual.name, coroutineScope, drawerState, navController, NavigationItem.Manual, selectedNavItem)
+                CreateNavigationItem(NavigationItem.Overview.name, coroutineScope, drawerState, navController, NavigationItem.Manual, selectedNavItem)
             }
         }
     ) {
         Scaffold(topBar = {
+            if(navController.currentDestination?.route != NavigationItem.Login.route && navController.currentDestination?.route != NavigationItem.Register.route){
             TopAppBar(title = { Text(text = title) }, navigationIcon = {
                 IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
                         Icon(Icons.Rounded.Menu, contentDescription = "Menu", modifier = Modifier.padding(horizontal = 8.dp))
                     }
-            })
-        }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
-            composable(NavigationItem.Login.route) { LoginForm(navController, currentUser) }
+            })}
+        }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Timer.route) {
+            composable(NavigationItem.Login.route) { LoginForm(navController, currentUser, appViewModel) }
             composable(NavigationItem.Register.route) { CreateRegister(navController) }
-            composable(NavigationItem.Timer.route) { Timer(timerViewModel) }
+            composable(NavigationItem.Timer.route) { Timer(timerViewModel, onNavigateToLoginScreen = {
+                navController.navigate(NavigationItem.Login.route)
+            }, appViewModel) }
             composable(NavigationItem.Profiles.route) {  }
             composable(NavigationItem.Manual.route) { AddExpense(navController, user = currentUser) }
             composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController, padding)}
@@ -126,6 +133,9 @@ private fun CreateNavigationItem(
     )
 }}
 
+/**
+ * Function to get title of the current screen
+ */
 @Composable
 private fun getTitle(navHostController: NavHostController): String {
     val navBackStackEntry by navHostController.currentBackStackEntryAsState()

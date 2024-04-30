@@ -19,6 +19,8 @@ public class ExpenseDTO {
 
     private Long weeklyTimecardId;
 
+    private String description;
+
     public Long getId() {
         return id;
     }
@@ -74,5 +76,13 @@ public class ExpenseDTO {
 
     public void setWeeklyTimecardId(Long weeklyTimecardId) {
         this.weeklyTimecardId = weeklyTimecardId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

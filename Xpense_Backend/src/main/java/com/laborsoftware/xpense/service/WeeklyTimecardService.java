@@ -44,7 +44,7 @@ public class WeeklyTimecardService implements ICrudService<WeeklyTimecardDTO, Lo
 
     @Override
     @PostMapping("/weekly-timecards")
-    public ResponseEntity<WeeklyTimecardDTO> save(@RequestBody WeeklyTimecardDTO weeklyTimecardDTO) {
+    public ResponseEntity<WeeklyTimecardDTO> save(@RequestHeader("Authorization") String token,@RequestBody WeeklyTimecardDTO weeklyTimecardDTO) {
         logger.debug("Request to save WeeklyTimecard {} ", weeklyTimecardDTO);
         try {
             WeeklyTimecard weeklyTimecard = weeklyTimecardMapper.toEntity(weeklyTimecardDTO);
@@ -60,7 +60,7 @@ public class WeeklyTimecardService implements ICrudService<WeeklyTimecardDTO, Lo
 
     @Override
     @PutMapping("/weekly-timecards/{id}")
-    public ResponseEntity<WeeklyTimecardDTO> update(@RequestBody WeeklyTimecardDTO weeklyTimecardDTO, @PathVariable Long id) {
+    public ResponseEntity<WeeklyTimecardDTO> update(@RequestHeader("Authorization") String token,@RequestBody WeeklyTimecardDTO weeklyTimecardDTO, @PathVariable Long id) {
         try {
             Optional<WeeklyTimecard> optionalWeeklyTimecard = weeklyTimecardRepository.findById(id);
             if (optionalWeeklyTimecard.isPresent()) {
@@ -78,7 +78,7 @@ public class WeeklyTimecardService implements ICrudService<WeeklyTimecardDTO, Lo
 
     @Override
     @DeleteMapping("/weekly-timecards/{id}")
-    public void delete(Long id) {
+    public void delete(@RequestHeader("Authorization") String token,Long id) {
         logger.debug("Request to delete WeeklyTimecard {} ", id);
         try {
             Optional<WeeklyTimecard> optionalWeeklyTimecard = weeklyTimecardRepository.findById(id);
@@ -96,7 +96,7 @@ public class WeeklyTimecardService implements ICrudService<WeeklyTimecardDTO, Lo
 
     @Override
     @GetMapping("/weekly-timecards")
-    public ResponseEntity<List<WeeklyTimecardDTO>> findAll() {
+    public ResponseEntity<List<WeeklyTimecardDTO>> findAll(@RequestHeader("Authorization") String token) {
         List<WeeklyTimecard> weeklyTimecards = weeklyTimecardRepository.findAll();
         List<WeeklyTimecardDTO> result = weeklyTimecards.stream().map(weeklyTimecardMapper::toDto).toList();
         return ResponseEntity.ok().body(result);
@@ -104,7 +104,7 @@ public class WeeklyTimecardService implements ICrudService<WeeklyTimecardDTO, Lo
 
     @Override
     @GetMapping("/weekly-timecards/{id}")
-    public ResponseEntity<WeeklyTimecardDTO> findOne(Long id) {
+    public ResponseEntity<WeeklyTimecardDTO> findOne(@RequestHeader("Authorization") String token, Long id) {
         try {
             Optional<WeeklyTimecard> optionalWeeklyTimecard = weeklyTimecardRepository.findById(id);
             if (optionalWeeklyTimecard.isPresent()) {

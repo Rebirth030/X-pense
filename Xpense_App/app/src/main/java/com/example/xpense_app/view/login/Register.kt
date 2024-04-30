@@ -114,14 +114,13 @@ fun submitAction(
         Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
         return
     }
-    val encoder = Base64.getEncoder()
     val user = User(
         id = null,
         prename = firstname.value,
         lastname = lastname.value,
         email = email.value,
         username = username.value,
-        password = String(encoder.encode(password.value.toByteArray())),
+        password = password.value,
         country = country,
         language = language,
         weeklyWorkingHours = null,

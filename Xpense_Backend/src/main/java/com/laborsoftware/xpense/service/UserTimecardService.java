@@ -43,7 +43,7 @@ public class UserTimecardService implements ICrudService<UserTimecardDTO, Long> 
 
     @Override
     @PostMapping("/user-timecards")
-    public ResponseEntity<UserTimecardDTO> save(@RequestBody UserTimecardDTO userTimecardDTO) {
+    public ResponseEntity<UserTimecardDTO> save(@RequestHeader("Authorization") String token,@RequestBody UserTimecardDTO userTimecardDTO) {
         logger.debug("Request to save UserTimecard {} ", userTimecardDTO);
         try {
             UserTimecard userTimecard = userTimecardMapper.toEntity(userTimecardDTO);
@@ -59,7 +59,7 @@ public class UserTimecardService implements ICrudService<UserTimecardDTO, Long> 
 
     @Override
     @PutMapping("/user-timecards/{id}")
-    public ResponseEntity<UserTimecardDTO> update(@RequestBody UserTimecardDTO userTimecardDTO, @PathVariable Long id) {
+    public ResponseEntity<UserTimecardDTO> update(@RequestHeader("Authorization") String token,@RequestBody UserTimecardDTO userTimecardDTO, @PathVariable Long id) {
         try {
             Optional<UserTimecard> optionalUserTimecard = userTimecardRepository.findById(id);
             if (optionalUserTimecard.isPresent()) {
@@ -80,7 +80,7 @@ public class UserTimecardService implements ICrudService<UserTimecardDTO, Long> 
 
     @Override
     @DeleteMapping("/user-timecards/{id}")
-    public void delete(Long id) {
+    public void delete(@RequestHeader("Authorization") String token,Long id) {
         logger.debug("Request to delete UserTimecard {} ", id);
         try {
             Optional<UserTimecard> optionalUserTimecard = userTimecardRepository.findById(id);
@@ -98,7 +98,7 @@ public class UserTimecardService implements ICrudService<UserTimecardDTO, Long> 
 
     @Override
     @GetMapping("/user-timecards")
-    public ResponseEntity<List<UserTimecardDTO>> findAll() {
+    public ResponseEntity<List<UserTimecardDTO>> findAll(@RequestHeader("Authorization") String token) {
         List<UserTimecard> userTimecards = userTimecardRepository.findAll();
         List<UserTimecardDTO> result = userTimecards.stream().map(userTimecardMapper::toDto).toList();
         return ResponseEntity.ok().body(result);
@@ -106,7 +106,7 @@ public class UserTimecardService implements ICrudService<UserTimecardDTO, Long> 
 
     @Override
     @GetMapping("/user-timecards/{id}")
-    public ResponseEntity<UserTimecardDTO> findOne(Long id) {
+    public ResponseEntity<UserTimecardDTO> findOne(@RequestHeader("Authorization") String token,Long id) {
         try {
             Optional<UserTimecard> optionalUserTimecard = userTimecardRepository.findById(id);
             if (optionalUserTimecard.isPresent()) {

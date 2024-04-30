@@ -31,6 +31,8 @@ public class Expense {
     @ManyToOne()
     private WeeklyTimecard weeklyTimecard;
 
+    private String description;
+
 
     public Long getId() {
         return id;
@@ -86,5 +88,13 @@ public class Expense {
 
     public void setWeeklyTimecard(WeeklyTimecard weeklyTimecard) {
         this.weeklyTimecard = weeklyTimecard;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
