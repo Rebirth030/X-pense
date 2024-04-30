@@ -60,7 +60,6 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import kotlin.math.exp
 import kotlin.math.roundToInt
 
 const val EXPENSE_TIME_FORMAT = "dd.MM.yyyy HH:mm"
