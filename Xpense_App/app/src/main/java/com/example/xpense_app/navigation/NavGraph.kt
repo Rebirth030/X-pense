@@ -126,9 +126,7 @@ private fun CreateNavigationItem(
             coroutineScope.launch {
                 drawerState.close()
             }
-            navController.navigate(navRoute.route) {
-                popUpTo(0)
-            }
+            navController.navigate(navRoute.route)
         }
     )
 }}

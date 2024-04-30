@@ -1,4 +1,4 @@
-package com.example.xpense_app.controller.service
+package com.example.xpense_app.controller.interfaces
 
 import Expense
 import com.example.xpense_app.controller.interfaces.APIService

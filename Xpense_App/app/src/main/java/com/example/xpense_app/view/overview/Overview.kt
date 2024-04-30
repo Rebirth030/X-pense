@@ -60,12 +60,10 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import kotlin.math.exp
 import kotlin.math.roundToInt
 
 const val EXPENSE_TIME_FORMAT = "dd.MM.yyyy HH:mm"
 const val HOUR_FORMAT = "HH:mm"
-val INPUT_DATE_TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME
 val HOUR_HEIGHT = 65.dp
 val DAY_WIDTH = 256.dp
 
@@ -81,7 +79,7 @@ val DAY_WIDTH = 256.dp
 fun CreateOverview(user: User, navController: NavController, padding: PaddingValues) {
     val now = remember { mutableStateOf(LocalDateTime.now()) }
     val expenses = remember { mutableStateOf(listOf<Expense>()) }
-    val currentStartOfWeek = remember { mutableStateOf(now.value.with(DayOfWeek.MONDAY)) }
+    val currentStartOfWeek = remember { mutableStateOf(now.value.with(DayOfWeek.MONDAY).withHour(0).withMinute(0).withSecond(0)) }
 
     Surface {
         Column(

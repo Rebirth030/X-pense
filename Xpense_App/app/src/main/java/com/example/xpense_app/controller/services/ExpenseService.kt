@@ -2,7 +2,7 @@ package com.example.xpense_app.controller.services
 
 import Expense
 import com.example.xpense_app.controller.RetrofitInstance
-import com.example.xpense_app.controller.service.ExpenseAPIService
+import com.example.xpense_app.controller.interfaces.ExpenseAPIService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
