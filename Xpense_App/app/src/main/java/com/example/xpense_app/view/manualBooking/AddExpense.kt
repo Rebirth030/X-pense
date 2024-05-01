@@ -242,31 +242,34 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                 Button(
                     onClick = {
                         if (selectedProject.value.id != null) { //TODO: Implement weeklyTimecardId validation
-                            if (breakStartTime.value.hour < breakEndTime.value.hour ||
-                                (breakStartTime.value.hour == breakEndTime.value.hour && breakStartTime.value.minute < breakEndTime.value.minute)
+                            if (startTime.value.hour < endTime.value.hour ||
+                                (startTime.value.hour == endTime.value.hour && startTime.value.minute < endTime.value.minute)
                             ) {
-                                saveExpense(
-                                    context,
-                                    date,
-                                    startTime.value,
-                                    endTime.value,
-                                    breakStartTime.value,
-                                    breakEndTime.value,
-                                    description,
-                                    user.value,
-                                    selectedProject.value
-                                )
-                                navController.navigate(NavigationItem.Overview.route)
+                                if ((breakStartTime.value.hour > startTime.value.hour ||
+                                            (breakStartTime.value.hour == startTime.value.hour && breakStartTime.value.minute >= startTime.value.minute)) &&
+                                    (breakEndTime.value.hour < endTime.value.hour ||
+                                            (breakEndTime.value.hour == endTime.value.hour && breakEndTime.value.minute <= endTime.value.minute))
+                                ) {
+                                    saveExpense(
+                                        context,
+                                        date,
+                                        startTime.value,
+                                        endTime.value,
+                                        breakStartTime.value,
+                                        breakEndTime.value,
+                                        description,
+                                        user.value,
+                                        selectedProject.value
+                                    )
+                                    navController.navigate(NavigationItem.Overview.route)
+                                } else {
+                                    Toast.makeText(context, "Break time must be within work time and start must be before end", Toast.LENGTH_SHORT).show()
+                                }
                             } else {
-                                Toast.makeText(
-                                    context,
-                                    "Break start time must be before break end time",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(context, "Work start time must be before work end time", Toast.LENGTH_SHORT).show()
                             }
                         } else {
-                            Toast.makeText(context, "Please select a project", Toast.LENGTH_SHORT)
-                                .show()
+                            Toast.makeText(context, "Please select a project", Toast.LENGTH_SHORT).show()
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
