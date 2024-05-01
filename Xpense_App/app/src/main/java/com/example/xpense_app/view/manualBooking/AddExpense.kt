@@ -250,25 +250,31 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                             if (startTime.value.hour < endTime.value.hour ||
                                 (startTime.value.hour == endTime.value.hour && startTime.value.minute < endTime.value.minute)
                             ) {
-                                if ((breakStartTime.value.hour > startTime.value.hour ||
-                                            (breakStartTime.value.hour == startTime.value.hour && breakStartTime.value.minute >= startTime.value.minute)) &&
-                                    (breakEndTime.value.hour < endTime.value.hour ||
-                                            (breakEndTime.value.hour == endTime.value.hour && breakEndTime.value.minute <= endTime.value.minute))
+                                if ((breakStartTime.value.hour < startTime.value.hour ||
+                                            (breakStartTime.value.hour == startTime.value.hour && breakStartTime.value.minute <= startTime.value.minute)) &&
+                                    (breakEndTime.value.hour > endTime.value.hour ||
+                                            (breakEndTime.value.hour == endTime.value.hour && breakEndTime.value.minute >= endTime.value.minute))
                                 ) {
-                                    saveExpense(
-                                        context,
-                                        date,
-                                        startTime.value,
-                                        endTime.value,
-                                        breakStartTime.value,
-                                        breakEndTime.value,
-                                        description,
-                                        user.value,
-                                        selectedProject.value
-                                    )
-                                    navController.navigate(NavigationItem.Overview.route)
+                                    if (breakStartTime.value.hour > breakEndTime.value.hour ||
+                                        (breakStartTime.value.hour == breakEndTime.value.hour && breakStartTime.value.minute > breakEndTime.value.minute)
+                                    ) {
+                                        saveExpense(
+                                            context,
+                                            date,
+                                            startTime.value,
+                                            endTime.value,
+                                            breakStartTime.value,
+                                            breakEndTime.value,
+                                            description,
+                                            user.value,
+                                            selectedProject.value
+                                        )
+                                        navController.navigate(NavigationItem.Overview.route)
+                                    }else{
+                                        Toast.makeText(context, "Break time start must be before end", Toast.LENGTH_SHORT).show()
+                                    }
                                 } else {
-                                    Toast.makeText(context, "Break time must be within work time and start must be before end", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Break time must be within work time ", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
                                 Toast.makeText(context, "Work start time must be before work end time", Toast.LENGTH_SHORT).show()
