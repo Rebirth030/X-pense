@@ -61,7 +61,12 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
-
+/**
+ * This Composable function displays the user interface for adding expenses.
+ *
+ * @param navController The NavController used for navigation between Composables.
+ * @param user The currently logged in user.
+ */
 @Composable
 @ExperimentalMaterial3Api
 fun AddExpense(navController: NavController, user: MutableState<User>) {
@@ -297,6 +302,20 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
     }
 }
 
+/**
+ * This function validates the time entries for an expense. It checks if the start time is before the end time
+ * and if the break time (if any) is within the work time.
+ *
+ * @param context The application context.
+ * @param date The date of the expense.
+ * @param startTime The start time of the work.
+ * @param endTime The end time of the work.
+ * @param breakStartTime The start time of the break.
+ * @param breakEndTime The end time of the break.
+ * @param description The description of the expense.
+ * @param user The user who is creating the expense.
+ * @param project The project associated with the expense.
+ */
 fun saveExpense(
     context: Context,
     date: Date,
@@ -319,6 +338,17 @@ fun saveExpense(
     }
 }
 
+/**
+ * This function sends a request to the server to create an expense entry.
+ *
+ * @param context The application context.
+ * @param date The date of the expense.
+ * @param startTime The start time of the work.
+ * @param endTime The end time of the work.
+ * @param description The description of the expense.
+ * @param user The user who is creating the expense.
+ * @param project The project associated with the expense.
+ */
 private fun createExpense(
     context: Context,
     date: Date,
@@ -372,7 +402,12 @@ private fun createExpense(
         })
 }
 
-
+/**
+ * This Composable function displays a field for the break time.
+ *
+ * @param startTime The start time of the break.
+ * @param endTime The end time of the break.
+ */
 @Composable
 @ExperimentalMaterial3Api
 fun BreakTimeField(
@@ -389,6 +424,12 @@ fun BreakTimeField(
     )
 }
 
+/**
+ * This Composable function displays a dropdown menu for selecting a project.
+ *
+ * @param projects The list of available projects.
+ * @param selectedProject The currently selected project.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropDown(
@@ -434,6 +475,12 @@ fun DropDown(
     }
 }
 
+/**
+ * This function converts a Time object to a 12-hour format string.
+ *
+ * @param time The time to be converted.
+ * @return The time in 12-hour format as a string.
+ */
 fun convertTo12HourFormat(time: Time): String {
     return if (time.is24hour) {
         String.format("%02d:%02d", time.hour, time.minute)
@@ -446,3 +493,5 @@ fun convertTo12HourFormat(time: Time): String {
 }
 
 class Time(var hour: Int, var minute: Int, var is24hour: Boolean = false)
+
+
