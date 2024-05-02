@@ -20,7 +20,7 @@ interface ProjectAPIService: APIService {
     suspend fun getProjects(@Header("Authorization") token: String): Response<List<Project>>
 
     @POST("projects")
-    suspend fun createProject(@Header("Authorization") token: String, @Body project: Project): Project
+    suspend fun createProject(@Header("Authorization") token: String, @Body project: Project): Response<Project>
 
     @PUT("projects/{id}")
     suspend fun updateProject(@Header("Authorization") token: String, @Path("id") id: Int, @Body project: Project): Project

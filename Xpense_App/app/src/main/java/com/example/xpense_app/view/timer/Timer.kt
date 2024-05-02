@@ -27,7 +27,9 @@ import com.example.xpense_app.view.timer.view_model.TimerViewModel
 
 @Composable
 @ExperimentalMaterial3Api
-fun Timer(timerViewModel: TimerViewModel, onNavigateToLoginScreen: () -> Unit = {}, appViewModel: AppViewModel) {
+fun Timer(timerViewModel: TimerViewModel, onNavigateToLoginScreen: () -> Unit = {}, appViewModel: AppViewModel
+    ) {
+
     val projects by timerViewModel.projects.collectAsState()
     val viewState by appViewModel.viewState.collectAsState(initial = ViewState.Loading)
     when (viewState) {
@@ -61,6 +63,6 @@ fun Timer(timerViewModel: TimerViewModel, onNavigateToLoginScreen: () -> Unit = 
             // TO DO
         }
     }
-}
 
+}
 
