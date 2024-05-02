@@ -50,7 +50,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavGraph(context: Context, timerViewModel: TimerViewModel, appViewModel: AppViewModel) {
+fun NavGraph(context: Context, appViewModel: AppViewModel) {
     val navController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -85,7 +85,7 @@ fun NavGraph(context: Context, timerViewModel: TimerViewModel, appViewModel: App
         }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Timer.route) {
             composable(NavigationItem.Login.route) { LoginForm(navController, currentUser, appViewModel) }
             composable(NavigationItem.Register.route) { CreateRegister(navController) }
-            composable(NavigationItem.Timer.route) { Timer(timerViewModel, onNavigateToLoginScreen = {
+            composable(NavigationItem.Timer.route) { Timer(currentUser, onNavigateToLoginScreen = {
                 navController.navigate(NavigationItem.Login.route)
             }, appViewModel) }
             composable(NavigationItem.Profiles.route) {  }

@@ -1,7 +1,7 @@
 import com.google.gson.annotations.SerializedName
 
 data class Expense(
-    @SerializedName("id") val id: Int?,
+    @SerializedName("id") val id: Long?,
     @SerializedName("startDateTime") val startDateTime: String?,
     @SerializedName("endDateTime") val endDateTime: String?,
     @SerializedName("state") val state: String? = null,
