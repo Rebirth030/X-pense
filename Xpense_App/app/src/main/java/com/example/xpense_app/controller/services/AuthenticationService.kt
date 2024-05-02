@@ -13,6 +13,13 @@ class AuthenticationService {
         private val apiService =
             RetrofitInstance.getAPIService(AuthenticationAPIService::class) as AuthenticationAPIService
 
+        /**
+         * Register a user on the server.
+         *
+         * @param user the user to register
+         * @param onSuccess the callback when the user is successfully registered
+         * @param onError the callback when an error occurs
+         */
         fun registerUser(
             user: User,
             onSuccess: suspend (User) -> Unit,
@@ -28,6 +35,13 @@ class AuthenticationService {
             }
         }
 
+        /**
+         * Login a user on the server.
+         *
+         * @param user the user to login
+         * @param onSuccess the callback when the user is successfully logged in
+         * @param onError the callback when an error occurs
+         */
         fun loginUser(
             user: User,
             onSuccess: suspend (User) -> Unit,

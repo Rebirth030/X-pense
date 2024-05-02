@@ -16,9 +16,7 @@ import kotlinx.coroutines.launch
 class ProjectService {
 
     private var _projects = mutableListOf<Project>()
-    var errorMessage: String by mutableStateOf("")
     private val apiService = RetrofitInstance.getAPIService(ProjectAPIService::class) as ProjectAPIService
-
 
     fun getProjects(
         onSuccess: (List<Project>) -> Unit,
@@ -39,6 +37,12 @@ class ProjectService {
     companion object {
         private val apiService = RetrofitInstance.getAPIService(ProjectAPIService::class) as ProjectAPIService
 
+        /**
+         * Get all projects from the server.
+         *
+         * @param onSuccess the callback when the projects are successfully fetched
+         * @param onError the callback when an error occurs
+         */
         fun getProjects(
             token: String,
             onSuccess: suspend (List<Project>) -> Unit,

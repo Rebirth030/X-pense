@@ -74,6 +74,13 @@ fun DateDialog(
     }
 }
 
+/**
+ * Time dialog to select a time
+ *
+ * @param time the time to be selected
+ * @param onDismiss the callback when the dialog is dismissed
+ * @param title the title of the dialog
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeDialog(

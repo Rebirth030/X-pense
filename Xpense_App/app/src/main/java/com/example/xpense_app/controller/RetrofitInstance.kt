@@ -27,6 +27,12 @@ object RetrofitInstance {
     private var userAPIService = apiService.create(UserAPIService::class.java)
     private var authenticationAPIService = apiService.create(AuthenticationAPIService::class.java)
 
+    /**
+     * Get the API service based on the type.
+     *
+     * @param kType the type of the API service
+     * @return the API service
+     */
     fun <T: Any> getAPIService (kType: KClass<T>): APIService {
         return when (kType) {
             ProjectAPIService::class -> projectAPIService

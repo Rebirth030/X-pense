@@ -32,6 +32,11 @@ import java.util.Base64
 // optional TODO: Add error handling
 // optional TODO: Make fields required or optional
 
+/**
+ * Creates the registration page with a form
+ *
+ * @param navController the navigation controller
+ */
 @Composable
 fun CreateRegister(navController: NavHostController) {
     Surface {

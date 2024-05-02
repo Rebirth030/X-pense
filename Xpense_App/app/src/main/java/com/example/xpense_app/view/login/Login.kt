@@ -31,7 +31,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 
-
+/**
+ * Creates the login form.
+ *
+ * @param navHostController the navigation controller
+ * @param user the user object
+ * @param appViewModel the app view model
+ */
 @Composable
 fun LoginForm(navHostController: NavHostController, user: MutableState<User>, appViewModel: AppViewModel) {
     Surface {

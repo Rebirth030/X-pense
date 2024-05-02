@@ -13,6 +13,13 @@ class ExpenseService {
         private val apiService =
             RetrofitInstance.getAPIService(ExpenseAPIService::class) as ExpenseAPIService
 
+        /**
+         * Get all expenses from the server.
+         *
+         * @param token the token of the user
+         * @param onSuccess the callback when the expenses are successfully fetched
+         * @param onError the callback when an error occurs
+         */
         fun getExpenses(
             token: String,
             onSuccess: suspend (List<Expense>) -> Unit,
@@ -27,6 +34,15 @@ class ExpenseService {
                 }
             }
         }
+
+        /**
+         * Create an expense on the server.
+         *
+         * @param expense the expense to create
+         * @param token the token of the user
+         * @param onSuccess the callback when the expense is successfully created
+         * @param onError the callback when an error occurs
+         */
         fun createExpense(
             expense: Expense,
             token: String,
@@ -44,69 +60,4 @@ class ExpenseService {
 
         }
     }
-
-/*
-    fun saveExpense(
-        expense: Expense,
-        onSuccess: (Expense) -> Unit,
-        onError: (Exception) -> Unit
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-
-            try {
-                val response = if (expense.id == null) {
-                    apiService.createExpense(expense)
-                } else {
-                    apiService.updateExpense(expense.id, expense)
-                }
-                val returnExpense = Expense(
-                    response.id,
-                    response.startDateTime,
-                    response.endDateTime,
-                    response.state,
-                    response.projectId,
-                    response.userId,
-                    response.weeklyTimecardId
-                )
-                onSuccess(returnExpense)
-            } catch (e: Exception) {
-                onError(e)
-            }
-        }
-    }
-
-    fun getExpenses(
-        id: Long,
-        onSuccess: (List<Expense>) -> Unit,
-        onError: (Exception) -> Unit
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val response = apiService.getExpenses()
-                System.out.println(response)
-                _expenses.clear()
-                _expenses.addAll(response.body()!!)
-                onSuccess(response.body()!!)
-            } catch (e: Exception) {
-                onError(e)
-            }
-        }
-    }
-
-    fun getExpensesOfProject(
-        id: Long,
-        onSuccess: (List<Expense>) -> Unit,
-        onError: (Exception) -> Unit
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val response = apiService.getExpensesOfProject(id)
-                onSuccess(response)
-            } catch (e: Exception) {
-                onError(e)
-            }
-        }
-    }
-
- */
 }

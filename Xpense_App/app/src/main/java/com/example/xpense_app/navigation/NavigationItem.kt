@@ -26,7 +26,20 @@ sealed class NavigationItem(val route: String, val name:String) {
     data object Overview: NavigationItem(Screen.OVERVIEW.name, "Overview")
 
     companion object {
+
+        /**
+         * Get all values of the sealed class
+         *
+         * @return a list of all values
+         */
         fun values() = NavigationItem::class.sealedSubclasses.map { it.objectInstance as NavigationItem }
+
+        /**
+         * Get a navigation item from a route
+         *
+         * @param route the route of the navigation item
+         * @return the navigation item
+         */
         fun fromRoute(route: String): NavigationItem {
             return values().find { it.route == route } ?: throw IllegalArgumentException("Route $route not found")
         }
