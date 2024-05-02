@@ -30,6 +30,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import java.util.Date
 
+/**
+ * Date dialog to select a date
+ *
+ * @param onDateSelected the callback when a date is selected
+ * @param onDismiss the callback when the dialog is dismissed
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateDialog(

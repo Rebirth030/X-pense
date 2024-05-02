@@ -42,42 +42,64 @@ fun LoginForm(navHostController: NavHostController, user: MutableState<User>, ap
                 .fillMaxSize()
                 .padding(horizontal = 30.dp)
         ) {
-            var username = createTextField(fieldName = "username")
-            var password = createPasswordField()
-            val context = LocalContext.current
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                "Registrieren",
-                textDecoration = TextDecoration.Underline,
-                color = Color.Blue,
-                modifier = Modifier.clickable(onClick = { navHostController.navigate(NavigationItem.Register.route) })
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            Button(
-                onClick = {
-                    loginAction(
-                        username.value,
-                        password.value,
-                        navHostController,
-                        context,
-                        user
-                    )
-                    appViewModel.setLoggedIn(true)
-                },
-                enabled = true,
-                shape = RoundedCornerShape(5.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Login")
-            }
+            CreateLoginForm(navHostController, user, appViewModel)
         }
+    }
+}
+
+/**
+ * Creates the form for the login with a button to submit the form and a link to the registration page.
+ *
+ * @param navHostController the navigation controller
+ * @param user the user object
+ * @param appViewModel the app view model
+ * @return the form
+ */
+@Composable
+private fun CreateLoginForm(
+    navHostController: NavHostController,
+    user: MutableState<User>,
+    appViewModel: AppViewModel
+) {
+    val username = createTextField(fieldName = "username")
+    val password = createPasswordField()
+    val context = LocalContext.current
+    Spacer(modifier = Modifier.height(20.dp))
+    Text(
+        "Registrieren",
+        textDecoration = TextDecoration.Underline,
+        color = Color.Blue,
+        modifier = Modifier.clickable(onClick = { navHostController.navigate(NavigationItem.Register.route) })
+    )
+    Spacer(modifier = Modifier.height(20.dp))
+    Button(
+        onClick = {
+            loginAction(
+                username.value,
+                password.value,
+                navHostController,
+                context,
+                user
+            )
+            appViewModel.setLoggedIn(true)
+        },
+        enabled = true,
+        shape = RoundedCornerShape(5.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("Login")
     }
 }
 
 
 /**
- * Submits the form to the server
- * and navigates to the login page if successful
+ * Submits the form to the server and navigates to the login page if successful.
+ *
+ * @param username the username
+ * @param password the password
+ * @param navController the navigation controller
+ * @param context the context
+ * @param userResult the user object
  */
 fun loginAction(
     username: String,

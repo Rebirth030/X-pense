@@ -31,7 +31,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 /**
- * Create a TextField for the given fieldname
+ * Create a TextField for the given fieldname.
+ *
  * @param fieldName the name of the field
  * @return the value of the textfield
  */
@@ -51,8 +52,8 @@ fun createTextField(fieldName: String): MutableState<String> {
 }
 
 /**
- * Create a password field
- * hides the text and shows a trailing icon to toggle the visibility
+ * Create a password field hides the text and shows a trailing icon to toggle the visibility.
+ *
  * @return the value of the password field
  */
 @Composable
@@ -76,23 +77,11 @@ fun createPasswordField(isLastPasswordField: Boolean = true): MutableState<Strin
     return password
 }
 
-@Composable
-fun LabeledCheckbox(
-    isChecked: Boolean = true
-) {
-    Row(
-        Modifier
-            .clickable(
-                onClick = {} //TODO Add remember me
-            )
-            .padding(4.dp)
-    ) {
-        Checkbox(checked = isChecked, onCheckedChange = null)
-        Spacer(Modifier.size(6.dp))
-        Text("Remember Me")
-    }
-}
-
+/**
+ * Create Leading Icon for the TextField.
+ *
+ * @param fieldname the name of the field
+ */
 @Composable
 fun CreateLeadingIcon(fieldname: String) {
     Icon(
@@ -107,6 +96,11 @@ fun CreateLeadingIcon(fieldname: String) {
     )
 }
 
+/**
+ * Create a trailing icon for the password field.
+ *
+ * @return the visibility of the password
+ */
 @Composable
 fun createTrailingIcon(): Boolean {
     var isPasswordVisible by remember { mutableStateOf(false) }

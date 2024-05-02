@@ -29,7 +29,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Base64
 
-// optional TODO: Add good encryption
 // optional TODO: Add error handling
 // optional TODO: Make fields required or optional
 
