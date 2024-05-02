@@ -1,6 +1,7 @@
 package com.example.xpense_app.view.manualBooking
 
 import Expense
+import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.clickable
@@ -56,6 +57,7 @@ import kotlinx.coroutines.withContext
 import java.time.ZonedDateTime
 import java.text.DateFormat
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
@@ -138,9 +140,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
     }
     if (showStartTimePicker) {
         TimeDialog(
-            time = startTime,
-            onDismiss = { showStartTimePicker = false },
-            title = "Start Time"
+            time = startTime, onDismiss = { showStartTimePicker = false }, title = "Start Time"
         )
     }
     if (showEndTimePicker) {
@@ -149,19 +149,15 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
     //endregion
 
     LaunchedEffect(key1 = Unit) {
-        ProjectService.getProjects(
-            token = user.value.token,
+        ProjectService.getProjects(token = user.value.token,
             onSuccess = { projects.addAll(it) },
             onError = {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
-                        context,
-                        "Error loading projects",
-                        Toast.LENGTH_SHORT
+                        context, "Error loading projects", Toast.LENGTH_SHORT
                     ).show()
                 }
-            }
-        )
+            })
     }
 
     Surface {
@@ -173,8 +169,9 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                 .padding(horizontal = 30.dp)
         ) {
             OutlinedTextField(
-                value = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault())
-                    .format(date),
+                value = DateFormat.getDateInstance(
+                    DateFormat.DEFAULT, Locale.getDefault()
+                ).format(date),
                 onValueChange = {},
                 label = { Text("Date") },
                 readOnly = true,
@@ -202,10 +199,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
             Card(
                 modifier = Modifier
                     .padding(
-                        top = 8.dp,
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 16.dp
+                        top = 8.dp, start = 16.dp, end = 16.dp, bottom = 16.dp
                     ) // Reduzierter Abstand nach oben
                     .fillMaxWidth()
                     .clickable { showEndTimePicker = true },
@@ -226,8 +220,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
             })
             if (breakStartTime.value.hour != breakEndTime.value.hour || breakStartTime.value.minute != breakEndTime.value.minute) {
                 BreakTimeField(
-                    startTime = breakStartTime.value,
-                    endTime = breakEndTime.value
+                    startTime = breakStartTime.value, endTime = breakEndTime.value
                 )
             }
 
@@ -246,46 +239,59 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
             ) {
                 Button(
                     onClick = {
-                        if (selectedProject.value.id != null) { //TODO: Implement weeklyTimecardId validation
-                            if (startTime.value.hour < endTime.value.hour ||
-                                (startTime.value.hour == endTime.value.hour && startTime.value.minute < endTime.value.minute)
-                            ) {
-                                if ((breakStartTime.value.hour < startTime.value.hour ||
-                                            (breakStartTime.value.hour == startTime.value.hour && breakStartTime.value.minute <= startTime.value.minute)) &&
-                                    (breakEndTime.value.hour > endTime.value.hour ||
-                                            (breakEndTime.value.hour == endTime.value.hour && breakEndTime.value.minute >= endTime.value.minute))
-                                ) {
-                                    if (breakStartTime.value.hour > breakEndTime.value.hour ||
-                                        (breakStartTime.value.hour == breakEndTime.value.hour && breakStartTime.value.minute > breakEndTime.value.minute)
-                                    ) {
-                                        saveExpense(
-                                            context,
-                                            date,
-                                            startTime.value,
-                                            endTime.value,
-                                            breakStartTime.value,
-                                            breakEndTime.value,
-                                            description,
-                                            user.value,
-                                            selectedProject.value
-                                        )
-                                        navController.navigate(NavigationItem.Overview.route)
-                                    }else{
-                                        Toast.makeText(context, "Break time start must be before end", Toast.LENGTH_SHORT).show()
-                                    }
-                                } else {
-                                    Toast.makeText(context, "Break time must be within work time ", Toast.LENGTH_SHORT).show()
-                                }
-                            } else {
-                                Toast.makeText(context, "Work start time must be before work end time", Toast.LENGTH_SHORT).show()
-                            }
+                        if (selectedProject.value.id == null) { //Checks if Project is chosen TODO: Implement weeklyTimecardId validation
+                            Toast.makeText(context, "Please select a project", Toast.LENGTH_SHORT)
+                                .show()
+                        } else if (!timeComparison(
+                                startTime.value,
+                                endTime.value
+                            )
+                        ) { //checks if start time is before end time
+                            Toast.makeText(
+                                context,
+                                "Work start time must be before work end time",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else if (!(timeComparison(
+                                startTime.value,
+                                breakStartTime.value
+                            ) && timeComparison(
+                                breakEndTime.value,
+                                endTime.value
+                            ))//checks if break time is within work time
+                        ) {
+                            Toast.makeText(
+                                context,
+                                "Break time must be within work time ",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else if (!timeComparison(
+                                breakStartTime.value,
+                                breakEndTime.value
+                            )
+                        ) { //checks if break start time is before break end time
+                            Toast.makeText(
+                                context,
+                                "Break time start must be before end",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else {
-                            Toast.makeText(context, "Please select a project", Toast.LENGTH_SHORT).show()
+                            saveExpense(
+                                context,
+                                date,
+                                startTime.value,
+                                endTime.value,
+                                breakStartTime.value,
+                                breakEndTime.value,
+                                description,
+                                user.value,
+                                selectedProject.value
+                            )
+                            navController.navigate(NavigationItem.Overview.route)
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
-                    modifier = Modifier
-                        .height(IntrinsicSize.Min)
+                    modifier = Modifier.height(IntrinsicSize.Min)
                 ) {
                     Text(
                         text = "Save",
@@ -307,6 +313,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
 
     }
 }
+
 
 /**
  * This function validates the time entries for an expense. It checks if the start time is before the end time
@@ -365,16 +372,14 @@ private fun createExpense(
     project: Project
 ) {
 
-    val startDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
-        .withHour(startTime.hour)
-        .withMinute(startTime.minute)
-        .format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
+    val startDateTime =
+        ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).withHour(startTime.hour)
+            .withMinute(startTime.minute).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
 
 
-    val endDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
-        .withHour(endTime.hour)
-        .withMinute(endTime.minute)
-        .format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
+    val endDateTime =
+        ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).withHour(endTime.hour)
+            .withMinute(endTime.minute).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
 
     ExpenseService.createExpense(expense = Expense(
         id = null,
@@ -385,27 +390,33 @@ private fun createExpense(
         projectId = project.id,
         weeklyTimecardId = 1, //TODO: Implement weeklyTimecardId
         description = description
-    ),
-        token = user.token,
-        onSuccess = {
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    context,
-                    "Expense saved",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        },
-        onError = {
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    context,
-                    "Error saving expense",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            it.printStackTrace()
-        })
+    ), token = user.token, onSuccess = {
+        withContext(Dispatchers.Main) {
+            Toast.makeText(
+                context, "Expense saved", Toast.LENGTH_SHORT
+            ).show()
+        }
+    }, onError = {
+        withContext(Dispatchers.Main) {
+            Toast.makeText(
+                context, "Error saving expense", Toast.LENGTH_SHORT
+            ).show()
+        }
+        it.printStackTrace()
+    })
+}
+
+/**
+ * This function checks if the first time is before the second time.
+ * @param firstTime The first time.
+ * @param secondTime The second time.
+ */
+fun timeComparison(firstTime: Time, secondTime: Time): Boolean {
+    return (LocalTime.of(firstTime.hour, firstTime.minute)
+        .isBefore(LocalTime.of(secondTime.hour, secondTime.minute)) || LocalTime.of(
+        firstTime.hour,
+        firstTime.minute
+    ).equals(LocalTime.of(secondTime.hour, secondTime.minute)))
 }
 
 /**
@@ -417,16 +428,13 @@ private fun createExpense(
 @Composable
 @ExperimentalMaterial3Api
 fun BreakTimeField(
-    startTime: Time,
-    endTime: Time
+    startTime: Time, endTime: Time
 ) {
-    val breakTime = "Break: " + convertTo12HourFormat(startTime) + " - " + convertTo12HourFormat(endTime)
+    val breakTime =
+        "Break: " + convertTo12HourFormat(startTime) + " - " + convertTo12HourFormat(endTime)
 
     OutlinedTextField(
-        value = breakTime,
-        onValueChange = {},
-        readOnly = true,
-        modifier = Modifier.padding(16.dp)
+        value = breakTime, onValueChange = {}, readOnly = true, modifier = Modifier.padding(16.dp)
     )
 }
 
@@ -439,8 +447,7 @@ fun BreakTimeField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropDown(
-    projects: List<Project>,
-    selectedProject: MutableState<Project>
+    projects: List<Project>, selectedProject: MutableState<Project>
 ) {
     var expanded by remember { mutableStateOf(false) }
     Box(
@@ -449,11 +456,9 @@ fun DropDown(
             .padding(16.dp)
     ) {
         ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = {
+            expanded = expanded, onExpandedChange = {
                 expanded = !expanded
-            },
-            modifier = Modifier.align(Alignment.Center)
+            }, modifier = Modifier.align(Alignment.Center)
         ) {
             TextField(
                 value = selectedProject.value.name!!,
@@ -463,18 +468,12 @@ fun DropDown(
                 modifier = Modifier.menuAnchor()
             )
 
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
+            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 projects.forEach { item ->
-                    DropdownMenuItem(
-                        text = { Text(text = item.name!!) },
-                        onClick = {
-                            selectedProject.value = item
-                            expanded = false
-                        }
-                    )
+                    DropdownMenuItem(text = { Text(text = item.name!!) }, onClick = {
+                        selectedProject.value = item
+                        expanded = false
+                    })
                 }
             }
         }
@@ -489,15 +488,16 @@ fun DropDown(
  */
 fun convertTo12HourFormat(time: Time): String {
     return if (time.is24hour) {
-        String.format("%02d:%02d", time.hour, time.minute)
+        String.format(Locale.getDefault(), "%02d:%02d", time.hour, time.minute)
     } else {
         val hourIn12Format =
             if (time.hour > 12) time.hour - 12 else if (time.hour == 0) 12 else time.hour
         val period = if (time.hour >= 12) "PM" else "AM"
-        String.format("%02d:%02d %s", hourIn12Format, time.minute, period)
+        String.format(Locale.getDefault(), "%02d:%02d %s", hourIn12Format, time.minute, period)
     }
 }
 
 class Time(var hour: Int, var minute: Int, var is24hour: Boolean = false)
+
 
 
