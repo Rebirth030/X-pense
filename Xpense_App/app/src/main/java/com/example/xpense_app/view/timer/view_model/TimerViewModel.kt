@@ -218,6 +218,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
     }
 
     fun changeProject(newProject: Project) {
+        _expenses.value = expenses.value.filter { expense -> expense.state != "FINISHED" }
         val timerWasRunning = projectTimersOnRun.value[currentProject.value!!.id]!!
 
         _projectTimersOnRun.value += (currentProject.value!!.id!! to false)
