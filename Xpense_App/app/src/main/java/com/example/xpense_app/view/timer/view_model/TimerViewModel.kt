@@ -82,10 +82,13 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                             _currentProject.value =
                                 projects.value.find { project -> project.id == expense.projectId!! }
                             _projectTimersOnRun.value += (expense.projectId!! to true)
+                            this.updateProjectTimers(expense)
                         } else {
                             _projectTimersOnRun.value += (expense.projectId!! to false)
+                            val updatedTimer = _projectTimers.value.toMutableMap()
+                            updatedTimer[expense.projectId] = expense.pausedAtTimestamp!!
+                            _projectTimers.value = updatedTimer
                         }
-                        this.updateProjectTimers(expense)
                     }
                 }
                 projectsDeferred.complete(Unit)
@@ -185,7 +188,12 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
     }
 
     private fun updateCurrentExpense(newState: String) {
-        val updatedExpense = currentExpense.value!!.copy(state = newState)
+        val updatedExpense = if(newState == "PAUSED") {
+            val currentTimestamp = projectTimers.value[currentExpense.value!!.projectId]
+            currentExpense.value!!.copy(state = newState, pausedAtTimestamp = currentTimestamp)
+        } else {
+            currentExpense.value!!.copy(state = newState)
+        }
         this.updateExpense(updatedExpense)
     }
 
@@ -223,7 +231,8 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
 
         _projectTimersOnRun.value += (currentProject.value!!.id!! to false)
         val oldExpense = expenses.value.find { expense -> expense.projectId == currentProject.value!!.id }
-        val updatedOldExpense = oldExpense!!.copy(state = "PAUSED")
+        val updatedOldExpense =
+            oldExpense!!.copy(state = "PAUSED", pausedAtTimestamp = _projectTimers.value[oldExpense.projectId])
         this.updateExpense(updatedOldExpense)
 
         _currentProject.value = newProject
