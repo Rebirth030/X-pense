@@ -22,6 +22,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,13 +30,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.xpense_app.model.User
-import com.example.xpense_app.view.createProject.CreateProjectScreen
 import com.example.xpense_app.view.timer.Timer
 import com.example.xpense_app.view.login.CreateRegister
 import com.example.xpense_app.view.login.LoginForm
@@ -62,16 +64,14 @@ fun NavGraph(context: Context, timerViewModel: TimerViewModel, appViewModel: App
         gesturesEnabled = true,
         drawerContent = {
             ModalDrawerSheet {
-                for (navigationItem in NavigationItem.values().filter { navItem -> !(navItem == NavigationItem.Login || navItem == NavigationItem.Register) }) {
-                    CreateNavigationItem(
-                        text = navigationItem.name,
-                        coroutineScope = coroutineScope,
-                        drawerState = drawerState,
-                        navController = navController,
-                        navRoute = navigationItem,
-                        selectedNavItem = selectedNavItem
-                    )
-                }
+                // Drawer content goes here
+
+               // CreateNavigationItem(NavigationItem.Login.name, coroutineScope, drawerState, navController, NavigationItem.Login, selectedNavItem)
+                //CreateNavigationItem(NavigationItem.Register.name, coroutineScope, drawerState, navController, NavigationItem.Register, selectedNavItem)
+                CreateNavigationItem(NavigationItem.Timer.name, coroutineScope, drawerState, navController, NavigationItem.Timer, selectedNavItem)
+                CreateNavigationItem(NavigationItem.Profiles.name, coroutineScope, drawerState, navController, NavigationItem.Profiles, selectedNavItem)
+                CreateNavigationItem(NavigationItem.Manual.name, coroutineScope, drawerState, navController, NavigationItem.Manual, selectedNavItem)
+                CreateNavigationItem(NavigationItem.Overview.name, coroutineScope, drawerState, navController, NavigationItem.Manual, selectedNavItem)
             }
         }
     ) {
@@ -79,46 +79,20 @@ fun NavGraph(context: Context, timerViewModel: TimerViewModel, appViewModel: App
             if(navController.currentDestination?.route != NavigationItem.Login.route && navController.currentDestination?.route != NavigationItem.Register.route){
             TopAppBar(title = { Text(text = title) }, navigationIcon = {
                 IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
-                    Icon(
-                        Icons.Rounded.Menu,
-                        contentDescription = "Menu",
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                }
+                        Icon(Icons.Rounded.Menu, contentDescription = "Menu", modifier = Modifier.padding(horizontal = 8.dp))
+                    }
             })}
-        }, content = { padding ->
-            NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
-                composable(NavigationItem.Login.route) {
-                    LoginForm(
-                        navController,
-                        currentUser,
-                        appViewModel
-                    )
-                }
-                composable(NavigationItem.Register.route) { CreateRegister(navController) }
-                composable(NavigationItem.Timer.route) {
-                    Timer(timerViewModel, onNavigateToLoginScreen = {
-                        navController.navigate(NavigationItem.Login.route)
-                    }, appViewModel)
-                }
-                composable(NavigationItem.Profiles.route) { }
-                composable(NavigationItem.Manual.route) {
-                    AddExpense(
-                        navController,
-                        user = currentUser
-                    )
-                }
-                composable(NavigationItem.Overview.route) {
-                    CreateOverview(
-                        currentUser.value,
-                        navController,
-                        padding
-                    )
-                }
-                composable(NavigationItem.Create.route) { CreateProjectScreen(currentUser) }
+        }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Timer.route) {
+            composable(NavigationItem.Login.route) { LoginForm(navController, currentUser, appViewModel) }
+            composable(NavigationItem.Register.route) { CreateRegister(navController) }
+            composable(NavigationItem.Timer.route) { Timer(currentUser, onNavigateToLoginScreen = {
+                navController.navigate(NavigationItem.Login.route)
+            }, appViewModel) }
+            composable(NavigationItem.Profiles.route) {  }
+            composable(NavigationItem.Manual.route) { AddExpense(navController, user = currentUser) }
+            composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController, padding)}
 
-            }
-        })
+        }})
     }
 }
 
@@ -144,19 +118,20 @@ private fun CreateNavigationItem(
             .padding(horizontal = 8.dp)
             .background(itemColor, shape = RoundedCornerShape(26.dp))
     ) {
-        NavigationDrawerItem(
-            label = { Text(text = text) },
-            selected = isSelected,
-            onClick = {
-                selectedNavItem.value = navRoute
-                coroutineScope.launch {
-                    drawerState.close()
-                }
-                navController.navigate(navRoute.route)
+    NavigationDrawerItem(
+        label = { Text(text = text) },
+        selected = isSelected,
+        onClick = {
+            selectedNavItem.value = navRoute
+            coroutineScope.launch {
+                drawerState.close()
             }
-        )
-    }
-}
+            navController.navigate(navRoute.route) {
+                popUpTo(0)
+            }
+        }
+    )
+}}
 
 /**
  * Function to get title of the current screen

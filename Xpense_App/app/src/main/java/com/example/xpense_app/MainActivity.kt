@@ -17,7 +17,6 @@ import com.example.xpense_app.view.timer.view_model.TimerViewModel
 
 class MainActivity : ComponentActivity() {
     private val appViewModel: AppViewModel by viewModels()
-    private val timerViewModel: TimerViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         val expenseService: ExpenseService = ExpenseService()
         super.onCreate(savedInstanceState)
@@ -28,7 +27,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    NavGraph(applicationContext, timerViewModel, appViewModel)
+                    NavGraph(applicationContext, appViewModel)
                 }
             }
         }
