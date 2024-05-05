@@ -87,6 +87,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                             _projectTimersOnRun.value += (expense.projectId!! to false)
                             val updatedTimer = _projectTimers.value.toMutableMap()
                             updatedTimer[expense.projectId] = expense.pausedAtTimestamp!!
+                            this.updateProjectTimers(expense)
                             _projectTimers.value = updatedTimer
                         }
                     }
