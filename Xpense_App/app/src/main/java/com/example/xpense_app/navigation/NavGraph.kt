@@ -50,7 +50,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavGraph(context: Context, timerViewModel: TimerViewModel, appViewModel: AppViewModel) {
+fun NavGraph(context: Context, appViewModel: AppViewModel) {
     val navController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
