@@ -84,7 +84,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
         mutableListOf<Project>()
     }
     val selectedProject = remember {
-        mutableStateOf(Project(null, "None", null, null, null, null))
+        mutableStateOf(Project(null, "None", null, null, null, null, null, null))
     }
     val showDatePicker = remember {
         mutableStateOf(false)

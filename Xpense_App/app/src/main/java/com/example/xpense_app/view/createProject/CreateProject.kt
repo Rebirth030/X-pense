@@ -114,7 +114,7 @@ fun create(
 ){
     val date =
         ZonedDateTime.ofInstant(releaseDate.toInstant(), ZoneId.systemDefault()).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
-    val project = Project(null, name, description, date, null, null)
+    val project = Project(null, name, description, date, null, null, 1L, 302L)
     ProjectService.createProject(project, currentUser.value.token, onSuccess = {}, onError = {})
 }
 
