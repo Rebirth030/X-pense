@@ -61,6 +61,14 @@ class ProjectService {
             }
         }
 
+        /**
+         * Create a new project on the server.
+         *
+         * @param project Project object to be created.
+         * @param token Authentication token.
+         * @param onSuccess Callback invoked when project is successfully created.
+         * @param onError Callback invoked when an error occurs during creation.
+         */
         fun createProject(
             project: Project,
             token: String,
