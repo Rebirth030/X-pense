@@ -5,6 +5,7 @@ import android.content.res.Resources
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.twotone.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -53,10 +55,14 @@ import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.xpense_app.R
 import com.example.xpense_app.controller.services.ExpenseService
@@ -334,8 +340,9 @@ fun WeeklySchedule(
     ) { measureables, constraints ->
         try {
             placeExpenses(measureables, constraints, startDate, endDate, startTime, endTime)
-        } catch(e: Exception) {
-            Toast.makeText(context, "An error occurred while placing expenses!", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, "An error occurred while placing expenses!", Toast.LENGTH_SHORT)
+                .show()
             println(e)
             layout(0, 0) {}
         }
@@ -421,6 +428,10 @@ fun GetExpenses(user: User, expenses: MutableState<List<Expense>>) {
  */
 @Composable
 fun ExpenseCard(expense: Expense, modifier: Modifier = Modifier) {
+    val showDialog = remember { mutableStateOf(false) }
+    if(showDialog.value) {
+        ExpenseDetailsDialog(expense = expense, onDismiss = { showDialog.value = false })
+    }
     Card {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -430,6 +441,7 @@ fun ExpenseCard(expense: Expense, modifier: Modifier = Modifier) {
                 .padding(end = 2.dp, bottom = 2.dp)
                 .background(Color.Cyan, shape = RoundedCornerShape(4.dp))
                 .padding(4.dp)
+                .clickable { showDialog.value = true }
         ) {
             // TODO : Make prettier maybe get Project instead of only id
             Text(
@@ -454,6 +466,42 @@ fun ExpenseCard(expense: Expense, modifier: Modifier = Modifier) {
             Text(text = "Projektnummer: ${expense.projectId.toString()}")
         }
     }
+}
+
+/**
+ * ExpenseDetailsDialog displays the details of an expense in a dialog.
+ *
+ * @param expense the expense to display
+ * @param onDismiss the function to call when the dialog is dismissed
+ */
+@Composable
+fun ExpenseDetailsDialog(expense: Expense, onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = MaterialTheme.shapes.medium, tonalElevation = 8.dp) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = "Expense Details", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text(
+                    text = "Start Time: ${
+                        parseDateTime(expense.startDateTime).format(
+                            DateTimeFormatter.ofPattern(EXPENSE_TIME_FORMAT)
+                        )
+                    }"
+                )
+                Text(
+                    text = "End Time: ${
+                        parseDateTime(expense.endDateTime).format(
+                            DateTimeFormatter.ofPattern(
+                                EXPENSE_TIME_FORMAT
+                            )
+                        )
+                    }"
+                )
+                Text(text = "Description: ${expense.description.orEmpty()}")
+                Text(text = "Project Number: ${expense.projectId.toString()}")
+            }
+        }
+    }
+
 }
 
 /**
