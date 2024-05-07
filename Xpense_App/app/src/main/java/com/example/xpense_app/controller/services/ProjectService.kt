@@ -37,7 +37,7 @@ class ProjectService {
     }
 
     companion object {
-        private val apiService =
+        private val apiService2 =
             RetrofitInstance.getAPIService(ProjectAPIService::class) as ProjectAPIService
 
         /**
@@ -53,7 +53,7 @@ class ProjectService {
         ) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val response = apiService.getProjects(token)
+                    val response = apiService2.getProjects(token)
                     onSuccess(response.body().orEmpty())
                 } catch (e: Exception) {
                     onError(e)
@@ -69,7 +69,7 @@ class ProjectService {
         ) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val response = apiService.createProject(token, project)
+                    val response = apiService2.createProject(token, project)
                     onSuccess(response.body()!!)
                 } catch (e: Exception) {
                     onError(e)
