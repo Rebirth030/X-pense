@@ -44,6 +44,7 @@ import com.example.xpense_app.view.login.CreateRegister
 import com.example.xpense_app.view.login.LoginForm
 import com.example.xpense_app.view.manualBooking.AddExpense
 import com.example.xpense_app.view.overview.CreateOverview
+import com.example.xpense_app.view.profile.Profile
 import com.example.xpense_app.view.timer.view_model.TimerViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -101,7 +102,7 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
                 composable(NavigationItem.Timer.route) { Timer(currentUser, onNavigateToLoginScreen = {
                 navController.navigate(NavigationItem.Login.route)
             }, appViewModel) }
-                composable(NavigationItem.Profiles.route) { }
+                composable(NavigationItem.Profiles.route) { Profile() }
                 composable(NavigationItem.Manual.route) { AddExpense(navController, currentUser) }
                 composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController, padding) }
                 composable(NavigationItem.Create.route) { CreateProjectScreen(currentUser, context) }
