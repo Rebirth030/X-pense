@@ -1,5 +1,7 @@
 package com.example.xpense_app.view.createProject
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key.Companion.U
 import androidx.compose.ui.unit.dp
 import com.example.xpense_app.controller.services.ProjectService
 import com.example.xpense_app.model.Project
@@ -34,9 +35,13 @@ import java.util.Date
 
 /**
  * Composable function for the screen to create a new project.
+ * Allows the user to input project details and handles the creation process.
+ *
+ * @param currentUser The current user of the application.
+ * @param context The context of the calling component.
  */
 @Composable
-fun CreateProjectScreen(currentUser: MutableState<User>) {
+fun CreateProjectScreen(currentUser: MutableState<User>, context: Context) {
     var projectName by remember { mutableStateOf("") }
     var projectDescription by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
@@ -64,14 +69,14 @@ fun CreateProjectScreen(currentUser: MutableState<User>) {
             TextField(
                 value = projectName,
                 onValueChange = { projectName = it },
-                label = { Text("Project Name") },
+                label = { Text("PROJECT NAME") },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
             TextField(
                 value = projectDescription,
                 onValueChange = { projectDescription = it },
-                label = { Text("Project Description") },
+                label = { Text("PROJECT DESCRIPTION") },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -79,17 +84,23 @@ fun CreateProjectScreen(currentUser: MutableState<User>) {
             Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = {
-                    create(name = projectName, description = projectDescription, releaseDate = date, currentUser)
-                    showDialog = true
-                 }) {
-                Text("Create Project")
+                    Create(
+                        context,
+                        name = projectName,
+                        description = projectDescription,
+                        releaseDate = date,
+                        currentUser,
+                        onSuccess = { showDialog = it })
+                }) {
+                Text("CREATE PROJECT")
             }
             if (showDialog) {
                 Success(
                     projectName,
                     projectDescription,
                     date,
-                    onClose = { showDialog = false
+                    onClose = {
+                        showDialog = false
                         projectName = ""
                         projectDescription = ""
                         date = Date()
@@ -101,36 +112,67 @@ fun CreateProjectScreen(currentUser: MutableState<User>) {
 }
 
 /**
- * Function to create a new project.
+ * Creates a new project based on provided details.
+ * Validates the input data and initiates the creation process.
+ *
+ * @param context The context of the calling component.
  * @param name The name of the project.
  * @param description The description of the project.
  * @param releaseDate The release date of the project.
+ * @param currentUser The current user of the application.
+ * @param onSuccess Callback function to handle success or failure of project creation.
  */
-fun create(
+fun Create(
+    context: Context,
     name: String,
     description: String,
     releaseDate: Date,
-    currentUser: MutableState<User>
-){
-    val date =
-        ZonedDateTime.ofInstant(releaseDate.toInstant(), ZoneId.systemDefault()).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
-    val project = Project(null, name, description, date, null, null)
-    ProjectService.createProject(project, currentUser.value.token, onSuccess = {}, onError = {})
+    currentUser: MutableState<User>,
+    onSuccess: (Boolean) -> Unit
+) {
+    val currentDate = ZonedDateTime.now(ZoneId.systemDefault()).toLocalDate()
+    val selectedDate =
+        ZonedDateTime.ofInstant(releaseDate.toInstant(), ZoneId.systemDefault()).toLocalDate()
+
+    if (name.isNotBlank() && description.isNotBlank() && !selectedDate.isBefore(currentDate)) {
+        val formattedDate = ZonedDateTime.ofInstant(releaseDate.toInstant(), ZoneId.systemDefault())
+            .format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
+        val project =
+            Project(null, name, description, formattedDate, null, null, 1, currentUser.value.id)
+        ProjectService.createProject(
+            project,
+            currentUser.value.token,
+            onSuccess = { onSuccess(true) },
+            onError = {})
+    } else {
+        if (name.isBlank()) {
+            errorToast(context, "Please enter a project name")
+        }
+        if (description.isBlank()) {
+            errorToast(context, "Please enter a project description")
+        }
+        if (selectedDate.isBefore(currentDate)) {
+            errorToast(context, "Release date cannot be in the past")
+        }
+        onSuccess(false)
+    }
 }
 
 
 /**
- * Composable function to display the success dialog after creating a project.
+ * Composable function to display a success dialog after creating a project.
+ * Shows project details in an alert dialog upon successful creation.
+ *
  * @param name The name of the project.
  * @param description The description of the project.
  * @param releaseDate The release date of the project.
  * @param onClose Callback function to close the dialog.
  */
 @Composable
-fun Success(name: String, description: String, releaseDate: Date, onClose:() -> Unit){
+fun Success(name: String, description: String, releaseDate: Date, onClose: () -> Unit) {
     AlertDialog(
         onDismissRequest = onClose,
-        title = { Text(text = "Project Details") },
+        title = { Text(text = "Project successfully created") },
         text = {
             Column {
                 Text("Name: ${name}")
@@ -142,8 +184,19 @@ fun Success(name: String, description: String, releaseDate: Date, onClose:() -> 
             Button(
                 onClick = onClose
             ) {
-                Text("Close")
+                Text("close")
             }
         })
 
+}
+
+/**
+ * Displays an error toast message.
+ * Shows a short-lived toast message to inform the user about an error.
+ *
+ * @param context The context of the calling component.
+ * @param message The error message to display.
+ */
+private fun errorToast(context: Context, message: String) {
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }

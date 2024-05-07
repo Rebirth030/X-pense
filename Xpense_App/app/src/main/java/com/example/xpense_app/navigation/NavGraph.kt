@@ -47,6 +47,14 @@ import com.example.xpense_app.view.timer.view_model.TimerViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+/**
+ * Composable function defining the navigation graph of the Xpense app.
+ * Manages navigation between different screens and provides a navigation drawer for accessing app features.
+ *
+ * @param context The context of the calling component.
+ * @param timerViewModel The view model for the timer feature.
+ * @param appViewModel The view model for the entire application.
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,20 +90,33 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
                         Icon(Icons.Rounded.Menu, contentDescription = "Menu", modifier = Modifier.padding(horizontal = 8.dp))
                     }
             })}
-        }, content = {  padding -> NavHost(navController = navController, startDestination = NavigationItem.Timer.route) {
-            composable(NavigationItem.Login.route) { LoginForm(navController, currentUser, appViewModel) }
-            composable(NavigationItem.Register.route) { CreateRegister(navController) }
-            composable(NavigationItem.Timer.route) { Timer(currentUser, onNavigateToLoginScreen = {
+
+        }, content = { padding ->
+            NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
+                composable(NavigationItem.Login.route) { LoginForm(navController, currentUser, appViewModel) }
+                composable(NavigationItem.Register.route) { CreateRegister(navController) }
+                composable(NavigationItem.Timer.route) { Timer(currentUser, onNavigateToLoginScreen = {
                 navController.navigate(NavigationItem.Login.route)
             }, appViewModel) }
-            composable(NavigationItem.Profiles.route) {  }
-            composable(NavigationItem.Manual.route) { AddExpense(navController, user = currentUser) }
-            composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController, padding)}
-
-        }})
+                composable(NavigationItem.Profiles.route) { }
+                composable(NavigationItem.Manual.route) { AddExpense(navController, currentUser) }
+                composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController, padding) }
+                composable(NavigationItem.Create.route) { CreateProjectScreen(currentUser, context) }
+            }})
     }
 }
 
+/**
+ * Composable function to create a navigation item in the navigation drawer.
+ * Manages the selection and navigation to the specified route.
+ *
+ * @param text The text label of the navigation item.
+ * @param coroutineScope The coroutine scope for launching actions.
+ * @param drawerState The state of the navigation drawer.
+ * @param navController The navigation controller for managing navigation.
+ * @param navRoute The navigation item route.
+ * @param selectedNavItem The state to track the currently selected navigation item.
+ */
 @Composable
 private fun CreateNavigationItem(
     text: String,
@@ -134,7 +155,10 @@ private fun CreateNavigationItem(
 }}
 
 /**
- * Function to get title of the current screen
+ * Retrieves the title of the current screen based on the navigation destination.
+ *
+ * @param navHostController The navigation controller managing the navigation within the app.
+ * @return The title of the current screen, or "Title not found" if the title couldn't be determined.
  */
 @Composable
 private fun getTitle(navHostController: NavHostController): String {
