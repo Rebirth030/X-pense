@@ -38,6 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.xpense_app.model.User
+import com.example.xpense_app.view.createProject.CreateProjectScreen
 import com.example.xpense_app.view.timer.Timer
 import com.example.xpense_app.view.login.CreateRegister
 import com.example.xpense_app.view.login.LoginForm
@@ -72,14 +73,16 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
         gesturesEnabled = true,
         drawerContent = {
             ModalDrawerSheet {
-                // Drawer content goes here
-
-               // CreateNavigationItem(NavigationItem.Login.name, coroutineScope, drawerState, navController, NavigationItem.Login, selectedNavItem)
-                //CreateNavigationItem(NavigationItem.Register.name, coroutineScope, drawerState, navController, NavigationItem.Register, selectedNavItem)
-                CreateNavigationItem(NavigationItem.Timer.name, coroutineScope, drawerState, navController, NavigationItem.Timer, selectedNavItem)
-                CreateNavigationItem(NavigationItem.Profiles.name, coroutineScope, drawerState, navController, NavigationItem.Profiles, selectedNavItem)
-                CreateNavigationItem(NavigationItem.Manual.name, coroutineScope, drawerState, navController, NavigationItem.Manual, selectedNavItem)
-                CreateNavigationItem(NavigationItem.Overview.name, coroutineScope, drawerState, navController, NavigationItem.Manual, selectedNavItem)
+                for (item in NavigationItem.values().filter { it != NavigationItem.Login && it != NavigationItem.Register }) {
+                    CreateNavigationItem(
+                        item.name,
+                        coroutineScope,
+                        drawerState,
+                        navController,
+                        item,
+                        selectedNavItem
+                    )
+                }
             }
         }
     ) {
