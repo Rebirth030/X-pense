@@ -21,6 +21,8 @@ public class ExpenseDTO {
 
     private String description;
 
+    private Long pausedAtTimestamp;
+
     public Long getId() {
         return id;
     }
@@ -84,5 +86,13 @@ public class ExpenseDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getPausedAtTimestamp() {
+        return pausedAtTimestamp;
+    }
+
+    public void setPausedAtTimestamp(Long pausedAtTimestamp) {
+        this.pausedAtTimestamp = pausedAtTimestamp;
     }
 }

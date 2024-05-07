@@ -33,6 +33,8 @@ public class Expense {
 
     private String description;
 
+    private Long pausedAtTimestamp;
+
 
     public Long getId() {
         return id;
@@ -96,5 +98,13 @@ public class Expense {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getPausedAtTimestamp() {
+        return pausedAtTimestamp;
+    }
+
+    public void setPausedAtTimestamp(Long pausedAtTimestamp) {
+        this.pausedAtTimestamp = pausedAtTimestamp;
     }
 }

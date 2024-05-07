@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -116,7 +117,6 @@ fun ProjectList(projects: List<Project>, timerViewModel: TimerViewModel) {
 fun ProjectItem(project: Project, timerViewModel: TimerViewModel) {
     var showProjectChangeDialog by remember { mutableStateOf(false) }
     val projectTimers by timerViewModel.projectTimers.collectAsState()
-    val projectStartTimers by timerViewModel.projectTimersStartTime.collectAsState()
     val isProjectOnRun by timerViewModel.projectTimersOnRun.collectAsState()
     Box(
         modifier = Modifier
@@ -146,7 +146,7 @@ fun ProjectItem(project: Project, timerViewModel: TimerViewModel) {
         if (isProjectOnRun[project.id]!!) {
             while (isProjectOnRun[project.id]!!) {
                 delay(1000)
-                timerViewModel.setProjectTime()
+                timerViewModel.setProjectTime(project)
             }
         }
     }
@@ -239,30 +239,56 @@ fun ProjectChangeDialog(
 fun TimerButtons(timerViewModel: TimerViewModel) {
     val currentProject by timerViewModel.currentProject.collectAsState()
     val isProjectOnRun by timerViewModel.projectTimersOnRun.collectAsState()
-    Row {
-        IconButton(
-            onClick = {
-                if (isProjectOnRun[currentProject!!.id!!]!!) {
-                    timerViewModel.toggleProjectTimer(false)
-                } else {
-                    timerViewModel.setProjectStartTime()
-                    timerViewModel.toggleProjectTimer(true)
-                }
-            }
+    var time by remember {
+        mutableStateOf(0L)
+    }
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier.padding(10.dp),
+            contentAlignment = Alignment.CenterEnd,
         ) {
-            val icon = if(isProjectOnRun[currentProject!!.id!!]!!) {
-                R.drawable.pause_solid
-            } else {
-                R.drawable.play_solid
-            }
-            Icon(painterResource(id = icon), contentDescription = "Play/Pause timer")
+            Text(
+                text = formatTime(timeMi = time),
+                textAlign = TextAlign.Center,
+                fontSize = 24.sp
+            )
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        IconButton(onClick = {
-            timerViewModel.stopAllProjectTimers()
-            timerViewModel.updateExpense()
-        }) {
-            Icon(painterResource(id = R.drawable.stop_solid), contentDescription = "Stop timer")
+        Row {
+            IconButton(
+                onClick = {
+                    if (isProjectOnRun[currentProject!!.id!!]!!) {
+                        timerViewModel.toggleProjectTimer(false)
+                    } else {
+                        timerViewModel.setProjectStartTime(null)
+                        timerViewModel.toggleProjectTimer(true)
+                    }
+                }
+            ) {
+                val icon = if(isProjectOnRun[currentProject!!.id!!]!!) {
+                    R.drawable.pause_solid
+                } else {
+                    R.drawable.play_solid
+                }
+                Icon(painterResource(id = icon), contentDescription = "Play/Pause timer")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            IconButton(onClick = {
+                timerViewModel.stopAllProjectTimers()
+                time = 0L
+            }) {
+                Icon(painterResource(id = R.drawable.stop_solid), contentDescription = "Stop timer")
+            }
+        }
+    }
+    LaunchedEffect(isProjectOnRun[currentProject!!.id!!]) {
+        if (isProjectOnRun[currentProject!!.id]!!) {
+            while (isProjectOnRun[currentProject!!.id]!!) {
+                delay(1000)
+                time = timerViewModel.getOverallTime()
+            }
         }
     }
 }

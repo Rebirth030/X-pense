@@ -59,5 +59,22 @@ class ExpenseService {
             }
 
         }
+
+        fun updateExpense(
+            expense: Expense,
+            token: String,
+            onSuccess: suspend (Expense) -> Unit,
+            onError: suspend (Exception) -> Unit
+        ) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val response = apiService.updateExpense(token, expense.id!!, expense)
+                    onSuccess(response.body()!!)
+                } catch (e: Exception) {
+                    onError(e)
+                }
+            }
+
+        }
     }
 }

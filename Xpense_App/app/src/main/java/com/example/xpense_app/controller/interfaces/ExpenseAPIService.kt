@@ -31,7 +31,7 @@ interface ExpenseAPIService: APIService {
     suspend fun createExpense(@Header("Authorization") token: String, @Body expense: Expense): Response<Expense>
 
     @PUT("expenses/{id}")
-    suspend fun updateExpense(@Header("Authorization") token: String, @Path("id") id: Int, @Body expense: Expense): Expense
+    suspend fun updateExpense(@Header("Authorization") token: String, @Path("id") id: Long, @Body expense: Expense): Response<Expense>
 
     @DELETE("expenses/{id}")
     suspend fun deleteExpense(@Header("Authorization") token: String, @Path("id") id: Int): Response<Unit>

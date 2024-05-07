@@ -10,12 +10,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.AppViewModel
 import com.example.xpense_app.navigation.ViewState
 import com.example.xpense_app.view.timer.ui.CurrentDate
@@ -23,14 +26,12 @@ import com.example.xpense_app.view.timer.ui.CurrentTime
 import com.example.xpense_app.view.timer.ui.ProjectList
 import com.example.xpense_app.view.timer.ui.TimerButtons
 import com.example.xpense_app.view.timer.view_model.TimerViewModel
+import com.example.xpense_app.view.timer.view_model.TimerViewModelFactory
 
 
 @Composable
 @ExperimentalMaterial3Api
-fun Timer(timerViewModel: TimerViewModel, onNavigateToLoginScreen: () -> Unit = {}, appViewModel: AppViewModel
-    ) {
-
-    val projects by timerViewModel.projects.collectAsState()
+fun Timer(currentUser: MutableState<User>, onNavigateToLoginScreen: () -> Unit = {}, appViewModel: AppViewModel) {
     val viewState by appViewModel.viewState.collectAsState(initial = ViewState.Loading)
     when (viewState) {
         ViewState.NotLoggedIn -> {
@@ -38,7 +39,11 @@ fun Timer(timerViewModel: TimerViewModel, onNavigateToLoginScreen: () -> Unit = 
                 onNavigateToLoginScreen()
             }
         }
+
         ViewState.LoggedIn -> {
+            val timerViewModel: TimerViewModel = viewModel(factory = TimerViewModelFactory(currentUser))
+            val projects by timerViewModel.projects.collectAsState()
+            val expenses by timerViewModel.expenses.collectAsState()
             Column(
                 modifier = Modifier.padding(10.dp)
             ) {
@@ -54,15 +59,18 @@ fun Timer(timerViewModel: TimerViewModel, onNavigateToLoginScreen: () -> Unit = 
                         .background(color = Color.DarkGray)
                         .align(Alignment.CenterHorizontally)
                 ) // divider
-                ProjectList(projects, timerViewModel)
-                Spacer(modifier = Modifier.height(10.dp))
-                TimerButtons(timerViewModel)
+                if (projects.isNotEmpty()) {
+                    ProjectList(projects, timerViewModel)
+                    Spacer(modifier = Modifier.weight(1f))
+                    TimerButtons(timerViewModel)
+                }
             }
         }
+
         ViewState.Loading -> {
             // TO DO
         }
     }
-
 }
+
 
