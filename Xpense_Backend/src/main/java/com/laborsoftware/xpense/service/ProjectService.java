@@ -1,10 +1,13 @@
 package com.laborsoftware.xpense.service;
 
+import com.laborsoftware.xpense.domain.ApplicationUser;
 import com.laborsoftware.xpense.domain.Project;
 import com.laborsoftware.xpense.domain.dto.ProjectDTO;
 import com.laborsoftware.xpense.exceptions.ResourceNotFoundException;
+import com.laborsoftware.xpense.exceptions.UserNotFoundException;
 import com.laborsoftware.xpense.mapper.ProjectMapper;
 import com.laborsoftware.xpense.repository.ProjectRepository;
+import com.laborsoftware.xpense.repository.UserRepository;
 import com.laborsoftware.xpense.service.crud.ICrudService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,12 +35,16 @@ public class ProjectService implements ICrudService<ProjectDTO, Long> {
     @Autowired
     public final ProjectMapper projectMapper;
 
+    public final UserRepository userRepository;
+
     public ProjectService(
             ProjectRepository projectRepository,
-            ProjectMapper projectMapper
+            ProjectMapper projectMapper,
+            UserRepository userRepository
     ) {
         this.projectRepository = projectRepository;
         this.projectMapper = projectMapper;
+        this.userRepository = userRepository;
     }
 
 
