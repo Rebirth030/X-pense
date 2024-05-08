@@ -1,4 +1,4 @@
-package com.example.xpense_app.view.manualBooking
+package com.example.xpense_app.view.manual_booking
 
 import Expense
 import android.content.Context

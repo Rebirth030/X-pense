@@ -22,7 +22,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,21 +29,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.xpense_app.model.User
-import com.example.xpense_app.view.createProject.CreateProjectScreen
+import com.example.xpense_app.view.create_project.CreateProjectScreen
 import com.example.xpense_app.view.timer.Timer
 import com.example.xpense_app.view.login.CreateRegister
 import com.example.xpense_app.view.login.LoginForm
-import com.example.xpense_app.view.manualBooking.AddExpense
+import com.example.xpense_app.view.manual_booking.AddExpense
 import com.example.xpense_app.view.overview.CreateOverview
-import com.example.xpense_app.view.timer.view_model.TimerViewModel
+import com.example.xpense_app.view.projects_overview.ProjectsOverview
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -95,7 +92,7 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
             })}
 
         }, content = { padding ->
-            NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
+            NavHost(navController = navController, startDestination = NavigationItem.Login.route, modifier = Modifier.padding(padding)) {
                 composable(NavigationItem.Login.route) { LoginForm(navController, currentUser, appViewModel) }
                 composable(NavigationItem.Register.route) { CreateRegister(navController) }
                 composable(NavigationItem.Timer.route) { Timer(currentUser, onNavigateToLoginScreen = {
@@ -103,8 +100,9 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
             }, appViewModel) }
                 composable(NavigationItem.Profiles.route) { }
                 composable(NavigationItem.Manual.route) { AddExpense(navController, currentUser) }
-                composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController, padding) }
-                composable(NavigationItem.Create.route) { CreateProjectScreen(currentUser, context) }
+                composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController) }
+                composable(NavigationItem.CreateProject.route) { CreateProjectScreen(currentUser, context) }
+                composable(NavigationItem.ProjectsOverview.route) { ProjectsOverview(currentUser.value, navController) }
             }})
     }
 }
