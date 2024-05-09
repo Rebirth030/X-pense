@@ -27,7 +27,6 @@ public class UserDTO {
 
     private Double holidayWorkingSchedule;
 
-    private Long userTimecardId;
 
     private Long superiorId;
 
@@ -116,13 +115,6 @@ public class UserDTO {
         this.weeklyWorkingHour = weeklyWorkingHour;
     }
 
-    public Long getUserTimecardId() {
-        return userTimecardId;
-    }
-
-    public void setUserTimecardId(Long userTimecardId) {
-        this.userTimecardId = userTimecardId;
-    }
 
     public Long getSuperiorId() {
         return superiorId;
