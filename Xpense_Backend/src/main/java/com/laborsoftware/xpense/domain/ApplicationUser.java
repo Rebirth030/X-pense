@@ -29,8 +29,6 @@ public class ApplicationUser implements UserDetails {
     private String language;
     private Double weeklyWorkingHour;
     private Double holidayWorkingSchedule;
-    @OneToOne(cascade = CascadeType.ALL)
-    private UserTimecard userTimecard;
     @ManyToOne
     private ApplicationUser superior;
     @Enumerated(EnumType.STRING)
@@ -122,14 +120,6 @@ public class ApplicationUser implements UserDetails {
 
     public void setHolidayWorkingSchedule(Double holidayWorkingSchedule) {
         this.holidayWorkingSchedule = holidayWorkingSchedule;
-    }
-
-    public UserTimecard getUserTimecard() {
-        return userTimecard;
-    }
-
-    public void setUserTimecard(UserTimecard userTimecard) {
-        this.userTimecard = userTimecard;
     }
 
     public ApplicationUser getSuperior() {

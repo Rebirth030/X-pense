@@ -28,9 +28,6 @@ public class Expense {
     @ManyToOne()
     private Project project;
 
-    @ManyToOne()
-    private WeeklyTimecard weeklyTimecard;
-
     private String description;
 
     private Long pausedAtTimestamp;
@@ -82,14 +79,6 @@ public class Expense {
 
     public void setProject(Project project) {
         this.project = project;
-    }
-
-    public WeeklyTimecard getWeeklyTimecard() {
-        return weeklyTimecard;
-    }
-
-    public void setWeeklyTimecard(WeeklyTimecard weeklyTimecard) {
-        this.weeklyTimecard = weeklyTimecard;
     }
 
     public String getDescription() {

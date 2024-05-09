@@ -183,7 +183,6 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             "RUNNING",
             currentUser.value.id,
             currentProject.value!!.id!!,
-            1L // dummy weekly timecard
         );
         this.saveExpense(expense)
     }

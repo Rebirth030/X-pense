@@ -5,12 +5,11 @@ import com.laborsoftware.xpense.domain.dto.UserDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {UserTimecardMapper.class})
+@Mapper(componentModel = "spring")
 public interface UserMapper {
-    @Mapping(source = "userTimecardId", target = "userTimecard.id")
-    ApplicationUser toEntity(UserDTO userDTO);
 
-    @Mapping(source = "userTimecard.id", target = "userTimecardId")
+    ApplicationUser  toEntity(UserDTO userDTO);
+
     UserDTO toDto(ApplicationUser applicationUser);
 
 

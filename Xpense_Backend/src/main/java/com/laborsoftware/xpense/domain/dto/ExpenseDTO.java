@@ -17,8 +17,6 @@ public class ExpenseDTO {
 
     private Long projectId;
 
-    private Long weeklyTimecardId;
-
     private String description;
 
     private Long pausedAtTimestamp;
@@ -70,14 +68,6 @@ public class ExpenseDTO {
 
     public void setProjectId(Long projectId) {
         this.projectId = projectId;
-    }
-
-    public Long getWeeklyTimecardId() {
-        return weeklyTimecardId;
-    }
-
-    public void setWeeklyTimecardId(Long weeklyTimecardId) {
-        this.weeklyTimecardId = weeklyTimecardId;
     }
 
     public String getDescription() {

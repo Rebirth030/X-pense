@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AssistChip
@@ -423,7 +425,6 @@ private fun createExpense(
         state = null,
         userId = user.id,
         projectId = project.id,
-        weeklyTimecardId = 1, //TODO: Implement weeklyTimecardId
         description = description
     ), token = user.token, onSuccess = {
         withContext(Dispatchers.Main) {
@@ -505,16 +506,15 @@ fun DropDown(
             }, modifier = Modifier.align(Alignment.Center)
         ) {
             TextField(
-                value = selectedProject.value.name!!,
+                value = selectedProject.value.name?: "No description available",
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 modifier = Modifier.menuAnchor()
             )
-
-            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.verticalScroll(rememberScrollState())) {
                 projects.forEach { item ->
-                    DropdownMenuItem(text = { Text(text = item.name!!) }, onClick = {
+                    DropdownMenuItem(text = { Text(text = item.name?: "No description available") }, onClick = {
                         selectedProject.value = item
                         expanded = false
                     })

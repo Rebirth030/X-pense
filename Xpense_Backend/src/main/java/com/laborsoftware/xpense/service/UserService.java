@@ -1,13 +1,10 @@
 package com.laborsoftware.xpense.service;
 
 import com.laborsoftware.xpense.domain.ApplicationUser;
-import com.laborsoftware.xpense.domain.UserTimecard;
 import com.laborsoftware.xpense.domain.dto.UserDTO;
-import com.laborsoftware.xpense.domain.dto.UserTimecardDTO;
 import com.laborsoftware.xpense.domain.enumeration.ApplicationUserRole;
 import com.laborsoftware.xpense.exceptions.ResourceNotFoundException;
 import com.laborsoftware.xpense.mapper.UserMapper;
-import com.laborsoftware.xpense.mapper.UserTimecardMapper;
 import com.laborsoftware.xpense.repository.UserRepository;
 import com.laborsoftware.xpense.service.crud.ICrudService;
 import jakarta.transaction.Transactional;
@@ -30,26 +27,18 @@ public class UserService implements ICrudService<UserDTO, Long> {
 
     Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private final UserTimecardService userTimecardService;
-
     private final UserRepository userRepository;
 
     @Autowired
     public final UserMapper userMapper;
 
-    @Autowired
-    public final UserTimecardMapper userTimecardMapper;
 
     public UserService(
             UserRepository userRepository,
-            UserMapper userMapper,
-            UserTimecardService userTimecardService,
-            UserTimecardMapper userTimecardMapper
+            UserMapper userMapper
     ) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
-        this.userTimecardService = userTimecardService;
-        this.userTimecardMapper = userTimecardMapper;
     }
 
 
@@ -62,16 +51,6 @@ public class UserService implements ICrudService<UserDTO, Long> {
             ApplicationUser applicationUser = userMapper.toEntity(userDTO);
             if(applicationUser.getRole() == null) {
                 applicationUser.setRole(ApplicationUserRole.EMPLOYEE);
-            }
-            if(userDTO.getUserTimecardId() == null) {
-                UserTimecard userTimecard = new UserTimecard();
-                userTimecard.setWeeklyWorkingHours(40.0);
-                userTimecard.setBalance(0.0);
-                userTimecard.setUserBalance(0.0);
-
-                UserTimecardDTO userTimecardDTO = userTimecardMapper.toDto(userTimecard);
-                userTimecard = userTimecardMapper.toEntity(userTimecardDTO);
-                applicationUser.setUserTimecard(userTimecard);
             }
 
             applicationUser = userRepository.save(applicationUser);
@@ -140,10 +119,6 @@ public class UserService implements ICrudService<UserDTO, Long> {
             e.printStackTrace();
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    public Optional<ApplicationUser> findUserByUserTimecardId(Long userTimecardId) {
-        return userRepository.findByUserTimecardId(userTimecardId);
     }
 
     private boolean eMailIsPresent(String email) {
