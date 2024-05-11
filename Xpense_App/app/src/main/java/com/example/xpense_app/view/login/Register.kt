@@ -127,7 +127,7 @@ fun submitAction(
         password = password.value,
         country = country,
         language = language,
-        weeklyWorkingHours = null,
+        weeklyWorkingHours = 40,
         holidayWorkingSchedule = null
     )
 
