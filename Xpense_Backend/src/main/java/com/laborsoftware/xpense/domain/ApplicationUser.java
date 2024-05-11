@@ -5,10 +5,8 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Date;
 
 @Entity
 @Table(name = "application_user")
@@ -27,7 +25,7 @@ public class ApplicationUser implements UserDetails {
     private String password;
     private String country;
     private String language;
-    private Double weeklyWorkingHour;
+    private Double weeklyWorkingHours;
     private Double holidayWorkingSchedule;
 
     @ManyToOne
@@ -118,12 +116,12 @@ public class ApplicationUser implements UserDetails {
         this.language = language;
     }
 
-    public Double getWeeklyWorkingHour() {
-        return weeklyWorkingHour;
+    public Double getWeeklyWorkingHours() {
+        return weeklyWorkingHours;
     }
 
-    public void setWeeklyWorkingHour(Double weeklyWorkingHour) {
-        this.weeklyWorkingHour = weeklyWorkingHour;
+    public void setWeeklyWorkingHours(Double weeklyWorkingHour) {
+        this.weeklyWorkingHours = weeklyWorkingHour;
     }
 
     public Double getHolidayWorkingSchedule() {

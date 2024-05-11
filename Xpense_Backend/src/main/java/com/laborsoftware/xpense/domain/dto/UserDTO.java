@@ -2,9 +2,7 @@ package com.laborsoftware.xpense.domain.dto;
 
 import com.laborsoftware.xpense.domain.enumeration.ApplicationUserRole;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class UserDTO {
     private Long id;
@@ -23,7 +21,7 @@ public class UserDTO {
 
     private String language;
 
-    private Double weeklyWorkingHour;
+    private Double weeklyWorkingHours;
 
     private Double holidayWorkingSchedule;
 
@@ -117,12 +115,12 @@ public class UserDTO {
         this.country = country;
     }
 
-    public Double getWeeklyWorkingHour() {
-        return weeklyWorkingHour;
+    public Double getWeeklyWorkingHours() {
+        return weeklyWorkingHours;
     }
 
-    public void setWeeklyWorkingHour(Double weeklyWorkingHour) {
-        this.weeklyWorkingHour = weeklyWorkingHour;
+    public void setWeeklyWorkingHours(Double weeklyWorkingHours) {
+        this.weeklyWorkingHours = weeklyWorkingHours;
     }
 
 
