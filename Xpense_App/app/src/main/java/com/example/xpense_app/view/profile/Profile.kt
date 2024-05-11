@@ -48,8 +48,6 @@ fun Profile() {
         Spacer(modifier = Modifier.height(20.dp))
         HourInput("Bevorzugte\nWochenstunden")
         Spacer(modifier = Modifier.height(20.dp))
-        HourInput("Bevorzugte\nMonatsstunden")
-        Spacer(modifier = Modifier.height(20.dp))
         NotificationInput()
     }
 }
