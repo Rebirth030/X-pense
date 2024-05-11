@@ -29,12 +29,24 @@ public class ApplicationUser implements UserDetails {
     private String language;
     private Double weeklyWorkingHour;
     private Double holidayWorkingSchedule;
+
     @ManyToOne
     private ApplicationUser superior;
     @Enumerated(EnumType.STRING)
     private ApplicationUserRole role;
     private String token;
     private LocalDateTime tokenExpirationDate;
+
+    private Double forcedBreakAfter;
+
+    private Boolean forcedBreakAfterOn;
+
+    private Double forcedEndAfter;
+
+    private Boolean forcedEndAfterOn;
+
+    private Boolean notification;
+
 
     // role - enum ? string : FREELANCER, EMPLOYEE, (STUDENT JOB)
     //endregion
@@ -181,5 +193,45 @@ public class ApplicationUser implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
+    }
+
+    public Double getForcedBreakAfter() {
+        return forcedBreakAfter;
+    }
+
+    public void setForcedBreakAfter(Double forcedBreakAfter) {
+        this.forcedBreakAfter = forcedBreakAfter;
+    }
+
+    public Double getForcedEndAfter() {
+        return forcedEndAfter;
+    }
+
+    public void setForcedEndAfter(Double forcedEndAfter) {
+        this.forcedEndAfter = forcedEndAfter;
+    }
+
+    public Boolean getForcedBreakAfterOn() {
+        return forcedBreakAfterOn;
+    }
+
+    public void setForcedBreakAfterOn(Boolean forcedBreakAfterOn) {
+        this.forcedBreakAfterOn = forcedBreakAfterOn;
+    }
+
+    public Boolean getForcedEndAfterOn() {
+        return forcedEndAfterOn;
+    }
+
+    public void setForcedEndAfterOn(Boolean forcedEndAfterOn) {
+        this.forcedEndAfterOn = forcedEndAfterOn;
+    }
+
+    public Boolean getNotification() {
+        return notification;
+    }
+
+    public void setNotification(Boolean notification) {
+        this.notification = notification;
     }
 }
