@@ -2,9 +2,7 @@ package com.laborsoftware.xpense.domain.dto;
 
 import com.laborsoftware.xpense.domain.enumeration.ApplicationUserRole;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class UserDTO {
     private Long id;
@@ -23,7 +21,7 @@ public class UserDTO {
 
     private String language;
 
-    private Double weeklyWorkingHour;
+    private Double weeklyWorkingHours;
 
     private Double holidayWorkingSchedule;
 
@@ -34,6 +32,16 @@ public class UserDTO {
     private LocalDateTime tokenExpirationDate;
 
     private ApplicationUserRole role;
+
+    private Double forcedBreakAfter;
+
+    private Boolean forcedBreakAfterOn;
+
+    private Double forcedEndAfter;
+
+    private Boolean forcedEndAfterOn;
+
+    private Boolean notification;
 
     public Long getId() {
         return id;
@@ -107,12 +115,12 @@ public class UserDTO {
         this.country = country;
     }
 
-    public Double getWeeklyWorkingHour() {
-        return weeklyWorkingHour;
+    public Double getWeeklyWorkingHours() {
+        return weeklyWorkingHours;
     }
 
-    public void setWeeklyWorkingHour(Double weeklyWorkingHour) {
-        this.weeklyWorkingHour = weeklyWorkingHour;
+    public void setWeeklyWorkingHours(Double weeklyWorkingHours) {
+        this.weeklyWorkingHours = weeklyWorkingHours;
     }
 
 
@@ -147,5 +155,45 @@ public class UserDTO {
 
     public void setTokenExpirationDate(LocalDateTime tokenExpirationDate) {
         this.tokenExpirationDate = tokenExpirationDate;
+    }
+
+    public Double getForcedBreakAfter() {
+        return forcedBreakAfter;
+    }
+
+    public void setForcedBreakAfter(Double forcedBreakAfter) {
+        this.forcedBreakAfter = forcedBreakAfter;
+    }
+
+    public Double getForcedEndAfter() {
+        return forcedEndAfter;
+    }
+
+    public void setForcedEndAfter(Double forcedEndAfter) {
+        this.forcedEndAfter = forcedEndAfter;
+    }
+
+    public Boolean getForcedBreakAfterOn() {
+        return forcedBreakAfterOn;
+    }
+
+    public void setForcedBreakAfterOn(Boolean forcedBreakAfterOn) {
+        this.forcedBreakAfterOn = forcedBreakAfterOn;
+    }
+
+    public Boolean getForcedEndAfterOn() {
+        return forcedEndAfterOn;
+    }
+
+    public void setForcedEndAfterOn(Boolean forcedEndAfterOn) {
+        this.forcedEndAfterOn = forcedEndAfterOn;
+    }
+
+    public Boolean getNotification() {
+        return notification;
+    }
+
+    public void setNotification(Boolean notification) {
+        this.notification = notification;
     }
 }

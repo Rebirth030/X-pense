@@ -1,21 +1,27 @@
 package com.example.xpense_app.view.timer.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -27,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +45,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import com.example.xpense_app.R
 import com.example.xpense_app.model.Project
@@ -75,14 +84,15 @@ fun CurrentTime() {
 @ExperimentalMaterial3Api
 fun ProjectList(projects: List<Project>, timerViewModel: TimerViewModel) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 10.dp, bottom = 5.dp, top = 10.dp)
+    modifier = Modifier
+        .fillMaxWidth()
+        .padding(start = 10.dp, bottom = 15.dp, top = 15.dp),
+    horizontalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Projekte:",
-            fontWeight = FontWeight.Bold,
-            fontSize = 16.sp
+            text = "Projekte",
+            fontSize = 24.sp,
+            textAlign = TextAlign.Center
         )
     }
     Row(
@@ -90,23 +100,21 @@ fun ProjectList(projects: List<Project>, timerViewModel: TimerViewModel) {
             .fillMaxWidth()
             .padding(start = 10.dp, end = 10.dp, top = 5.dp, bottom = 5.dp)
     ) {
-        Box(
+        LazyVerticalGrid(
+            contentPadding = PaddingValues(20.dp),
+            columns = GridCells.Fixed(1),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            userScrollEnabled = true,
             modifier = Modifier
-                .padding(10.dp)
                 .border(2.dp, Color.Black, shape = RoundedCornerShape(8.dp))
+                .heightIn(max = 300.dp)
         ) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(1),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(20.dp)
-            ) {
-                items(projects.size) { index ->
-                    ProjectItem(
-                        project = projects[index],
-                        timerViewModel = timerViewModel
-                    )
-                }
+            itemsIndexed(projects) { _, project ->
+                ProjectItem(
+                    project = project,
+                    timerViewModel = timerViewModel
+                )
             }
         }
     }
@@ -125,23 +133,27 @@ fun ProjectItem(project: Project, timerViewModel: TimerViewModel) {
         contentAlignment = Alignment.Center,
     ) {
         Row(
-            modifier = Modifier.fillMaxHeight(),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier
+                .fillMaxHeight(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
         ) {
-            ProjectLabel(project = project)
+            ProjectLabel(project = project, isProjectOnRun[project.id!!]!!)
             ProjectName(project = project)
+            Spacer(modifier = Modifier.weight(1f))
             Box(
                 modifier = Modifier.padding(10.dp),
                 contentAlignment = Alignment.CenterEnd,
             ) {
                 Text(
-                    text = formatTime(timeMi = projectTimers[project.id!!]!!),
+                    text = formatTimeProject(timeMi = projectTimers[project.id]!!),
                     textAlign = TextAlign.Center,
                     fontSize = 20.sp
                 )
             }
         }
     }
+    Log.d("TEST", "I am here")
     LaunchedEffect(isProjectOnRun[project.id!!]) {
         if (isProjectOnRun[project.id]!!) {
             while (isProjectOnRun[project.id]!!) {
@@ -162,11 +174,16 @@ fun ProjectItem(project: Project, timerViewModel: TimerViewModel) {
 }
 
 @Composable
-fun ProjectLabel(project: Project) {
+fun ProjectLabel(project: Project, projectIsOnRun: Boolean) {
+    val color = if (projectIsOnRun) {
+        Color.Green
+    } else {
+        Color.Blue
+    }
     Box(
         modifier = Modifier
             .size(50.dp)
-            .background(color = Color.Blue, shape = CircleShape),
+            .background(color = color, shape = CircleShape),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -183,14 +200,17 @@ fun ProjectName(project: Project) {
     Box(
         modifier = Modifier
             .fillMaxHeight()
-            .padding(start = 10.dp),
+            .padding(start = 10.dp)
+            .widthIn(max = 175.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = project.name!!,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
-            fontSize = 20.sp
+            fontSize = 20.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
@@ -239,6 +259,7 @@ fun ProjectChangeDialog(
 fun TimerButtons(timerViewModel: TimerViewModel) {
     val currentProject by timerViewModel.currentProject.collectAsState()
     val isProjectOnRun by timerViewModel.projectTimersOnRun.collectAsState()
+    val projectStartTimes by timerViewModel.projectTimersStartTime.collectAsState()
     var time by remember {
         mutableStateOf(0L)
     }
@@ -267,7 +288,7 @@ fun TimerButtons(timerViewModel: TimerViewModel) {
                     }
                 }
             ) {
-                val icon = if(isProjectOnRun[currentProject!!.id!!]!!) {
+                val icon = if (isProjectOnRun[currentProject!!.id!!]!!) {
                     R.drawable.pause_solid
                 } else {
                     R.drawable.play_solid
@@ -324,4 +345,12 @@ fun formatTime(timeMi: Long): String {
     val seconds = TimeUnit.MILLISECONDS.toSeconds(timeMi) % 60
 
     return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+}
+
+@Composable
+fun formatTimeProject(timeMi: Long): String {
+    val hours = TimeUnit.MILLISECONDS.toHours(timeMi)
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(timeMi) % 60
+
+    return String.format("%02d:%02d", hours, minutes)
 }

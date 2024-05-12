@@ -15,6 +15,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
@@ -71,13 +72,13 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                     _projectTimersStartTime.value += (project.id to 0L)
                     _projectTimers.value += (project.id to 0L)
                 }
-                if(expenses.value.isNotEmpty())  {
+                if (expenses.value.isNotEmpty()) {
                     val openExpenses =
                         expenses.value.filter { expense ->
                             expense.state == "RUNNING" || expense.state == "PAUSED"
                         }
                     openExpenses.forEach { expense ->
-                        if(expense.state == "RUNNING") {
+                        if (expense.state == "RUNNING") {
                             _currentExpense.value = expense
                             _currentProject.value =
                                 projects.value.find { project -> project.id == expense.projectId!! }
@@ -147,7 +148,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
     }
 
     fun setProjectStartTime(expense: Expense?) {
-        val projectId = if(expense != null) {
+        val projectId = if (expense != null) {
             expense.projectId!!
         } else {
             currentProject.value!!.id!!
@@ -188,7 +189,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
     }
 
     private fun updateCurrentExpense(newState: String) {
-        val updatedExpense = if(newState == "PAUSED") {
+        val updatedExpense = if (newState == "PAUSED") {
             val currentTimestamp = projectTimers.value[currentExpense.value!!.projectId]
             currentExpense.value!!.copy(state = newState, pausedAtTimestamp = currentTimestamp)
         } else {
@@ -249,12 +250,27 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             _currentExpense.value = expenseAlreadyStarted
             this.toggleProjectTimer(timerWasRunning)
         }
+        // this.reorderProjects()
     }
+
+
+    fun reorderProjects() {
+        val reorderedProjects = projects.value.toMutableList()
+        reorderedProjects.clear()
+        reorderedProjects.add(currentProject.value!!)
+        for (project in projects.value) {
+            if (project.id!! != currentProject.value!!.id!!) {
+                reorderedProjects.add(project)
+            }
+        }
+        _projects.value = reorderedProjects
+    }
+
 
 
     fun stopAllProjectTimers() {
         _projectTimersOnRun.value = _projectTimersOnRun.value.mapValues { (_, _) -> false }
-        expenses.value.forEach {expense ->
+        expenses.value.forEach { expense ->
             val updatedExpense = expense.copy(state = "FINISHED", endDateTime = this.getCurrentDate())
             this.updateExpense(updatedExpense)
         }

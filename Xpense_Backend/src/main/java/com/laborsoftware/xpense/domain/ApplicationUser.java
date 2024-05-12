@@ -5,10 +5,8 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Date;
 
 @Entity
 @Table(name = "application_user")
@@ -27,14 +25,26 @@ public class ApplicationUser implements UserDetails {
     private String password;
     private String country;
     private String language;
-    private Double weeklyWorkingHour;
+    private Double weeklyWorkingHours;
     private Double holidayWorkingSchedule;
+
     @ManyToOne
     private ApplicationUser superior;
     @Enumerated(EnumType.STRING)
     private ApplicationUserRole role;
     private String token;
     private LocalDateTime tokenExpirationDate;
+
+    private Double forcedBreakAfter;
+
+    private Boolean forcedBreakAfterOn;
+
+    private Double forcedEndAfter;
+
+    private Boolean forcedEndAfterOn;
+
+    private Boolean notification;
+
 
     // role - enum ? string : FREELANCER, EMPLOYEE, (STUDENT JOB)
     //endregion
@@ -106,12 +116,12 @@ public class ApplicationUser implements UserDetails {
         this.language = language;
     }
 
-    public Double getWeeklyWorkingHour() {
-        return weeklyWorkingHour;
+    public Double getWeeklyWorkingHours() {
+        return weeklyWorkingHours;
     }
 
-    public void setWeeklyWorkingHour(Double weeklyWorkingHour) {
-        this.weeklyWorkingHour = weeklyWorkingHour;
+    public void setWeeklyWorkingHours(Double weeklyWorkingHour) {
+        this.weeklyWorkingHours = weeklyWorkingHour;
     }
 
     public Double getHolidayWorkingSchedule() {
@@ -181,5 +191,45 @@ public class ApplicationUser implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
+    }
+
+    public Double getForcedBreakAfter() {
+        return forcedBreakAfter;
+    }
+
+    public void setForcedBreakAfter(Double forcedBreakAfter) {
+        this.forcedBreakAfter = forcedBreakAfter;
+    }
+
+    public Double getForcedEndAfter() {
+        return forcedEndAfter;
+    }
+
+    public void setForcedEndAfter(Double forcedEndAfter) {
+        this.forcedEndAfter = forcedEndAfter;
+    }
+
+    public Boolean getForcedBreakAfterOn() {
+        return forcedBreakAfterOn;
+    }
+
+    public void setForcedBreakAfterOn(Boolean forcedBreakAfterOn) {
+        this.forcedBreakAfterOn = forcedBreakAfterOn;
+    }
+
+    public Boolean getForcedEndAfterOn() {
+        return forcedEndAfterOn;
+    }
+
+    public void setForcedEndAfterOn(Boolean forcedEndAfterOn) {
+        this.forcedEndAfterOn = forcedEndAfterOn;
+    }
+
+    public Boolean getNotification() {
+        return notification;
+    }
+
+    public void setNotification(Boolean notification) {
+        this.notification = notification;
     }
 }
