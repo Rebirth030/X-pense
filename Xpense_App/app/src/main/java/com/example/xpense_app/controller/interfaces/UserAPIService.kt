@@ -23,7 +23,7 @@ interface UserAPIService: APIService {
 
 
     @PUT("users/{id}")
-    suspend fun updateUser(@Header("Authorization") token: String, @Path("id") id: Int, @Body user: User): User
+    suspend fun updateUser(@Header("Authorization") token: String, @Path("id") id: Long, @Body user: User): Response<User>
 
 
     /*

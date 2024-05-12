@@ -102,7 +102,7 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
                 composable(NavigationItem.Timer.route) { Timer(currentUser, onNavigateToLoginScreen = {
                 navController.navigate(NavigationItem.Login.route)
             }, appViewModel) }
-                composable(NavigationItem.Profiles.route) { Profile() }
+                composable(NavigationItem.Profiles.route) { Profile(currentUser) }
                 composable(NavigationItem.Manual.route) { AddExpense(navController, currentUser) }
                 composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController, padding) }
                 composable(NavigationItem.Create.route) { CreateProjectScreen(currentUser, context) }

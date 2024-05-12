@@ -74,7 +74,6 @@ class ExpenseService {
                     onError(e)
                 }
             }
-
         }
     }
 }
