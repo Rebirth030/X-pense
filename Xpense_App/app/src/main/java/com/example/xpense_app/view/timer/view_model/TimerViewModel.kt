@@ -250,11 +250,12 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             _currentExpense.value = expenseAlreadyStarted
             this.toggleProjectTimer(timerWasRunning)
         }
-        // this.reorderProjects()
+        //this.reorderProjects()
     }
 
 
-    fun reorderProjects() {
+    fun reorderProjects(): List<Project> {
+        //viewModelScope.launch {
         val reorderedProjects = projects.value.toMutableList()
         reorderedProjects.clear()
         reorderedProjects.add(currentProject.value!!)
@@ -264,8 +265,9 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             }
         }
         _projects.value = reorderedProjects
+        return reorderedProjects
+        //}
     }
-
 
 
     fun stopAllProjectTimers() {

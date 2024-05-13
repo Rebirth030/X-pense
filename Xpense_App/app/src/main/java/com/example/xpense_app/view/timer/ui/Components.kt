@@ -83,11 +83,12 @@ fun CurrentTime() {
 @Composable
 @ExperimentalMaterial3Api
 fun ProjectList(projects: List<Project>, timerViewModel: TimerViewModel) {
+    var projectList by remember { mutableStateOf(projects) }
     Row(
-    modifier = Modifier
-        .fillMaxWidth()
-        .padding(start = 10.dp, bottom = 15.dp, top = 15.dp),
-    horizontalArrangement = Arrangement.Center
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 10.dp, bottom = 15.dp, top = 15.dp),
+        horizontalArrangement = Arrangement.Center
     ) {
         Text(
             text = "Projekte",
@@ -110,10 +111,16 @@ fun ProjectList(projects: List<Project>, timerViewModel: TimerViewModel) {
                 .border(2.dp, Color.Black, shape = RoundedCornerShape(8.dp))
                 .heightIn(max = 300.dp)
         ) {
-            itemsIndexed(projects) { _, project ->
+            itemsIndexed(projectList, key = { _, projectKey -> projectKey.id!! })
+            { _, project ->
                 ProjectItem(
                     project = project,
-                    timerViewModel = timerViewModel
+                    timerViewModel = timerViewModel,
+                    onReorderProject = {
+                        if (it) {
+                            projectList = timerViewModel.reorderProjects()
+                        }
+                    }
                 )
             }
         }
@@ -122,7 +129,11 @@ fun ProjectList(projects: List<Project>, timerViewModel: TimerViewModel) {
 
 @ExperimentalMaterial3Api
 @Composable
-fun ProjectItem(project: Project, timerViewModel: TimerViewModel) {
+fun ProjectItem(
+    project: Project,
+    timerViewModel: TimerViewModel,
+    onReorderProject: (Boolean) -> Unit
+) {
     var showProjectChangeDialog by remember { mutableStateOf(false) }
     val projectTimers by timerViewModel.projectTimers.collectAsState()
     val isProjectOnRun by timerViewModel.projectTimersOnRun.collectAsState()
@@ -168,6 +179,7 @@ fun ProjectItem(project: Project, timerViewModel: TimerViewModel) {
             timerViewModel = timerViewModel,
             onDismiss = {
                 showProjectChangeDialog = false
+                onReorderProject(it)
             }
         )
     }
@@ -229,7 +241,7 @@ fun ProjectChangeDialog(
             Button(
                 onClick = {
                     timerViewModel.changeProject(project)
-                    onDismiss(false)
+                    onDismiss(true)
                 }
             ) {
                 Text(
