@@ -1,8 +1,8 @@
 package com.example.xpense_app.model
 
-enum class UserRole {
-    FREELANCER,
-    EMPLOYEE,
-    WORK_STUDENT,
-    COSTUMED
+enum class UserRole(val description: String) {
+    FREELANCER("Freelancer"),
+    EMPLOYEE("Employee"),
+    WORK_STUDENT("Work Student"),
+    COSTUMED("Costumed")
 }
