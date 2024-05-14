@@ -36,6 +36,7 @@ import androidx.compose.ui.text.decapitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import com.example.xpense_app.model.User
 import com.example.xpense_app.model.UserRole
@@ -144,7 +145,7 @@ fun HourMinuteInput(
                 inputMinute.toString(),
                 maxVal = 60,
                 onInputSelected = {
-                    if(it.isNotBlank()) {
+                    if (it.isNotBlank()) {
                         onInputChange(inputHour + (it.toDouble() / 60))
                     }
                 }
@@ -179,7 +180,7 @@ fun HourInput(
             inputValue.toString(),
             maxVal = 100,
             onInputSelected = {
-                if(it.isNotBlank()) {
+                if (it.isNotBlank()) {
                     onInputChange(it.toInt())
                 }
             },
@@ -245,8 +246,7 @@ fun MutableInput(
         modifier = Modifier.width(100.dp),
         value = input,
         onValueChange = {
-            Log.d("MUTABLE INPUT", it)
-            if (it.isBlank()||(it.toIntOrNull() in minVal..maxVal)) {
+            if (it.isBlank() || (it.toIntOrNull() in minVal..maxVal)) {
                 input = it
                 onInputSelected(it)
             }
@@ -277,5 +277,89 @@ fun SwitchButton(
         } else {
             null
         }
+    )
+}
+
+@Composable
+fun MutableHourMinuteInput(
+    label: String,
+    inputHour: Int,
+    inputMinute: Int,
+    inputOn: Boolean,
+    onInputChange: (Double) -> Unit,
+    onSwitchToggle: (Boolean) -> Unit
+) {
+    var hour by remember { mutableStateOf(inputHour.toString()) }
+    var minute by remember { mutableStateOf(inputMinute.toString()) }
+    Column(modifier = Modifier.padding(horizontal = 10.dp)) {
+        Text(
+            text = label,
+            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
+        )
+        Row(modifier = Modifier.padding(top = 10.dp)) {
+            TextField(
+                modifier = Modifier.width(100.dp),
+                value = hour,
+                onValueChange = {
+                    if (it.isBlank() || (it.toIntOrNull() in 0..10)) {
+                        hour = it
+                        if (it.isNotBlank()) {
+                            onInputChange(it.toDouble() + (inputMinute / 60))
+                        } else {
+                            onInputChange(0.0 + (inputMinute / 60))
+                        }
+                    }
+                },
+                label = { Text("Hours") },
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+            )
+            Text(
+                modifier = Modifier.padding(horizontal = 10.dp),
+                text = ":",
+                style = TextStyle(fontSize = 40.sp)
+            )
+            TextField(
+                modifier = Modifier.width(100.dp),
+                value = minute,
+                onValueChange = {
+                    if (it.isBlank() || (it.toIntOrNull() in 0..60)) {
+                        minute = it
+                        if (it.isNotBlank()) {
+                            onInputChange(inputHour + (it.toDouble() / 60))
+                        } else {
+                            onInputChange(inputHour + 0.0)
+                        }
+                    }
+                },
+                label = { Text("Minutes") },
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            SwitchButton(
+                inputOn,
+                onSwitchToggle = { onSwitchToggle(it) }
+            )
+        }
+    }
+}
+
+@Composable
+fun MutableHourInput(inputHour: Int, onInputSelected: (Int) -> Unit) {
+    var hour by remember { mutableStateOf(inputHour.toString()) }
+    TextField(
+        modifier = Modifier.width(100.dp),
+        value = hour,
+        onValueChange = {
+            if (it.isBlank() || (it.toIntOrNull() in 0..100)) {
+                hour = it
+                if (it.isNotBlank()) {
+                    onInputSelected(it.toInt())
+                } else {
+                    onInputSelected(0)
+                }
+            }
+        },
+        label = { Text("Hours") },
+        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
     )
 }

@@ -71,6 +71,9 @@ fun Profile(currentUser: MutableState<User>) {
     var weeklyWorkingHours by remember {
         mutableStateOf(currentUser.value.weeklyWorkingHours)
     }
+    val userHasCostumedProfile by remember {
+        mutableStateOf(currentUser.value.role == UserRole.COSTUMED.name)
+    }
     Column(
         modifier = Modifier.padding(10.dp)
     ) {
@@ -79,6 +82,7 @@ fun Profile(currentUser: MutableState<User>) {
             currentUser,
             onSelectedProfile = {
                 role = it.name
+                Log.d("Selected Role", role)
                 when (it) {
                     UserRole.EMPLOYEE -> {
                         weeklyWorkingHours = 40
@@ -109,53 +113,101 @@ fun Profile(currentUser: MutableState<User>) {
                     }
 
                     UserRole.COSTUMED -> {
-                        weeklyWorkingHours = 0
-                        forcedBreakAfter = 0.0
-                        forcedBreakAfterOn = false
-                        forcedEndAfter = 0.0
-                        forcedEndAfterOn = false
-                        notificationsOn = false
+                        if (!userHasCostumedProfile) {
+                            weeklyWorkingHours = 0
+                            forcedBreakAfter = 0.0
+                            forcedBreakAfterOn = false
+                            forcedEndAfter = 0.0
+                            forcedEndAfterOn = false
+                            notificationsOn = false
+                        } else {
+                            weeklyWorkingHours = currentUser.value.weeklyWorkingHours
+                            forcedBreakAfter = currentUser.value.forcedBreakAfter
+                            forcedBreakAfterOn = currentUser.value.forcedBreakAfterOn
+                            forcedEndAfter = currentUser.value.forcedEndAfter
+                            forcedEndAfterOn = currentUser.value.forcedEndAfterOn
+                            notificationsOn = currentUser.value.notification
+                        }
                     }
                 }
             }
         )
         Spacer(modifier = Modifier.height(30.dp))
-        HourMinuteInput(
-            "Forced break after",
-            role != UserRole.COSTUMED.name,
-            floor(forcedBreakAfter!!).toInt(),
-            ((forcedBreakAfter!! - floor(forcedBreakAfter!!)) * 60).toInt(),
-            forcedBreakAfterOn!!,
-            onInputChange = {
-                forcedBreakAfter = it
-            },
-            onSwitchToggle = {
-                forcedBreakAfterOn = it
+        if (!userHasCostumedProfile || (role != UserRole.COSTUMED.name)) {
+            HourMinuteInput(
+                "Forced break after",
+                role != UserRole.COSTUMED.name,
+                floor(forcedBreakAfter!!).toInt(),
+                ((forcedBreakAfter!! - floor(forcedBreakAfter!!)) * 60).toInt(),
+                forcedBreakAfterOn!!,
+                onInputChange = {
+                    forcedBreakAfter = it
+                },
+                onSwitchToggle = {
+                    forcedBreakAfterOn = it
+                }
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            HourMinuteInput(
+                "Forced end after",
+                role != UserRole.COSTUMED.name,
+                floor(forcedEndAfter!!).toInt(),
+                ((forcedEndAfter!! - floor(forcedEndAfter!!)) * 60).toInt(),
+                forcedEndAfterOn!!,
+                onInputChange = {
+                    forcedEndAfter = it
+                },
+                onSwitchToggle = {
+                    forcedEndAfterOn = it
+                }
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            HourInput(
+                "Weekly\nworking hours",
+                role != UserRole.COSTUMED.name,
+                weeklyWorkingHours!!,
+                onInputChange = {
+                    weeklyWorkingHours = it
+                }
+            )
+        } else { // user has costumed profile && costumed profile is selected
+            // show mutable input with values
+            MutableHourMinuteInput(
+                "Forced break after",
+                floor(forcedBreakAfter!!).toInt(),
+                ((forcedBreakAfter!! - floor(forcedBreakAfter!!)) * 60).toInt(),
+                forcedBreakAfterOn!!,
+                onInputChange = {
+                    forcedBreakAfter = it
+                },
+                onSwitchToggle = {
+                    forcedBreakAfterOn = it
+                }
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            MutableHourMinuteInput(
+                "Forced end after",
+                floor(forcedEndAfter!!).toInt(),
+                ((forcedEndAfter!! - floor(forcedEndAfter!!)) * 60).toInt(),
+                forcedEndAfterOn!!,
+                onInputChange = {
+                    forcedEndAfter = it
+                },
+                onSwitchToggle = {
+                    forcedEndAfterOn = it
+                }
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(modifier = Modifier.padding(10.dp))
+            {
+                Text(
+                    text = "Weekly\nworking hours:",
+                    style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                MutableHourInput(weeklyWorkingHours!!, onInputSelected = {weeklyWorkingHours = it})
             }
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        HourMinuteInput(
-            "Forced end after",
-            role != UserRole.COSTUMED.name,
-            floor(forcedEndAfter!!).toInt(),
-            ((forcedEndAfter!! - floor(forcedEndAfter!!)) * 60).toInt(),
-            forcedEndAfterOn!!,
-            onInputChange = {
-                forcedEndAfter = it
-            },
-            onSwitchToggle = {
-                forcedEndAfterOn = it
-            }
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        HourInput(
-            "Weekly\nworking hours",
-            role != UserRole.COSTUMED.name,
-            weeklyWorkingHours!!,
-            onInputChange = {
-                weeklyWorkingHours = it
-            }
-        )
+        }
         Spacer(modifier = Modifier.height(20.dp))
         NotificationInput(
             notificationsOn!!,
@@ -169,41 +221,66 @@ fun Profile(currentUser: MutableState<User>) {
                         weeklyWorkingHours!!,
                         forcedBreakAfter!!,
                         forcedEndAfter!!
-                    )) {
-                    currentUser.value.role = role
-                    currentUser.value.weeklyWorkingHours = weeklyWorkingHours
-                    currentUser.value.forcedBreakAfter = forcedBreakAfter
-                    currentUser.value.forcedBreakAfterOn = forcedBreakAfterOn
-                    currentUser.value.forcedEndAfter = forcedEndAfter
-                    currentUser.value.forcedEndAfterOn = forcedEndAfterOn
-                    currentUser.value.notification = false // default of every profile
-                    UserService.updateUser(
-                        currentUser.value,
-                        currentUser.value.token,
-                        onSuccess = {
-                            currentUser.value = it
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(
-                                    context,
-                                    "Profile successfully updated to: ${it.role}",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                        },
-                        onError = {
-                            it.printStackTrace()
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(
-                                    context,
-                                    "An Error has occurred while updating profile!: ${it.message}",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                        }
+                    )
+                ) {
+                    saveUser(
+                        context,
+                        currentUser,
+                        role, weeklyWorkingHours!!,
+                        forcedBreakAfter!!,
+                        forcedBreakAfterOn!!,
+                        forcedEndAfter!!,
+                        forcedEndAfterOn!!,
+                        notificationsOn!!
                     )
                 }
             })
     }
+}
+
+
+fun saveUser(
+    context: Context,
+    currentUser: MutableState<User>,
+    role: String,
+    weeklyWorkingHours: Int,
+    forcedBreakAfter: Double,
+    forcedBreakAfterOn: Boolean,
+    forcedEndAfter: Double,
+    forcedEndAfterOn: Boolean,
+    notificationsOn: Boolean
+) {
+    currentUser.value.role = role
+    currentUser.value.weeklyWorkingHours = weeklyWorkingHours
+    currentUser.value.forcedBreakAfter = forcedBreakAfter
+    currentUser.value.forcedBreakAfterOn = forcedBreakAfterOn
+    currentUser.value.forcedEndAfter = forcedEndAfter
+    currentUser.value.forcedEndAfterOn = forcedEndAfterOn
+    currentUser.value.notification = notificationsOn
+    UserService.updateUser(
+        currentUser.value,
+        currentUser.value.token,
+        onSuccess = {
+            currentUser.value = it
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    "Profile successfully updated to: ${it.role}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        },
+        onError = {
+            it.printStackTrace()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    "An Error has occurred while updating profile!: ${it.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    )
 }
 
 fun inputsAreValid(
