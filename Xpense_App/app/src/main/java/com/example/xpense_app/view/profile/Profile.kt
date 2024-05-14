@@ -6,37 +6,21 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.xpense_app.controller.services.UserService
@@ -80,133 +64,46 @@ fun Profile(currentUser: MutableState<User>) {
         Spacer(modifier = Modifier.height(70.dp)) // header
         DropDown(
             currentUser,
-            onSelectedProfile = {
-                role = it.name
-                Log.d("Selected Role", role)
-                when (it) {
-                    UserRole.EMPLOYEE -> {
-                        weeklyWorkingHours = 40
-                        forcedBreakAfter = 4.0
-                        forcedBreakAfterOn = true
-                        forcedEndAfter = 8.0
-                        forcedEndAfterOn = true
-                        notificationsOn = false
-                    }
-
-                    UserRole.FREELANCER -> {
-                        weeklyWorkingHours = 41
-                        forcedBreakAfter = 5.0
-                        forcedBreakAfterOn = false
-                        forcedEndAfter = 10.0
-                        forcedEndAfterOn = false
-                        notificationsOn = false
-                    }
-
-                    UserRole.WORK_STUDENT -> {
-                        Log.d("CHANGE ROLE", "Helo")
-                        weeklyWorkingHours = 20
-                        forcedBreakAfter = 3.0
-                        forcedBreakAfterOn = false
-                        forcedEndAfter = 6.0
-                        forcedEndAfterOn = false
-                        notificationsOn = false
-                    }
-
-                    UserRole.COSTUMED -> {
-                        if (!userHasCostumedProfile) {
-                            weeklyWorkingHours = 0
-                            forcedBreakAfter = 0.0
-                            forcedBreakAfterOn = false
-                            forcedEndAfter = 0.0
-                            forcedEndAfterOn = false
-                            notificationsOn = false
-                        } else {
-                            weeklyWorkingHours = currentUser.value.weeklyWorkingHours
-                            forcedBreakAfter = currentUser.value.forcedBreakAfter
-                            forcedBreakAfterOn = currentUser.value.forcedBreakAfterOn
-                            forcedEndAfter = currentUser.value.forcedEndAfter
-                            forcedEndAfterOn = currentUser.value.forcedEndAfterOn
-                            notificationsOn = currentUser.value.notification
-                        }
-                    }
-                }
+            onSelectedProfile = {userRole ->
+                role = userRole.name
+                updateProfileInputFields(userRole, currentUser,
+                    onForcedBreakChanged = { forcedBreakAfter = it },
+                    onForcedBreakToggle = { forcedBreakAfterOn = it },
+                    onForcedEndChanged = { forcedEndAfter = it },
+                    onForcedEndToggle = { forcedEndAfterOn = it },
+                    onWeeklyWorkingHoursChanged = { weeklyWorkingHours = it },
+                    onNotificationsOn = { notificationsOn = it }
+                )
             }
         )
         Spacer(modifier = Modifier.height(30.dp))
         if (!userHasCostumedProfile || (role != UserRole.COSTUMED.name)) {
-            HourMinuteInput(
-                "Forced break after",
-                role != UserRole.COSTUMED.name,
-                floor(forcedBreakAfter!!).toInt(),
-                ((forcedBreakAfter!! - floor(forcedBreakAfter!!)) * 60).toInt(),
-                forcedBreakAfterOn!!,
-                onInputChange = {
-                    forcedBreakAfter = it
-                },
-                onSwitchToggle = {
-                    forcedBreakAfterOn = it
-                }
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            HourMinuteInput(
-                "Forced end after",
-                role != UserRole.COSTUMED.name,
-                floor(forcedEndAfter!!).toInt(),
-                ((forcedEndAfter!! - floor(forcedEndAfter!!)) * 60).toInt(),
-                forcedEndAfterOn!!,
-                onInputChange = {
-                    forcedEndAfter = it
-                },
-                onSwitchToggle = {
-                    forcedEndAfterOn = it
-                }
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            HourInput(
-                "Weekly\nworking hours",
-                role != UserRole.COSTUMED.name,
+            ImmutableAndInitialCostumedProfileInput(
+                role,
                 weeklyWorkingHours!!,
-                onInputChange = {
-                    weeklyWorkingHours = it
-                }
-            )
-        } else { // user has costumed profile && costumed profile is selected
-            // show mutable input with values
-            MutableHourMinuteInput(
-                "Forced break after",
-                floor(forcedBreakAfter!!).toInt(),
-                ((forcedBreakAfter!! - floor(forcedBreakAfter!!)) * 60).toInt(),
+                forcedBreakAfter!!,
                 forcedBreakAfterOn!!,
-                onInputChange = {
-                    forcedBreakAfter = it
-                },
-                onSwitchToggle = {
-                    forcedBreakAfterOn = it
-                }
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            MutableHourMinuteInput(
-                "Forced end after",
-                floor(forcedEndAfter!!).toInt(),
-                ((forcedEndAfter!! - floor(forcedEndAfter!!)) * 60).toInt(),
+                forcedEndAfter!!,
                 forcedEndAfterOn!!,
-                onInputChange = {
-                    forcedEndAfter = it
-                },
-                onSwitchToggle = {
-                    forcedEndAfterOn = it
-                }
+                onForcedBreakChanged = { forcedBreakAfter = it },
+                onForcedBreakToggle = { forcedBreakAfterOn = it },
+                onForcedEndChanged = { forcedEndAfter = it },
+                onForcedEndToggle = { forcedEndAfterOn = it },
+                onWeeklyWorkingHoursChanged = { weeklyWorkingHours = it }
             )
-            Spacer(modifier = Modifier.height(20.dp))
-            Row(modifier = Modifier.padding(10.dp))
-            {
-                Text(
-                    text = "Weekly\nworking hours:",
-                    style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                MutableHourInput(weeklyWorkingHours!!, onInputSelected = {weeklyWorkingHours = it})
-            }
+        } else {
+            CostumedProfileInput(
+                weeklyWorkingHours!!,
+                forcedBreakAfter!!,
+                forcedBreakAfterOn!!,
+                forcedEndAfter!!,
+                forcedEndAfterOn!!,
+                onForcedBreakChanged = { forcedBreakAfter = it },
+                onForcedBreakToggle = { forcedBreakAfterOn = it },
+                onForcedEndChanged = { forcedEndAfter = it },
+                onForcedEndToggle = { forcedEndAfterOn = it },
+                onWeeklyWorkingHoursChanged = { weeklyWorkingHours = it }
+            )
         }
         Spacer(modifier = Modifier.height(20.dp))
         NotificationInput(
@@ -216,17 +113,14 @@ fun Profile(currentUser: MutableState<User>) {
         Spacer(modifier = Modifier.weight(1f))
         SaveButton(
             onSaveUser = {
-                if (inputsAreValid(
-                        context,
+                if (inputsAreValid(context,
                         weeklyWorkingHours!!,
                         forcedBreakAfter!!,
                         forcedEndAfter!!
                     )
                 ) {
-                    saveUser(
-                        context,
-                        currentUser,
-                        role, weeklyWorkingHours!!,
+                    saveUser(context, currentUser, role,
+                        weeklyWorkingHours!!,
                         forcedBreakAfter!!,
                         forcedBreakAfterOn!!,
                         forcedEndAfter!!,
@@ -235,6 +129,166 @@ fun Profile(currentUser: MutableState<User>) {
                     )
                 }
             })
+    }
+}
+
+@Composable
+fun ImmutableAndInitialCostumedProfileInput(
+    role: String,
+    weeklyWorkingHours: Int,
+    forcedBreakAfter: Double,
+    forcedBreakAfterOn: Boolean,
+    forcedEndAfter: Double,
+    forcedEndAfterOn: Boolean,
+    onForcedBreakChanged: (Double) -> Unit,
+    onForcedBreakToggle: (Boolean) -> Unit,
+    onForcedEndChanged: (Double) -> Unit,
+    onForcedEndToggle: (Boolean) -> Unit,
+    onWeeklyWorkingHoursChanged: (Int) -> Unit
+) {
+    HourMinuteInput(
+        "Forced break after",
+        role != UserRole.COSTUMED.name,
+        floor(forcedBreakAfter).toInt(),
+        ((forcedBreakAfter - floor(forcedBreakAfter)) * 60).toInt(),
+        forcedBreakAfterOn,
+        onInputChange = {
+            onForcedBreakChanged(it)
+        },
+        onSwitchToggle = {
+            onForcedBreakToggle(it)
+        }
+    )
+    Spacer(modifier = Modifier.height(20.dp))
+    HourMinuteInput(
+        "Forced end after",
+        role != UserRole.COSTUMED.name,
+        floor(forcedEndAfter).toInt(),
+        ((forcedEndAfter - floor(forcedEndAfter)) * 60).toInt(),
+        forcedEndAfterOn,
+        onInputChange = {
+            onForcedEndChanged(it)
+        },
+        onSwitchToggle = {
+            onForcedEndToggle(it)
+        }
+    )
+    Spacer(modifier = Modifier.height(20.dp))
+    HourInput(
+        "Weekly\nworking hours",
+        role != UserRole.COSTUMED.name,
+        weeklyWorkingHours,
+        onInputChange = {
+            onWeeklyWorkingHoursChanged(it)
+        }
+    )
+}
+
+@Composable
+fun CostumedProfileInput(
+    weeklyWorkingHours: Int,
+    forcedBreakAfter: Double,
+    forcedBreakAfterOn: Boolean,
+    forcedEndAfter: Double,
+    forcedEndAfterOn: Boolean,
+    onForcedBreakChanged: (Double) -> Unit,
+    onForcedBreakToggle: (Boolean) -> Unit,
+    onForcedEndChanged: (Double) -> Unit,
+    onForcedEndToggle: (Boolean) -> Unit,
+    onWeeklyWorkingHoursChanged: (Int) -> Unit
+) {
+    MutableHourMinuteInput(
+        "Forced break after",
+        floor(forcedBreakAfter).toInt(),
+        ((forcedBreakAfter - floor(forcedBreakAfter)) * 60).toInt(),
+        forcedBreakAfterOn,
+        onInputChange = {
+            onForcedBreakChanged(it)
+        },
+        onSwitchToggle = {
+            onForcedBreakToggle(it)
+        }
+    )
+    Spacer(modifier = Modifier.height(20.dp))
+    MutableHourMinuteInput(
+        "Forced end after",
+        floor(forcedEndAfter).toInt(),
+        ((forcedEndAfter - floor(forcedEndAfter)) * 60).toInt(),
+        forcedEndAfterOn,
+        onInputChange = {
+            onForcedEndChanged(it)
+        },
+        onSwitchToggle = {
+            onForcedEndToggle(it)
+        }
+    )
+    Spacer(modifier = Modifier.height(20.dp))
+    Row(modifier = Modifier.padding(10.dp))
+    {
+        Text(
+            text = "Weekly\nworking hours:",
+            style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        MutableHourInput(weeklyWorkingHours, onInputSelected = { onWeeklyWorkingHoursChanged(it) })
+    }
+}
+
+fun updateProfileInputFields(
+    role: UserRole,
+    currentUser: MutableState<User>,
+    onForcedBreakChanged: (Double) -> Unit,
+    onForcedBreakToggle: (Boolean) -> Unit,
+    onForcedEndChanged: (Double) -> Unit,
+    onForcedEndToggle: (Boolean) -> Unit,
+    onWeeklyWorkingHoursChanged: (Int) -> Unit,
+    onNotificationsOn: (Boolean) -> Unit
+) {
+    when (role) {
+        UserRole.EMPLOYEE -> {
+            onWeeklyWorkingHoursChanged(40)
+            onForcedBreakChanged(4.0)
+            onForcedBreakToggle(true)
+            onForcedEndChanged(8.0)
+            onForcedEndToggle(true)
+            onNotificationsOn(false)
+        }
+
+        UserRole.FREELANCER -> {
+            onWeeklyWorkingHoursChanged(41)
+            onForcedBreakChanged(5.0)
+            onForcedBreakToggle(false)
+            onForcedEndChanged(10.0)
+            onForcedEndToggle(false)
+            onNotificationsOn(false)
+        }
+
+        UserRole.WORK_STUDENT -> {
+            onWeeklyWorkingHoursChanged(20)
+            onForcedBreakChanged(3.0)
+            onForcedBreakToggle(false)
+            onForcedEndChanged(6.0)
+            onForcedEndToggle(false)
+            onNotificationsOn(false)
+        }
+
+        UserRole.COSTUMED -> {
+            if (currentUser.value.role != UserRole.COSTUMED.name) {
+                onWeeklyWorkingHoursChanged(0)
+                onForcedBreakChanged(0.0)
+                onForcedBreakToggle(false)
+                onForcedEndChanged(0.0)
+                onForcedEndToggle(false)
+                onNotificationsOn(false)
+            } else {
+                onWeeklyWorkingHoursChanged(currentUser.value.weeklyWorkingHours!!)
+                onForcedBreakChanged(currentUser.value.forcedBreakAfter!!)
+                onForcedBreakToggle(currentUser.value.forcedBreakAfterOn!!)
+                onForcedEndChanged(currentUser.value.forcedEndAfter!!)
+                onForcedEndToggle(currentUser.value.forcedEndAfterOn!!)
+                onNotificationsOn(currentUser.value.notification!!)
+            }
+        }
     }
 }
 
@@ -289,9 +343,6 @@ fun inputsAreValid(
     forcedBreakAfter: Double,
     forcedEndAfter: Double
 ): Boolean {
-    Log.d("Forced break", forcedBreakAfter.toString())
-    Log.d("Forced end", forcedEndAfter.toString())
-    Log.d("Weekly working hour", weeklyWorkingHours.toString())
     if (forcedBreakAfter > forcedEndAfter) {
         Toast.makeText(context, "Forced break cant be greater then forced end.", Toast.LENGTH_SHORT).show()
         return false
