@@ -107,6 +107,21 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                         true
                     )
                 )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "Role:")
+                Card(
+                    modifier = Modifier
+                        .padding(
+                            vertical = 4.dp, horizontal = 16.dp
+                        )
+                        .fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.LightGray)
+                ) {
+                    Text(
+                        text = user.value.role,
+                        style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
         }
     }
