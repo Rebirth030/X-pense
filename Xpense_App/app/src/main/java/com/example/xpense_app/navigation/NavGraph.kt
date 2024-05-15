@@ -39,6 +39,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.xpense_app.model.User
 import com.example.xpense_app.view.createProject.CreateProjectScreen
+import com.example.xpense_app.view.infoView.CreateInfoView
 import com.example.xpense_app.view.timer.Timer
 import com.example.xpense_app.view.login.CreateRegister
 import com.example.xpense_app.view.login.LoginForm
@@ -106,6 +107,7 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
                 composable(NavigationItem.Manual.route) { AddExpense(navController, currentUser) }
                 composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController, padding) }
                 composable(NavigationItem.Create.route) { CreateProjectScreen(currentUser, context) }
+                composable(NavigationItem.Info.route) { CreateInfoView(navController, currentUser) }
             }})
     }
 }

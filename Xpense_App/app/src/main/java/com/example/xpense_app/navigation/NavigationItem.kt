@@ -10,7 +10,8 @@ enum class Screen {
     PROFILES,
     MANUAL,
     OVERVIEW,
-    CREATE
+    CREATE,
+    INFO
 }
 
 /**
@@ -26,6 +27,7 @@ sealed class NavigationItem(val route: String, val name: String) {
     data object Manual : NavigationItem(Screen.MANUAL.name, "Manual Booking")
     data object Overview : NavigationItem(Screen.OVERVIEW.name, "Overview")
     data object Create : NavigationItem(Screen.CREATE.name, "Create Project")
+    data object Info : NavigationItem(Screen.INFO.name, "Info")
 
     companion object {
 
