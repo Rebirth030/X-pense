@@ -1,6 +1,5 @@
 package com.example.xpense_app.view.profile
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,14 +29,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.decapitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
+import com.example.xpense_app.R
 import com.example.xpense_app.model.User
 import com.example.xpense_app.model.UserRole
 
@@ -53,7 +51,7 @@ fun SaveButton(onSaveUser: (Boolean) -> Unit) {
             shape = RoundedCornerShape(5.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Save")
+            Text(stringResource(R.string.save))
         }
     }
 }
@@ -175,7 +173,7 @@ fun HourInput(
         )
         Spacer(modifier = Modifier.weight(1f))
         IntegerInput(
-            "Hours",
+            stringResource(R.string.hours),
             readOnly,
             inputValue.toString(),
             maxVal = 100,
@@ -199,7 +197,7 @@ fun NotificationInput(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Notifications:",
+            text = stringResource(R.string.notifications),
             style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
         )
         Spacer(modifier = Modifier.weight(1f))
@@ -223,7 +221,7 @@ fun IntegerInput(
     } else {
         TextField(
             modifier = Modifier.width(100.dp),
-            readOnly = readOnly,
+            readOnly = true,
             value = inputValue,
             onValueChange = {
                 onInputSelected(it)
@@ -310,7 +308,7 @@ fun MutableHourMinuteInput(
                         }
                     }
                 },
-                label = { Text("Hours") },
+                label = { Text(stringResource(R.string.hours)) },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
             Text(
@@ -331,7 +329,7 @@ fun MutableHourMinuteInput(
                         }
                     }
                 },
-                label = { Text("Minutes") },
+                label = { Text(stringResource(R.string.minutes)) },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -359,7 +357,7 @@ fun MutableHourInput(inputHour: Int, onInputSelected: (Int) -> Unit) {
                 }
             }
         },
-        label = { Text("Hours") },
+        label = { Text(stringResource(R.string.hours)) },
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
     )
 }

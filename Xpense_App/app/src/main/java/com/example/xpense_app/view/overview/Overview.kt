@@ -1,10 +1,8 @@
 package com.example.xpense_app.view.overview
 
 import Expense
-import android.content.res.Resources
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -24,7 +22,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.twotone.Add
@@ -55,7 +52,7 @@ import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
@@ -68,7 +65,6 @@ import com.example.xpense_app.R
 import com.example.xpense_app.controller.services.ExpenseService
 import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.NavigationItem
-import com.example.xpense_app.navigation.Screen
 import com.example.xpense_app.view.parseDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -79,10 +75,11 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
 
-const val EXPENSE_TIME_FORMAT = "dd.MM.yyyy HH:mm"
-const val HOUR_FORMAT = "HH:mm"
 val HOUR_HEIGHT = 65.dp
 val DAY_WIDTH = 256.dp
+
+
+// TODO : Make prettier maybe get Project instead of only id, show different information on details
 
 /**
  * CreateOverview creates the overview screen.
@@ -141,7 +138,7 @@ private fun CreateActionButtons(
                 .padding(5.dp)
                 .background(buttonColor, RoundedCornerShape(50))
         ) {
-            Icon(Icons.TwoTone.Add, contentDescription = "Add Expense")
+            Icon(Icons.TwoTone.Add, contentDescription = stringResource(R.string.add_expense))
         }
         IconButton(
             onClick = { navController.navigate(NavigationItem.Timer.route) },
@@ -151,7 +148,7 @@ private fun CreateActionButtons(
         ) {
             Icon(
                 painterResource(id = R.drawable.ic_hourglass),
-                contentDescription = "Timer",
+                contentDescription = stringResource(R.string.timer),
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -172,11 +169,11 @@ fun WeekSelection(currentStartOfWeek: MutableState<LocalDateTime>) {
         IconButton(onClick = {
             currentStartOfWeek.value = currentStartOfWeek.value.minusWeeks(1)
         }) {
-            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+            Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
         }
-        Text("Week ${currentStartOfWeek.value.format(DateTimeFormatter.ofPattern("w"))}")
+        Text(stringResource(R.string.week, currentStartOfWeek.value.format(DateTimeFormatter.ofPattern("w"))))
         IconButton(onClick = { currentStartOfWeek.value = currentStartOfWeek.value.plusWeeks(1) }) {
-            Icon(Icons.Default.ArrowForward, contentDescription = "Forward")
+            Icon(Icons.Default.ArrowForward, contentDescription = stringResource(R.string.forward))
         }
     }
 }
@@ -249,7 +246,7 @@ fun ScheduleSidebar(
             Box(modifier = Modifier.height(HOUR_HEIGHT)) {
                 Text(
                     text = startTime.plusHours(i.toLong())
-                        .format(DateTimeFormatter.ofPattern(HOUR_FORMAT)),
+                        .format(DateTimeFormatter.ofPattern(stringResource(R.string.date_time_format_hour_minute))),
                     modifier = Modifier
                         .fillMaxHeight()
                         .padding(4.dp)
@@ -277,7 +274,7 @@ fun ScheduleHeader(
             Box(modifier = Modifier.width(DAY_WIDTH)) {
                 Text(
                     text = startDate.plusDays(i.toLong())
-                        .format(DateTimeFormatter.ofPattern("E, MMM d")),
+                        .format(DateTimeFormatter.ofPattern(stringResource(R.string.date_time_format_dayname_month_daynumber))),
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -341,9 +338,11 @@ fun WeeklySchedule(
         try {
             placeExpenses(measureables, constraints, startDate, endDate, startTime, endTime)
         } catch (e: Exception) {
-            Toast.makeText(context, "An error occurred while placing expenses!", Toast.LENGTH_SHORT)
-                .show()
-            println(e)
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_message_an_error_occurred_while_placing_expenses),
+                Toast.LENGTH_SHORT
+            ).show()
             layout(0, 0) {}
         }
     }
@@ -414,7 +413,11 @@ fun GetExpenses(user: User, expenses: MutableState<List<Expense>>) {
                 expenses.value = expenseList
             }, onError = { e ->
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.error_message_error_template, e.message),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             })
         }
@@ -429,7 +432,7 @@ fun GetExpenses(user: User, expenses: MutableState<List<Expense>>) {
 @Composable
 fun ExpenseCard(expense: Expense, modifier: Modifier = Modifier) {
     val showDialog = remember { mutableStateOf(false) }
-    if(showDialog.value) {
+    if (showDialog.value) {
         ExpenseDetailsDialog(expense = expense, onDismiss = { showDialog.value = false })
     }
     Card {
@@ -443,27 +446,24 @@ fun ExpenseCard(expense: Expense, modifier: Modifier = Modifier) {
                 .padding(4.dp)
                 .clickable { showDialog.value = true }
         ) {
-            // TODO : Make prettier maybe get Project instead of only id
             Text(
-                text = "Startzeit: ${
-                    parseDateTime(expense.startDateTime).format(
-                        DateTimeFormatter.ofPattern(
-                            EXPENSE_TIME_FORMAT
+                text = stringResource(R.string.start_time) + " " +
+                        parseDateTime(expense.startDateTime).format(
+                            DateTimeFormatter.ofPattern(
+                                stringResource(R.string.date_time_format_expense)
+                            )
                         )
-                    )
-                }"
             )
             Text(
-                text = "Endzeit: ${
-                    parseDateTime(expense.endDateTime).format(
-                        DateTimeFormatter.ofPattern(
-                            EXPENSE_TIME_FORMAT
+                text = stringResource(R.string.end_time) + " " +
+                        parseDateTime(expense.endDateTime).format(
+                            DateTimeFormatter.ofPattern(
+                                stringResource(R.string.date_time_format_expense)
+                            )
                         )
-                    )
-                }"
             )
-            Text(text = "Beschreibung: ${expense.description.orEmpty()}")
-            Text(text = "Projektnummer: ${expense.projectId.toString()}")
+            Text(text = stringResource(R.string.description) + " " + expense.description.orEmpty())
+            Text(text = stringResource(R.string.projectnumber, expense.projectId.toString()))
         }
     }
 }
@@ -479,25 +479,25 @@ fun ExpenseDetailsDialog(expense: Expense, onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(shape = MaterialTheme.shapes.medium, tonalElevation = 8.dp) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = "Expense Details", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text(text = stringResource(R.string.expense_details), fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 Text(
-                    text = "Start Time: ${
-                        parseDateTime(expense.startDateTime).format(
-                            DateTimeFormatter.ofPattern(EXPENSE_TIME_FORMAT)
-                        )
-                    }"
-                )
-                Text(
-                    text = "End Time: ${
-                        parseDateTime(expense.endDateTime).format(
-                            DateTimeFormatter.ofPattern(
-                                EXPENSE_TIME_FORMAT
+                    text = stringResource(R.string.start_time) + " " +
+                            parseDateTime(expense.startDateTime).format(
+                                DateTimeFormatter.ofPattern(
+                                    stringResource(R.string.date_time_format_expense)
+                                )
                             )
-                        )
-                    }"
                 )
-                Text(text = "Description: ${expense.description.orEmpty()}")
-                Text(text = "Project Number: ${expense.projectId.toString()}")
+                Text(
+                    text = stringResource(R.string.end_time) + " " +
+                            parseDateTime(expense.endDateTime).format(
+                                DateTimeFormatter.ofPattern(
+                                    stringResource(R.string.date_time_format_expense)
+                                )
+                            )
+                )
+                Text(text = stringResource(R.string.description) + " " + expense.description.orEmpty())
+                Text(text = stringResource(R.string.projectnumber, expense.projectId.toString()))
             }
         }
     }

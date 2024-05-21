@@ -1,17 +1,11 @@
 package com.example.xpense_app.view.login
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,12 +17,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.dp
+import com.example.xpense_app.R
 
 /**
  * Create a TextField for the given fieldname.
@@ -43,7 +37,7 @@ fun createTextField(fieldName: String): MutableState<String> {
         value = text.value,
         onValueChange = { it: String -> text.value = it },
         label = { Text(fieldName.uppercase()) },
-        placeholder = { Text("Enter your $fieldName") },
+        placeholder = { Text(stringResource(R.string.placeholder_enter_your, fieldName)) },
         leadingIcon = { CreateLeadingIcon(fieldName) },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         singleLine = true
@@ -63,9 +57,9 @@ fun createPasswordField(isLastPasswordField: Boolean = true): MutableState<Strin
     TextField(
         value = password.value,
         onValueChange = { it: String -> password.value = it },
-        label = { Text("PASSWORD") },
-        placeholder = { Text("Enter your password") },
-        leadingIcon = { CreateLeadingIcon("password") },
+        label = { Text(stringResource(R.string.password).uppercase()) },
+        placeholder = { Text(stringResource(R.string.placeholder_enter_your_password)) },
+        leadingIcon = { CreateLeadingIcon(stringResource(R.string.password)) },
         trailingIcon = { passwordVisibility = createTrailingIcon() },
         visualTransformation = if (!passwordVisibility) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = KeyboardOptions(
@@ -86,9 +80,9 @@ fun createPasswordField(isLastPasswordField: Boolean = true): MutableState<Strin
 fun CreateLeadingIcon(fieldname: String) {
     Icon(
         when (fieldname) {
-            "email" -> Icons.Default.Email
-            "username" -> Icons.Default.Person
-            "password" -> Icons.Default.Lock
+            stringResource(R.string.email) -> Icons.Default.Email
+            stringResource(R.string.username) -> Icons.Default.Person
+            stringResource(R.string.password) -> Icons.Default.Lock
             else -> Icons.Default.Create
         },
         contentDescription = "",
@@ -107,7 +101,7 @@ fun createTrailingIcon(): Boolean {
     IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
         Icon(
             if (isPasswordVisible) Icons.Default.Person else Icons.Default.Lock,
-            contentDescription = "",
+            contentDescription = stringResource(R.string.toggle_visibility),
             tint = MaterialTheme.colorScheme.primary
         )
     }

@@ -11,26 +11,29 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.xpense_app.R
 import com.example.xpense_app.controller.services.AuthenticationService
 import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.NavigationItem
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Base64
 
 // optional TODO: Add error handling
 // optional TODO: Make fields required or optional
+// optional TODO: Add display country and language field
 
 /**
  * Creates the registration page with a form
@@ -58,19 +61,19 @@ fun CreateRegister(navController: NavHostController) {
  */
 @Composable
 fun RegisterForm(navController: NavHostController) {
-    val email = createTextField("email")
-    val firstname = createTextField("firstname")
-    val lastname = createTextField("lastname")
+    val email = createTextField(stringResource(R.string.email))
+    val firstname = createTextField(stringResource(R.string.firstname))
+    val lastname = createTextField(stringResource(R.string.lastname))
     val country = "Deutschland"
     val language = "DE"
-    val username = createTextField("username")
+    val username = createTextField(stringResource(R.string.username))
     val password = createPasswordField(false)
     val repeatPassword = createPasswordField()
     val context = LocalContext.current
 
     Spacer(modifier = Modifier.height(20.dp))
     Text(
-        "Login",
+        stringResource(R.string.login),
         textDecoration = TextDecoration.Underline,
         color = Color.Blue,
         modifier = Modifier.clickable(onClick = { navController.navigate(NavigationItem.Login.route) })
@@ -94,7 +97,7 @@ fun RegisterForm(navController: NavHostController) {
         shape = RoundedCornerShape(5.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text("Register")
+        Text(stringResource(R.string.register))
     }
 }
 
@@ -115,7 +118,8 @@ fun submitAction(
     navController: NavHostController
 ) {
     if (password.value != repeatPassword.value) {
-        Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context,
+            context.getString(R.string.error_message_passwords_do_not_match), Toast.LENGTH_SHORT).show()
         return
     }
     val user = User(
@@ -143,7 +147,7 @@ fun submitAction(
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     context,
-                    "An Error has occurred while creating a user!",
+                    context.getString(R.string.error_message_an_error_has_occurred_while_creating_a_user),
                     Toast.LENGTH_LONG
                 ).show()
             }
