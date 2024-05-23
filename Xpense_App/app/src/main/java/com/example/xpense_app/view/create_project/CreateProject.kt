@@ -1,4 +1,4 @@
-package com.example.xpense_app.view.createProject
+package com.example.xpense_app.view.create_project
 
 import android.content.Context
 import android.widget.Toast
@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.example.xpense_app.controller.services.ProjectService
 import com.example.xpense_app.model.Project
 import com.example.xpense_app.model.User
-import com.example.xpense_app.view.manualBooking.*
+import com.example.xpense_app.view.manual_booking.*
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter

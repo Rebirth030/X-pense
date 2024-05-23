@@ -40,11 +40,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.xpense_app.model.User
 import com.example.xpense_app.view.createProject.CreateProjectScreen
 import com.example.xpense_app.view.infoView.CreateInfoView
+import com.example.xpense_app.view.create_project.CreateProjectScreen
 import com.example.xpense_app.view.timer.Timer
 import com.example.xpense_app.view.login.CreateRegister
 import com.example.xpense_app.view.login.LoginForm
-import com.example.xpense_app.view.manualBooking.AddExpense
+import com.example.xpense_app.view.manual_booking.AddExpense
 import com.example.xpense_app.view.overview.CreateOverview
+import com.example.xpense_app.view.projects_overview.ProjectsOverview
 import com.example.xpense_app.view.profile.Profile
 import com.example.xpense_app.view.timer.view_model.TimerViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -97,7 +99,7 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
             })}
 
         }, content = { padding ->
-            NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
+            NavHost(navController = navController, startDestination = NavigationItem.Login.route, modifier = Modifier.padding(padding)) {
                 composable(NavigationItem.Login.route) { LoginForm(navController, currentUser, appViewModel) }
                 composable(NavigationItem.Register.route) { CreateRegister(navController) }
                 composable(NavigationItem.Timer.route) { Timer(currentUser, onNavigateToLoginScreen = {
@@ -106,8 +108,9 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
                 composable(NavigationItem.Profiles.route) { Profile(currentUser) }
                 composable(NavigationItem.Manual.route) { AddExpense(navController, currentUser) }
                 composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController, padding) }
-                composable(NavigationItem.Create.route) { CreateProjectScreen(currentUser, context) }
+                composable(NavigationItem.CreateProject.route) { CreateProjectScreen(currentUser, context) }
                 composable(NavigationItem.Info.route) { CreateInfoView(navController, currentUser) }
+                composable(NavigationItem.ProjectsOverview.route) { ProjectsOverview(currentUser.value, navController) }
             }})
     }
 }

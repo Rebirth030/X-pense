@@ -1,17 +1,14 @@
 package com.example.xpense_app.view.overview
 
 import Expense
-import android.content.res.Resources
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.twotone.Add
@@ -55,7 +51,6 @@ import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
@@ -68,7 +63,6 @@ import com.example.xpense_app.R
 import com.example.xpense_app.controller.services.ExpenseService
 import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.NavigationItem
-import com.example.xpense_app.navigation.Screen
 import com.example.xpense_app.view.parseDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -92,7 +86,7 @@ val DAY_WIDTH = 256.dp
  * @param padding the padding to apply to the screen
  */
 @Composable
-fun CreateOverview(user: User, navController: NavController, padding: PaddingValues) {
+fun CreateOverview(user: User, navController: NavController) {
     val now = remember { mutableStateOf(LocalDateTime.now()) }
     val expenses = remember { mutableStateOf(listOf<Expense>()) }
     val currentStartOfWeek = remember {
@@ -112,7 +106,6 @@ fun CreateOverview(user: User, navController: NavController, padding: PaddingVal
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
                     .padding(pd)
                     .padding(horizontal = 20.dp)
             ) {
@@ -169,13 +162,17 @@ fun WeekSelection(currentStartOfWeek: MutableState<LocalDateTime>) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = {
-            currentStartOfWeek.value = currentStartOfWeek.value.minusWeeks(1)
-        }) {
+        IconButton(
+            onClick = {
+                currentStartOfWeek.value = currentStartOfWeek.value.minusWeeks(1)
+            }) {
             Icon(Icons.Default.ArrowBack, contentDescription = "Back")
         }
         Text("Week ${currentStartOfWeek.value.format(DateTimeFormatter.ofPattern("w"))}")
-        IconButton(onClick = { currentStartOfWeek.value = currentStartOfWeek.value.plusWeeks(1) }) {
+        IconButton(
+            onClick = {
+                currentStartOfWeek.value = currentStartOfWeek.value.plusWeeks(1)
+            }) {
             Icon(Icons.Default.ArrowForward, contentDescription = "Forward")
         }
     }
@@ -429,7 +426,7 @@ fun GetExpenses(user: User, expenses: MutableState<List<Expense>>) {
 @Composable
 fun ExpenseCard(expense: Expense, modifier: Modifier = Modifier) {
     val showDialog = remember { mutableStateOf(false) }
-    if(showDialog.value) {
+    if (showDialog.value) {
         ExpenseDetailsDialog(expense = expense, onDismiss = { showDialog.value = false })
     }
     Card {
