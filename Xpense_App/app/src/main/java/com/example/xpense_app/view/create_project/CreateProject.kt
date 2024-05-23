@@ -27,7 +27,8 @@ import androidx.compose.ui.unit.dp
 import com.example.xpense_app.controller.services.ProjectService
 import com.example.xpense_app.model.Project
 import com.example.xpense_app.model.User
-import com.example.xpense_app.view.manual_booking.*
+import com.example.xpense_app.view.manual_booking.DateDialog
+import com.example.xpense_app.view.manual_booking.DatePickerTextField
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -84,7 +85,7 @@ fun CreateProjectScreen(currentUser: MutableState<User>, context: Context) {
             Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = {
-                    Create(
+                    createProject(
                         context,
                         name = projectName,
                         description = projectDescription,
@@ -122,7 +123,7 @@ fun CreateProjectScreen(currentUser: MutableState<User>, context: Context) {
  * @param currentUser The current user of the application.
  * @param onSuccess Callback function to handle success or failure of project creation.
  */
-fun Create(
+fun createProject(
     context: Context,
     name: String,
     description: String,
@@ -130,32 +131,25 @@ fun Create(
     currentUser: MutableState<User>,
     onSuccess: (Boolean) -> Unit
 ) {
-    val currentDate = ZonedDateTime.now(ZoneId.systemDefault()).toLocalDate()
-    val selectedDate =
-        ZonedDateTime.ofInstant(releaseDate.toInstant(), ZoneId.systemDefault()).toLocalDate()
-
-    if (name.isNotBlank() && description.isNotBlank() && !selectedDate.isBefore(currentDate)) {
-        val formattedDate = ZonedDateTime.ofInstant(releaseDate.toInstant(), ZoneId.systemDefault())
-            .format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
-        val project =
-            Project(null, name, description, formattedDate, null, null, 1, currentUser.value.id)
-        ProjectService.createProject(
-            project,
-            currentUser.value.token,
-            onSuccess = { onSuccess(true) },
-            onError = {})
-    } else {
-        if (name.isBlank()) {
-            errorToast(context, "Please enter a project name")
-        }
-        if (description.isBlank()) {
-            errorToast(context, "Please enter a project description")
-        }
-        if (selectedDate.isBefore(currentDate)) {
-            errorToast(context, "Release date cannot be in the past")
-        }
+    try {
+        require(name.isNotBlank()) { "Please enter a project name" }
+        require(description.isNotBlank()) { "Please enter a project description" }
+        require(!releaseDate.before(Date())) { "Release date cannot be in the past" }
+    } catch (e: IllegalArgumentException) {
+        Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
         onSuccess(false)
     }
+
+    val formattedDate = ZonedDateTime.ofInstant(releaseDate.toInstant(), ZoneId.systemDefault())
+        .format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
+    val project =
+        Project(null, name, description, formattedDate, null, null, 1, currentUser.value.id)
+    ProjectService.createProject(
+        project,
+        currentUser.value.token,
+        onSuccess = { onSuccess(true) },
+        onError = { onSuccess(false) }
+    )
 }
 
 
@@ -187,16 +181,4 @@ fun Success(name: String, description: String, releaseDate: Date, onClose: () ->
                 Text("close")
             }
         })
-
-}
-
-/**
- * Displays an error toast message.
- * Shows a short-lived toast message to inform the user about an error.
- *
- * @param context The context of the calling component.
- * @param message The error message to display.
- */
-private fun errorToast(context: Context, message: String) {
-    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }

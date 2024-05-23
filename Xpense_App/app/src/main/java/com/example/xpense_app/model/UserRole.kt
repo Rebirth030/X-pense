@@ -4,5 +4,5 @@ enum class UserRole(val description: String) {
     FREELANCER("Freelancer"),
     EMPLOYEE("Employee"),
     WORK_STUDENT("Work Student"),
-    COSTUMED("Costumed")
+    CUSTOM("Custom")
 }

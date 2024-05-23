@@ -1,7 +1,6 @@
-package com.example.xpense_app.view.infoView
+package com.example.xpense_app.view.info_view
 
 import Expense
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,50 +15,42 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.xpense_app.controller.services.ExpenseService
 import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.NavigationItem
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.example.xpense_app.view.overview.GetExpenses
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
+//TODO: Navigation zeigt info blau nach weiterleitung auf profiles an
 
+/**
+ * Composable function to create the info view.
+ *
+ * @param navController the navigation controller
+ * @param user the user object
+ */
 @Composable
 fun CreateInfoView(navController: NavController, user: MutableState<User>) {
 
     val expenses = remember {
-        mutableListOf<Expense>()
-    }
-    val context = LocalContext.current
-
-    LaunchedEffect(key1 = Unit) {
-        ExpenseService.getExpenses(token = user.value.token,
-            onSuccess = { expenses.addAll(it) },
-            onError = {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context, "Error loading expenses", Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
+        mutableStateOf(listOf<Expense>())
     }
 
-    //TODO: Navigation zeigt info blau nach weiterleitung auf profiles an
+    GetExpenses(user = user.value, expenses = expenses)
+
     Surface {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -68,7 +59,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                 .fillMaxSize()
                 .padding(horizontal = 30.dp)
         ) {
-            if (user.value.weeklyWorkingHours == 0) {//TODO: Zu Profile ändern
+            if (user.value.weeklyWorkingHours == null) {//TODO: Zu Profile ändern
                 AlertDialog(
                     title = { Text("Please set your weekly working hours in the profile") },
                     onDismissRequest = { navController.navigate(NavigationItem.Profiles.route) },
@@ -78,7 +69,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                 Text(text = "Remaining working hours for today:")
                 WorkingHoursCard(
                     calculateTodaysRemainingWorkingHours(
-                        expenses,
+                        expenses.value,
                         user.value.weeklyWorkingHours ?: 0
                     )
                 )
@@ -86,7 +77,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                 Text(text = "Remaining working hours for this week:")
                 WorkingHoursCard(
                     calculateThisWeeksRemainingWorkingHours(
-                        expenses,
+                        expenses.value,
                         user.value.weeklyWorkingHours ?: 0
                     )
                 )
@@ -94,7 +85,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                 Text(text = "Remaining working hours for this month:")
                 WorkingHoursCard(
                     calculateThisMonthsRemainingWorkingHours(
-                        expenses,
+                        expenses.value,
                         user.value.weeklyWorkingHours ?: 0
                     )
                 )
@@ -102,7 +93,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                 Text(text = "Worked hours this Month:")
                 WorkingHoursCard(
                     calculateThisMonthsRemainingWorkingHours(
-                        expenses,
+                        expenses.value,
                         user.value.weeklyWorkingHours ?: 0,
                         true
                     )
@@ -127,6 +118,11 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
     }
 }
 
+/**
+ * Composable function to create the user full name header.
+ *
+ * @param user the user object
+ */
 @Composable
 fun UserFullNameHeader(user: User) {
     Text(
@@ -136,6 +132,11 @@ fun UserFullNameHeader(user: User) {
     )
 }
 
+/**
+ * Composable function to create a working hours card.
+ *
+ * @param text the text to display
+ */
 @Composable
 private fun WorkingHoursCard(text: String) {
     Card(
@@ -153,6 +154,11 @@ private fun WorkingHoursCard(text: String) {
     }
 }
 
+/**
+ * Calculates the remaining working hours for today.
+ *
+ * @param expenses the list of expenses
+ */
 fun calculateTodaysRemainingWorkingHours(expenses: List<Expense>, weeklyWorkingHours: Int): String {
     val todayExpenses = expenses.filter { expense ->
         val startDateTime = ZonedDateTime.parse(expense.startDateTime)
@@ -163,6 +169,12 @@ fun calculateTodaysRemainingWorkingHours(expenses: List<Expense>, weeklyWorkingH
     return "${remainingHours / 60} hours and ${remainingHours % 60} minutes"
 }
 
+/**
+ * Calculates the remaining working hours for this week.
+ *
+ * @param expenses the list of expenses
+ * @param weeklyWorkingHours the weekly working hours
+ */
 fun calculateThisWeeksRemainingWorkingHours(
     expenses: List<Expense>,
     weeklyWorkingHours: Int
@@ -179,6 +191,13 @@ fun calculateThisWeeksRemainingWorkingHours(
     return "${remainingHours / 60} hours and ${remainingHours % 60} minutes"
 }
 
+/**
+ * Calculates the remaining working hours for this month.
+ *
+ * @param expenses the list of expenses
+ * @param weeklyWorkingHours the weekly working hours
+ * @param returnWorkedHours whether to return the worked hours
+ */
 fun calculateThisMonthsRemainingWorkingHours(
     expenses: List<Expense>,
     weeklyWorkingHours: Int,
@@ -191,17 +210,23 @@ fun calculateThisMonthsRemainingWorkingHours(
         startDate.year == now.year && startDate.month == now.month
     }
     val remainingHours = weeklyWorkingHours * 60 - calculateWorkedMinutes(thisMonthExpenses)
-    if (returnWorkedHours) {
-        return "${calculateWorkedMinutes(thisMonthExpenses) / 60} hours and ${
+    return if (returnWorkedHours) {
+        "${calculateWorkedMinutes(thisMonthExpenses) / 60} hours and ${
             calculateWorkedMinutes(
                 thisMonthExpenses
             ) % 60
         } minutes"
     } else {
-        return "${remainingHours / 60} hours and ${remainingHours % 60} minutes"
+        "${remainingHours / 60} hours and ${remainingHours % 60} minutes"
     }
 }
 
+/**
+ * Calculates the worked minutes.
+ *
+ * @param expenses the list of expenses
+ * @return the worked minutes
+ */
 fun calculateWorkedMinutes(expenses: List<Expense>): Long {
     return expenses.sumOf { expense ->
         val startDateTime = ZonedDateTime.parse(expense.startDateTime)

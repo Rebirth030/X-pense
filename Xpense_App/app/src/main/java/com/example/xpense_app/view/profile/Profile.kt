@@ -1,7 +1,6 @@
 package com.example.xpense_app.view.profile
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,12 +54,12 @@ fun Profile(currentUser: MutableState<User>) {
         mutableStateOf(currentUser.value.weeklyWorkingHours)
     }
     val userHasCostumedProfile by remember {
-        mutableStateOf(currentUser.value.role == UserRole.COSTUMED.name)
+        mutableStateOf(currentUser.value.role == UserRole.CUSTOM.name)
     }
+
     Column(
         modifier = Modifier.padding(10.dp)
     ) {
-        Spacer(modifier = Modifier.height(70.dp)) // header
         DropDown(
             currentUser,
             onSelectedProfile = {userRole ->
@@ -77,14 +75,14 @@ fun Profile(currentUser: MutableState<User>) {
             }
         )
         Spacer(modifier = Modifier.height(30.dp))
-        if (!userHasCostumedProfile || (role != UserRole.COSTUMED.name)) {
-            ImmutableAndInitialCostumedProfileInput(
+        if (!userHasCostumedProfile || (role != UserRole.CUSTOM.name)) {
+            ImmutableAndInitialCustomProfileInput(
                 role,
-                weeklyWorkingHours!!,
-                forcedBreakAfter!!,
-                forcedBreakAfterOn!!,
-                forcedEndAfter!!,
-                forcedEndAfterOn!!,
+                weeklyWorkingHours?: 40,
+                forcedBreakAfter?: 4.0,
+                forcedBreakAfterOn?: false,
+                forcedEndAfter?: 8.0,
+                forcedEndAfterOn?: false,
                 onForcedBreakChanged = { forcedBreakAfter = it },
                 onForcedBreakToggle = { forcedBreakAfterOn = it },
                 onForcedEndChanged = { forcedEndAfter = it },
@@ -92,12 +90,12 @@ fun Profile(currentUser: MutableState<User>) {
                 onWeeklyWorkingHoursChanged = { weeklyWorkingHours = it }
             )
         } else {
-            CostumedProfileInput(
-                weeklyWorkingHours!!,
-                forcedBreakAfter!!,
-                forcedBreakAfterOn!!,
-                forcedEndAfter!!,
-                forcedEndAfterOn!!,
+            CustomProfileInput(
+                weeklyWorkingHours?: 40,
+                forcedBreakAfter?: 4.0,
+                forcedBreakAfterOn?: false,
+                forcedEndAfter?: 8.0,
+                forcedEndAfterOn?: false,
                 onForcedBreakChanged = { forcedBreakAfter = it },
                 onForcedBreakToggle = { forcedBreakAfterOn = it },
                 onForcedEndChanged = { forcedEndAfter = it },
@@ -107,12 +105,20 @@ fun Profile(currentUser: MutableState<User>) {
         }
         Spacer(modifier = Modifier.height(20.dp))
         NotificationInput(
-            notificationsOn!!,
+            notificationsOn?: false,
             onSwitchToggle = { notificationsOn = it }
         )
         Spacer(modifier = Modifier.weight(1f))
         SaveButton(
             onSaveUser = {
+                try{
+                    require(weeklyWorkingHours != null)
+                    require(forcedBreakAfter != null)
+                    require(forcedEndAfter != null)
+                } catch (e: IllegalArgumentException) {
+                    // TODO: Handle exception
+                    Toast.makeText(context, "Please fill out all fields", Toast.LENGTH_SHORT).show()
+                }
                 if (inputsAreValid(context,
                         weeklyWorkingHours!!,
                         forcedBreakAfter!!,
@@ -133,7 +139,7 @@ fun Profile(currentUser: MutableState<User>) {
 }
 
 @Composable
-fun ImmutableAndInitialCostumedProfileInput(
+fun ImmutableAndInitialCustomProfileInput(
     role: String,
     weeklyWorkingHours: Int,
     forcedBreakAfter: Double,
@@ -148,7 +154,7 @@ fun ImmutableAndInitialCostumedProfileInput(
 ) {
     HourMinuteInput(
         "Forced break after",
-        role != UserRole.COSTUMED.name,
+        role != UserRole.CUSTOM.name,
         floor(forcedBreakAfter).toInt(),
         ((forcedBreakAfter - floor(forcedBreakAfter)) * 60).toInt(),
         forcedBreakAfterOn,
@@ -162,7 +168,7 @@ fun ImmutableAndInitialCostumedProfileInput(
     Spacer(modifier = Modifier.height(20.dp))
     HourMinuteInput(
         "Forced end after",
-        role != UserRole.COSTUMED.name,
+        role != UserRole.CUSTOM.name,
         floor(forcedEndAfter).toInt(),
         ((forcedEndAfter - floor(forcedEndAfter)) * 60).toInt(),
         forcedEndAfterOn,
@@ -176,7 +182,7 @@ fun ImmutableAndInitialCostumedProfileInput(
     Spacer(modifier = Modifier.height(20.dp))
     HourInput(
         "Weekly\nworking hours",
-        role != UserRole.COSTUMED.name,
+        role != UserRole.CUSTOM.name,
         weeklyWorkingHours,
         onInputChange = {
             onWeeklyWorkingHoursChanged(it)
@@ -185,7 +191,7 @@ fun ImmutableAndInitialCostumedProfileInput(
 }
 
 @Composable
-fun CostumedProfileInput(
+fun CustomProfileInput(
     weeklyWorkingHours: Int,
     forcedBreakAfter: Double,
     forcedBreakAfterOn: Boolean,
@@ -272,8 +278,8 @@ fun updateProfileInputFields(
             onNotificationsOn(false)
         }
 
-        UserRole.COSTUMED -> {
-            if (currentUser.value.role != UserRole.COSTUMED.name) {
+        UserRole.CUSTOM -> {
+            if (currentUser.value.role != UserRole.CUSTOM.name) {
                 onWeeklyWorkingHoursChanged(0)
                 onForcedBreakChanged(0.0)
                 onForcedBreakToggle(false)
