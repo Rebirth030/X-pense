@@ -21,6 +21,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
+import static com.laborsoftware.xpense.service.crud.ICrudService.logger;
+
+
 @Service
 @Transactional
 @RestController
@@ -65,7 +68,7 @@ public class AuthenticationService {
                     token
             );
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.toString());
         }
         ApplicationUser user = userRepository.findByUsername(input.getUsername()).get();
         if(passwordEncoder.matches(input.getPassword(), user.getPassword())) {
