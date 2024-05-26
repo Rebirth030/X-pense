@@ -2,15 +2,12 @@ package com.laborsoftware.xpense.service;
 
 import com.laborsoftware.xpense.domain.Expense;
 import com.laborsoftware.xpense.domain.dto.ExpenseDTO;
-import com.laborsoftware.xpense.domain.dto.ProjectDTO;
 import com.laborsoftware.xpense.exceptions.ResourceNotFoundException;
 import com.laborsoftware.xpense.mapper.ExpenseMapper;
 import com.laborsoftware.xpense.repository.ExpenseRepository;
 import com.laborsoftware.xpense.repository.UserRepository;
 import com.laborsoftware.xpense.service.crud.ICrudService;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +23,6 @@ import java.util.Optional;
 @Service
 @Transactional
 public class ExpenseService implements ICrudService<ExpenseDTO, Long> {
-
-    Logger logger = LoggerFactory.getLogger(ExpenseService.class);
-
     private final ExpenseRepository expenseRepository;
 
     @Autowired
@@ -56,7 +50,6 @@ public class ExpenseService implements ICrudService<ExpenseDTO, Long> {
             ExpenseDTO result = expenseMapper.toDto(expense);
             return ResponseEntity.ok().body(result);
         } catch (Exception ex) {
-            ex.printStackTrace();
             logger.error(ex.toString());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -76,7 +69,7 @@ public class ExpenseService implements ICrudService<ExpenseDTO, Long> {
                 return ResponseEntity.ok().body(result);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.toString());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
@@ -94,7 +87,6 @@ public class ExpenseService implements ICrudService<ExpenseDTO, Long> {
             }
             expenseRepository.deleteById(id);
         } catch (Exception ex) {
-            ex.printStackTrace();
             logger.error(ex.toString());
         }
     }
@@ -102,11 +94,16 @@ public class ExpenseService implements ICrudService<ExpenseDTO, Long> {
     @Override
     @GetMapping("/expenses")
     public ResponseEntity<List<ExpenseDTO>> findAll(@RequestHeader("Authorization") String token){
-        logger.debug("Request to get all Expense");
-        String tokenValue = token.split(" ")[1];
-        List<Expense> expenses = expenseRepository.findAllByApplicationUser(userRepository.findByToken(tokenValue).orElseThrow());
-        List<ExpenseDTO> result = expenses.stream().map(expenseMapper::toDto).toList();
-        return ResponseEntity.ok().body(result);
+        try {
+            String tokenValue = token.split(" ")[1];
+            List<Expense> expenses = expenseRepository.findAllByApplicationUser(userRepository.findByToken(tokenValue)
+                                                                                              .orElseThrow());
+            List<ExpenseDTO> result = expenses.stream().map(expenseMapper::toDto).toList();
+            return ResponseEntity.ok().body(result);
+        } catch (Exception e) {
+            logger.error(e.toString());
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -125,15 +122,20 @@ public class ExpenseService implements ICrudService<ExpenseDTO, Long> {
                 );
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.toString());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/expenses/project/{id}")
-    public ResponseEntity<List<ExpenseDTO>> findAllExpensesOfProject(@PathVariable Long id) {
-        List<Expense> allProjectExpenses = expenseRepository.findAllByProjectId(id);
-        List<ExpenseDTO> result = allProjectExpenses.stream().map(expenseMapper::toDto).toList();
-        return ResponseEntity.ok().body(result);
+    public ResponseEntity<List<ExpenseDTO>> findAllExpensesOfProject(@RequestHeader("Authorization") String token, @PathVariable Long id) {
+        try {
+            List<Expense> allProjectExpenses = expenseRepository.findAllByProjectId(id);
+            List<ExpenseDTO> result = allProjectExpenses.stream().map(expenseMapper::toDto).toList();
+            return ResponseEntity.ok().body(result);
+        } catch (Exception e) {
+            logger.error(e.toString());
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
