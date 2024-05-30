@@ -2,7 +2,9 @@ package com.example.xpense_app.view.timer.view_model
 
 import Expense
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -18,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.lang.IllegalArgumentException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -26,6 +29,8 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
 class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() {
+
+    var errorMessage: String = "";
 
     private val _projects = MutableStateFlow<List<Project>>(emptyList())
     val projects: StateFlow<List<Project>> = _projects.asStateFlow()
@@ -55,53 +60,88 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
         }
     }
 
-
+    /**
+     * Loads projects and updates the related state variables.
+     *
+     * This method asynchronously fetches projects from the `ProjectService` using the current user's token.
+     * On successful retrieval, it updates various state variables, including `_projects`, `_currentProject`,
+     * `_projectTimersOnRun`, `_projectTimersStartTime`, and `_projectTimers`. Additionally, it processes open
+     * expenses to manage their states and associated timers.
+     *
+     * In case of an error during project retrieval, it updates the `errorMessage` with the appropriate message
+     * and clears the `_projects` state.
+     *
+     * The method uses a `CompletableDeferred<Unit>` object to signal the completion of the project loading process.
+     *
+     * Note: This method catches and handles `IllegalAccessException` during the processing of the retrieved projects
+     * and expenses.
+     */
     private fun loadProjects() {
         val projectsDeferred = CompletableDeferred<Unit>()
-
         ProjectService.getProjects(
             currentUser.value.token,
             onSuccess = {
-                _projects.value = it
-                if (_projects.value.isNotEmpty()) {
+                try {
+                    requireNotNull(it)
+                    _projects.value = it
                     _currentProject.value = _projects.value[0]
-                }
-                Log.d("Expenses size in load projects", expenses.value.size.toString())
-                it.map { project ->
-                    _projectTimersOnRun.value += (project.id!! to false)
-                    _projectTimersStartTime.value += (project.id to 0L)
-                    _projectTimers.value += (project.id to 0L)
-                }
-                if (expenses.value.isNotEmpty()) {
+                    it.map { project ->
+                        requireNotNull(project.id)
+                        _projectTimersOnRun.value += (project.id to false)
+                        _projectTimersStartTime.value += (project.id to 0L)
+                        _projectTimers.value += (project.id to 0L)
+                    }
+
                     val openExpenses =
                         expenses.value.filter { expense ->
                             expense.state == "RUNNING" || expense.state == "PAUSED"
                         }
-                    openExpenses.forEach { expense ->
-                        if (expense.state == "RUNNING") {
-                            _currentExpense.value = expense
-                            _currentProject.value =
-                                projects.value.find { project -> project.id == expense.projectId!! }
-                            _projectTimersOnRun.value += (expense.projectId!! to true)
-                            this.updateProjectTimers(expense)
-                        } else {
-                            _projectTimersOnRun.value += (expense.projectId!! to false)
-                            val updatedTimer = _projectTimers.value.toMutableMap()
-                            updatedTimer[expense.projectId] = expense.pausedAtTimestamp!!
-                            this.updateProjectTimers(expense)
-                            _projectTimers.value = updatedTimer
+                    if(openExpenses.isNotEmpty()) {
+                        openExpenses.forEach { expense ->
+                            val expenseProjectId = requireNotNull(expense.projectId) {
+                                "Project id of expense must not be null"
+                            }
+                            val expensePausedAtTimestamp = requireNotNull(expense.pausedAtTimestamp) {
+                                "Expense paused time must not be null"
+                            }
+                            if (expense.state == "RUNNING") {
+                                _currentExpense.value = expense
+                                _currentProject.value =
+                                    projects.value.find { project -> project.id == expenseProjectId }
+                                _projectTimersOnRun.value += (expenseProjectId to true)
+                                this.updateProjectTimers(expense)
+                            } else {
+                                _projectTimersOnRun.value += (expenseProjectId to false)
+                                val updatedTimer = _projectTimers.value.toMutableMap()
+                                updatedTimer[expense.projectId] = expensePausedAtTimestamp
+                                this.updateProjectTimers(expense)
+                                _projectTimers.value = updatedTimer
+                            }
+                            errorMessage = ""
+                            projectsDeferred.complete(Unit)
                         }
                     }
+                } catch (e: IllegalAccessException) {
+                    errorMessage = e.message?: "Unkown error"
+                    _projects.value = emptyList()
+                    projectsDeferred.complete(Unit)
                 }
-                projectsDeferred.complete(Unit)
             },
             onError = {
-                it.printStackTrace()
                 projectsDeferred.complete(Unit)
             }
         )
     }
 
+    /**
+     * Loads expenses and updates the related state variables.
+     *
+     * This suspending method asynchronously fetches expenses from the `ExpenseService` using the current user's token.
+     * On successful retrieval, it updates the `_expenses` state variable. In case of an error, it prints the stack trace
+     * and completes the `expensesDeferred` object.
+     *
+     * Note: This method is suspending and should be called from a coroutine or another suspending function.
+     */
     private suspend fun loadExpenses() {
         val expensesDeferred = CompletableDeferred<Unit>()
 
@@ -109,8 +149,6 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             currentUser.value.token,
             onSuccess = {
                 _expenses.value = it
-                Log.d("Expenses size", expenses.value.size.toString())
-                // Your other logic here
                 expensesDeferred.complete(Unit)
             },
             onError = {
@@ -121,83 +159,209 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
         expensesDeferred.await()
     }
 
-
+    /**
+     * Updates the project timers based on the provided expense.
+     *
+     * This method calculates the time elapsed since the start of the expense and updates the project timers accordingly.
+     * It ensures that the start time of the expense and the project ID are not null and then calculates the elapsed time.
+     * The method handles any `IllegalArgumentException` that may occur during the process.
+     *
+     * @param expense The expense object used to update the project timers.
+     * @throws IllegalArgumentException If the start time or project ID of the expense is null.
+     */
     private fun updateProjectTimers(expense: Expense) {
-        val date = LocalDateTime.ofInstant(Instant.parse(expense.startDateTime!!), ZoneOffset.UTC)
-        val startTimeInMillis = date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-
-        var timeInMillis = System.currentTimeMillis() - startTimeInMillis
-        if (timeInMillis < 0) {
-            timeInMillis *= -1
-        }
-
-        val updatedProjectTimersStartTime = _projectTimers.value.toMutableMap()
-        updatedProjectTimersStartTime[expense.projectId!!] = timeInMillis
-        _projectTimers.value = updatedProjectTimersStartTime
-        Log.d("Project Timer " + expense.projectId, timeInMillis.toString())
-        this.setProjectStartTime(expense)
-    }
-
-
-    fun setProjectTime(project: Project) {
-        val updatedProjectTimers = projectTimers.value.toMutableMap().apply {
-            this[project.id!!] =
-                System.currentTimeMillis() - projectTimersStartTime.value[project.id]!!
-        }
-        _projectTimers.value = updatedProjectTimers
-    }
-
-    fun setProjectStartTime(expense: Expense?) {
-        val projectId = if (expense != null) {
-            expense.projectId!!
-        } else {
-            currentProject.value!!.id!!
-        }
-        val updatedProjectTimers = projectTimersStartTime.value.toMutableMap().apply {
-            this[projectId] =
-                System.currentTimeMillis() - projectTimers.value[projectId]!!
-        }
-        _projectTimersStartTime.value = updatedProjectTimers
-    }
-
-    fun toggleProjectTimer(run: Boolean) {
-        _projectTimersOnRun.value += (currentProject.value!!.id!! to run)
-        if (currentExpense.value == null) {
-            this.createNewExpense()
-        } else {
-            // update state
-            val state = if (run) {
-                "RUNNING"
-            } else {
-                "PAUSED"
+        try {
+            val expenseStartTime = requireNotNull(expense.startDateTime) {
+                "Expense start time must not be null"
             }
-            this.updateCurrentExpense(state)
-        }
+            val date = LocalDateTime.ofInstant(Instant.parse(expenseStartTime), ZoneOffset.UTC)
+            val startTimeInMillis = date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
+            var timeInMillis = System.currentTimeMillis() - startTimeInMillis
+            if (timeInMillis < 0) {
+                timeInMillis *= -1
+            }
+
+            val expenseProjectId = requireNotNull(expense.projectId) {
+                "Expense has no project id"
+            }
+            val updatedProjectTimersStartTime = _projectTimers.value.toMutableMap()
+            updatedProjectTimersStartTime[expenseProjectId] = timeInMillis
+            _projectTimers.value = updatedProjectTimersStartTime
+            this.setProjectStartTime(expense)
+            errorMessage = ""
+        } catch (e:IllegalArgumentException) {
+            errorMessage = e.message?: "Unkown error"
+        }
     }
 
+    /**
+     * Sets the project time based on the provided project.
+     *
+     * This method updates the project timers by calculating the elapsed time since the project's timer start time.
+     * It ensures that the project ID and the project timer start time are not null before performing the calculation.
+     * The method handles any `IllegalArgumentException` that may occur during the process.
+     *
+     * @param project The project object used to set the project time.
+     * @throws IllegalArgumentException If the project ID or project timer start time is null.
+     */
+    fun setProjectTime(project: Project) {
+        try {
+            val projectId = requireNotNull(project.id) { "Project id must not be null" }
+            val projectStartTimer = requireNotNull(projectTimersStartTime.value[projectId]) {
+                "Project timer start time must not be null"
+            }
+            val updatedProjectTimers = projectTimers.value.toMutableMap().apply {
+                this[projectId] = System.currentTimeMillis() - projectStartTimer
+            }
+            _projectTimers.value = updatedProjectTimers
+            errorMessage = ""
+        } catch (e: IllegalArgumentException) {
+            errorMessage = e.message?: "Unkown error"
+        }
+    }
+
+    /**
+     * Sets the start time for a project based on the provided expense or the current project.
+     *
+     * This method updates the project timer start times by calculating the elapsed time since the current project timer
+     * or the expense's project timer. It ensures that the project ID and the project timer are not null before performing
+     * the calculation. The method handles any `IllegalArgumentException` that may occur during the process.
+     *
+     * @param expense The expense object used to set the project start time. If null, the current project is used.
+     * @throws IllegalArgumentException If the project ID or project timer is null.
+     */
+    fun setProjectStartTime(expense: Expense?) {
+        try {
+            val projectId = if (expense != null) {
+                requireNotNull(expense.projectId) { "Expense has no project id" }
+                expense.projectId
+            } else {
+                val currentProjectVal = requireNotNull(currentProject.value) { "Current project must not be null" }
+                requireNotNull(currentProjectVal.id) { "Current project must not be null" }
+                currentProjectVal.id
+            }
+            val currentTimer = requireNotNull(projectTimers.value[projectId]) { "Project timer for ID $projectId must not be null" }
+            val updatedProjectTimers = projectTimersStartTime.value.toMutableMap().apply {
+                this[projectId] = System.currentTimeMillis() - currentTimer
+            }
+            _projectTimersStartTime.value = updatedProjectTimers
+            errorMessage = ""
+        } catch (e: IllegalArgumentException) {
+            errorMessage = e.message?: "Unkown error"
+
+        }
+    }
+
+    /**
+     * Toggles the timer for the current project between running and paused states.
+     *
+     * This method updates the `_projectTimersOnRun` state to set the timer for the current project as running or paused.
+     * If there is no current expense, it creates a new expense. If there is a current expense, it updates its state
+     * to either "RUNNING" or "PAUSED" based on the `run` parameter.
+     *
+     * @param run A boolean indicating whether the timer should be running (true) or paused (false).
+     * @throws IllegalArgumentException If the current project or its ID is null.
+     */
+    fun toggleProjectTimer(run: Boolean) {
+        try {
+            val currentProjectValue = requireNotNull(currentProject.value) { "Current project must not be null" }
+            val currentProjectId = requireNotNull(currentProjectValue.id) { "Current project id must not be null" }
+            _projectTimersOnRun.value += (currentProjectId to run)
+            if (currentExpense.value == null) {
+                this.createNewExpense()
+            } else {
+                // update state
+                val state = if (run) {
+                    "RUNNING"
+                } else {
+                    "PAUSED"
+                }
+                this.updateCurrentExpense(state)
+            }
+            errorMessage = ""
+        } catch (e: IllegalArgumentException) {
+            errorMessage = e.message?: "Unkown error"
+        }
+    }
+
+    /**
+     * Creates a new expense for the current user and project.
+     *
+     * This method constructs a new `Expense` object with the current date and sets its state to "RUNNING".
+     * It ensures that the current user and project, along with their IDs, are not null before creating the expense.
+     * The method handles any `IllegalArgumentException` that may occur during the process.
+     *
+     * @throws IllegalArgumentException If the current user, their ID, the current project, or its ID is null.
+     */
     private fun createNewExpense() {
-        val expense = Expense(
-            null,
-            this.getCurrentDate(),
-            null,
-            "RUNNING",
-            currentUser.value.id,
-            currentProject.value!!.id!!,
-        );
-        this.saveExpense(expense)
-    }
+        try {
+            val currentUser = requireNotNull(currentUser.value) { "Current user must not be null" }
+            val currentUserId = requireNotNull(currentUser.id) { "Current user id must not be null" }
+            val currentProject = requireNotNull(currentProject.value) { "Current project must not be null" }
+            val currentProjectId = requireNotNull(currentProject.id) { "Current project id must not be null" }
 
-    private fun updateCurrentExpense(newState: String) {
-        val updatedExpense = if (newState == "PAUSED") {
-            val currentTimestamp = projectTimers.value[currentExpense.value!!.projectId]
-            currentExpense.value!!.copy(state = newState, pausedAtTimestamp = currentTimestamp)
-        } else {
-            currentExpense.value!!.copy(state = newState)
+            val expense = Expense(
+                null,
+                this.getCurrentDate(),
+                null,
+                "RUNNING",
+                currentUserId,
+                currentProjectId,
+            );
+            this.saveExpense(expense)
+            errorMessage = ""
+        } catch (e: IllegalArgumentException) {
+            errorMessage = e.message?: "Unkown error"
         }
-        this.updateExpense(updatedExpense)
     }
 
+    /**
+     * Updates the state of the current expense.
+     *
+     * This method modifies the current expense's state to the provided `newState`. If the new state is "PAUSED", it also
+     * updates the `pausedAtTimestamp` of the expense with the current project timer. The updated expense is then saved.
+     * The method ensures that the current expense is not null before making the update.
+     * The method handles any `IllegalArgumentException` that may occur during the process.
+     *
+     * @param newState The new state to set for the current expense. It can be "RUNNING" or "PAUSED".
+     * @throws IllegalArgumentException If the current expense is null.
+     */
+    private fun updateCurrentExpense(newState: String) {
+        try {
+            val currentExpense = requireNotNull(currentExpense.value) {
+                "Current expense must not be null"
+            }
+            val updatedExpense = if (newState == "PAUSED") {
+                val currentTimestamp = projectTimers.value[currentExpense.projectId]
+                currentExpense.copy(state = newState, pausedAtTimestamp = currentTimestamp)
+            } else {
+                currentExpense.copy(state = newState)
+            }
+            this.updateExpense(updatedExpense)
+            errorMessage = ""
+        } catch (e: IllegalArgumentException) {
+            errorMessage = e.message?: "Unkown error"
+        }
+
+    }
+
+    /**
+     * Saves a new expense using the `ExpenseService`.
+     *
+     * This method calls the `ExpenseService.createExpense` function to save the provided `newExpense`.
+     * It uses the current user's token for authentication and handles the success and error callbacks appropriately.
+     *
+     * On success:
+     * - Updates the `_currentExpense` state with the newly created expense.
+     * - Adds the new expense to the `_expenses` state list.
+     * - Resets the `errorMessage` to an empty string.
+     *
+     * On error:
+     * - Sets the `errorMessage` to "Error while save Expense".
+     *
+     * @param newExpense The new expense object to be saved.
+     */
     private fun saveExpense(newExpense: Expense) {
         ExpenseService.createExpense(
             expense = newExpense,
@@ -206,70 +370,140 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                 _currentExpense.value = it
                 val updatedExpenses = expenses.value.toMutableList().plus(it)
                 _expenses.value = updatedExpenses
+                errorMessage = ""
             },
-            onError = { it.printStackTrace() }
+            onError = { errorMessage = "Error while save Expense" }
         )
     }
 
+    /**
+     * Updates an existing expense using the `ExpenseService`.
+     *
+     * This method calls the `ExpenseService.updateExpense` function to update the provided `expense`.
+     * It uses the current user's token for authentication and handles the success and error callbacks appropriately.
+     * The method ensures that the current expense is not null before proceeding with the update.
+     *
+     * On success:
+     * - Updates the `_currentExpense` state with the updated expense.
+     * - Finds the index of the current expense in the `_expenses` list and updates it with the new expense.
+     * - Resets the `errorMessage` to an empty string.
+     *
+     * On error:
+     * - Throws an `IllegalArgumentException` with the message "Could not update expense."
+     *
+     * @param expense The expense object to be updated.
+     * @throws IllegalArgumentException If the current expense is null.
+     */
     private fun updateExpense(expense: Expense) {
-        ExpenseService.updateExpense(
-            expense = expense,
-            token = currentUser.value.token,
-            onSuccess = {
-                _currentExpense.value = it
-                val targetIdx = expenses.value.indexOfFirst { currentExpense.value!!.id == it.id }
-                val updatedExpenses = expenses.value.toMutableList()
-                updatedExpenses[targetIdx] = it
-                _expenses.value = updatedExpenses
-            },
-            onError = { it.printStackTrace() }
-        )
-    }
-
-    fun changeProject(newProject: Project) {
-        _expenses.value = expenses.value.filter { expense -> expense.state != "FINISHED" }
-        val timerWasRunning = projectTimersOnRun.value[currentProject.value!!.id]!!
-
-        _projectTimersOnRun.value += (currentProject.value!!.id!! to false)
-        val oldExpense = expenses.value.find { expense -> expense.projectId == currentProject.value!!.id }
-        val updatedOldExpense =
-            oldExpense!!.copy(state = "PAUSED", pausedAtTimestamp = _projectTimers.value[oldExpense.projectId])
-        this.updateExpense(updatedOldExpense)
-
-        _currentProject.value = newProject
-
-        val expenseAlreadyStarted = expenses.value.find { expense ->
-            (expense.projectId!! == newProject.id!!)
-                    && (expense.state!! == "RUNNING" || expense.state == "PAUSED")
-        }
-        this.setProjectStartTime(null)
-        if (expenseAlreadyStarted == null) {
-            _projectTimersOnRun.value += (currentProject.value!!.id!! to timerWasRunning)
-            this.createNewExpense()
-        } else {
-            _currentExpense.value = expenseAlreadyStarted
-            this.toggleProjectTimer(timerWasRunning)
-        }
-        //this.reorderProjects()
-    }
-
-
-    fun reorderProjects(): List<Project> {
-        //viewModelScope.launch {
-        val reorderedProjects = projects.value.toMutableList()
-        reorderedProjects.clear()
-        reorderedProjects.add(currentProject.value!!)
-        for (project in projects.value) {
-            if (project.id!! != currentProject.value!!.id!!) {
-                reorderedProjects.add(project)
+        try {
+            val currentExpense = requireNotNull(currentExpense.value) {
+                "Current expense must not be null"
             }
+            ExpenseService.updateExpense(
+                expense = expense,
+                token = currentUser.value.token,
+                onSuccess = {
+                    _currentExpense.value = it
+                    val targetIdx = expenses.value.indexOfFirst { currentExpense.id == it.id }
+                    val updatedExpenses = expenses.value.toMutableList()
+                    updatedExpenses[targetIdx] = it
+                    _expenses.value = updatedExpenses
+                },
+                onError = {
+                    throw IllegalArgumentException("Could not update expense.")
+                }
+            )
+            errorMessage = ""
+        } catch (e: IllegalArgumentException) {
+            errorMessage = e.message?: "Unkwon error"
         }
-        _projects.value = reorderedProjects
-        return reorderedProjects
-        //}
+    }
+
+    /**
+     * Changes the current project to the provided new project.
+     *
+     * This method updates the current project to the provided `newProject`. It also updates related expenses and project
+     * timers based on the state of the current and new projects. The method ensures that the current project is not null
+     * before proceeding with the change.
+     *
+     * @param newProject The new project object to change to.
+     * @throws IllegalArgumentException If the current project is null, or if there is no matching expense for the
+     * current project, or if the ID of the new project is null.
+     */
+    fun changeProject(newProject: Project) {
+        try {
+            val currentProject = requireNotNull(currentProject.value) {
+                "Current project must not be null"
+            }
+            requireNotNull(currentProject.id) { "Current project id must be null" }
+
+            _expenses.value = expenses.value.filter { expense -> expense.state != "FINISHED" }
+            val timerWasRunning = projectTimersOnRun.value[currentProject.id]?: false
+            _projectTimersOnRun.value += (currentProject.id to false)
+            val oldExpense = requireNotNull(expenses.value.find { expense -> expense.projectId == currentProject.id }) {
+                "Current project has no matching expense"
+            }
+            val updatedOldExpense =
+                oldExpense.copy(state = "PAUSED", pausedAtTimestamp = _projectTimers.value[oldExpense.projectId])
+            this.updateExpense(updatedOldExpense)
+
+            requireNotNull(newProject.id) { "New project id must not be null" }
+            _currentProject.value = newProject
+
+            val expenseAlreadyStarted = expenses.value.find { expense ->
+                (expense.projectId == newProject.id)
+                        && (expense.state == "RUNNING" || expense.state == "PAUSED")
+            }
+            this.setProjectStartTime(null)
+
+            if (expenseAlreadyStarted == null) {
+                _projectTimersOnRun.value += (newProject.id to timerWasRunning)
+                this.createNewExpense()
+            } else {
+                _currentExpense.value = expenseAlreadyStarted
+                this.toggleProjectTimer(timerWasRunning)
+            }
+            errorMessage = ""
+        } catch (e: IllegalArgumentException) {
+            errorMessage = e.message?: "Unknown error"
+        }
     }
 
 
+    /**
+     * Reorders the list of projects with the current project as the first element.
+     *
+     * This method rearranges the list of projects so that the current project is placed at the beginning.
+     * It ensures that the current project is not null before proceeding with the reordering.
+     *
+     * @return The reordered list of projects with the current project at the beginning.
+     */
+    fun reorderProjects(): List<Project> {
+        try {
+            val currentProject = requireNotNull(currentProject.value)
+            val reorderedProjects = projects.value.toMutableList()
+            reorderedProjects.clear()
+            reorderedProjects.add(currentProject)
+            for (project in projects.value) {
+                if (project.id != currentProject.id) {
+                    reorderedProjects.add(project)
+                }
+            }
+            _projects.value = reorderedProjects
+            return reorderedProjects
+        } catch (e: IllegalArgumentException) {
+            // error message
+            return  _projects.value
+        }
+    }
+
+    /**
+     * Stops all project timers and finishes all running expenses.
+     *
+     * This method sets all project timers to false in the `_projectTimersOnRun` state, indicating that all timers are
+     * stopped. It also updates the state of all running expenses to "FINISHED" and sets their end date time to the current
+     * date time. The method does not return any value.
+     */
     fun stopAllProjectTimers() {
         _projectTimersOnRun.value = _projectTimersOnRun.value.mapValues { (_, _) -> false }
         expenses.value.forEach { expense ->
@@ -278,12 +512,29 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
         }
     }
 
+    /**
+     * Calculates the overall time across all projects.
+     *
+     * This method sums up the time durations of all projects stored in the `_projectTimers` state and returns the total
+     * time in milliseconds. It does not consider the current project's timer state.
+     *
+     * @return The overall time across all projects in milliseconds.
+     */
     fun getOverallTime(): Long {
         var timeOfAllProjects = 0L
         projectTimers.value.values.forEach { timeOfAllProjects += it }
         return timeOfAllProjects
     }
 
+    /**
+     * Retrieves the current date and time as a formatted string.
+     *
+     * This method generates a formatted string representing the current date and time in the format "yyyy-MM-dd'T'HH:mm:ss'Z'".
+     * It uses the `LocalDateTime.now()` function to get the current date and time and formats it using a `DateTimeFormatter`.
+     * The formatted string is then returned.
+     *
+     * @return The current date and time as a formatted string.
+     */
     private fun getCurrentDate(): String {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
         val currentDateTime = LocalDateTime.now()

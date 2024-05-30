@@ -28,6 +28,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.math.floor
 
+/**
+ * Displays the main profile page for the current user.
+ *
+ * This composable function is responsible for rendering the profile page UI. It takes the current user's state
+ * and displays various components that represent the user's profile information.
+ *
+ * @param currentUser A [MutableState] containing the [User] object for the currently logged-in user.
+ */
 @Composable
 @ExperimentalMaterial3Api
 fun Profile(currentUser: MutableState<User>) {
@@ -111,33 +119,54 @@ fun Profile(currentUser: MutableState<User>) {
         Spacer(modifier = Modifier.weight(1f))
         SaveButton(
             onSaveUser = {
-                try{
-                    require(weeklyWorkingHours != null)
-                    require(forcedBreakAfter != null)
-                    require(forcedEndAfter != null)
+                try {
+                    val weeklyWorkingHoursValue = requireNotNull(weeklyWorkingHours) { "Weekly working hours must not be null" }
+                    val forcedBreakAfterValue = requireNotNull(forcedBreakAfter) { "Forced break after must not be null" }
+                    val forcedEndAfterValue = requireNotNull(forcedEndAfter) { "Forced end after must not be null" }
+                    val forcedBreakAfterOnValue = requireNotNull(forcedBreakAfterOn) { "Forced break after must not be null" }
+                    val forcedEndAfterOnValue = requireNotNull(forcedEndAfterOn) { "Forced end after must not be null" }
+                    val notificationsOnValue = requireNotNull(notificationsOn) { "Notification must not be null" }
+
+                    require(forcedBreakAfterValue <= forcedEndAfterValue) { "Forced break can't be greater than forced end" }
+                    require(forcedEndAfterValue <= weeklyWorkingHoursValue) { "Forced end can't be greater than weekly working hours" }
+                    require(forcedBreakAfterValue <= weeklyWorkingHoursValue) { "Forced break can't be greater than weekly working hours" }
+
+                    saveUser(
+                        context,
+                        currentUser,
+                        role,
+                        weeklyWorkingHoursValue,
+                        forcedBreakAfterValue,
+                        forcedBreakAfterOnValue,
+                        forcedEndAfterValue,
+                        forcedEndAfterOnValue,
+                        notificationsOnValue
+                    )
                 } catch (e: IllegalArgumentException) {
-                    // TODO: Handle exception
-                    Toast.makeText(context, "Please fill out all fields", Toast.LENGTH_SHORT).show()
-                }
-                if (inputsAreValid(context,
-                        weeklyWorkingHours!!,
-                        forcedBreakAfter!!,
-                        forcedEndAfter!!
-                    )
-                ) {
-                    saveUser(context, currentUser, role,
-                        weeklyWorkingHours!!,
-                        forcedBreakAfter!!,
-                        forcedBreakAfterOn!!,
-                        forcedEndAfter!!,
-                        forcedEndAfterOn!!,
-                        notificationsOn!!
-                    )
+                    Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
                 }
             })
     }
 }
 
+/**
+ * Displays input elements for customizing the profile settings.
+ *
+ * This composable function is responsible for rendering input elements that allow the user to customize
+ * various profile settings such as role, weekly working hours, forced break settings, etc.
+ *
+ * @param role The role of the user.
+ * @param weeklyWorkingHours The number of weekly working hours for the user.
+ * @param forcedBreakAfter The duration after which a forced break occurs.
+ * @param forcedBreakAfterOn A boolean indicating whether forced breaks are enabled.
+ * @param forcedEndAfter The duration after which a forced end occurs.
+ * @param forcedEndAfterOn A boolean indicating whether forced ends are enabled.
+ * @param onForcedBreakChanged Callback function triggered when the forced break duration is changed.
+ * @param onForcedBreakToggle Callback function triggered when the forced break is toggled.
+ * @param onForcedEndChanged Callback function triggered when the forced end duration is changed.
+ * @param onForcedEndToggle Callback function triggered when the forced end is toggled.
+ * @param onWeeklyWorkingHoursChanged Callback function triggered when the weekly working hours are changed.
+ */
 @Composable
 fun ImmutableAndInitialCustomProfileInput(
     role: String,
@@ -190,6 +219,23 @@ fun ImmutableAndInitialCustomProfileInput(
     )
 }
 
+/**
+ * Displays input elements for customizing profile settings.
+ *
+ * This composable function is responsible for rendering input elements that allow the user to customize
+ * various profile settings such as weekly working hours, forced break settings, etc.
+ *
+ * @param weeklyWorkingHours The number of weekly working hours for the user.
+ * @param forcedBreakAfter The duration after which a forced break occurs.
+ * @param forcedBreakAfterOn A boolean indicating whether forced breaks are enabled.
+ * @param forcedEndAfter The duration after which a forced end occurs.
+ * @param forcedEndAfterOn A boolean indicating whether forced ends are enabled.
+ * @param onForcedBreakChanged Callback function triggered when the forced break duration is changed.
+ * @param onForcedBreakToggle Callback function triggered when the forced break toggle is changed.
+ * @param onForcedEndChanged Callback function triggered when the forced end duration is changed.
+ * @param onForcedEndToggle Callback function triggered when the forced end toggle is changed.
+ * @param onWeeklyWorkingHoursChanged Callback function triggered when the weekly working hours are changed.
+ */
 @Composable
 fun CustomProfileInput(
     weeklyWorkingHours: Int,
@@ -240,6 +286,21 @@ fun CustomProfileInput(
     }
 }
 
+/**
+ * Updates the input fields of the profile with the provided user role and current user state.
+ *
+ * This function is responsible for updating the input fields of the profile based on the provided user role
+ * and the current state of the user.
+ *
+ * @param role The role of the user.
+ * @param currentUser A [MutableState] containing the [User] object for the currently logged-in user.
+ * @param onForcedBreakChanged Callback function triggered when the forced break duration is changed.
+ * @param onForcedBreakToggle Callback function triggered when the forced break toggle is changed.
+ * @param onForcedEndChanged Callback function triggered when the forced end duration is changed.
+ * @param onForcedEndToggle Callback function triggered when the forced end toggle is changed.
+ * @param onWeeklyWorkingHoursChanged Callback function triggered when the weekly working hours are changed.
+ * @param onNotificationsOn Callback function triggered when notifications are toggled.
+ */
 fun updateProfileInputFields(
     role: UserRole,
     currentUser: MutableState<User>,
@@ -287,18 +348,34 @@ fun updateProfileInputFields(
                 onForcedEndToggle(false)
                 onNotificationsOn(false)
             } else {
-                onWeeklyWorkingHoursChanged(currentUser.value.weeklyWorkingHours!!)
-                onForcedBreakChanged(currentUser.value.forcedBreakAfter!!)
-                onForcedBreakToggle(currentUser.value.forcedBreakAfterOn!!)
-                onForcedEndChanged(currentUser.value.forcedEndAfter!!)
-                onForcedEndToggle(currentUser.value.forcedEndAfterOn!!)
-                onNotificationsOn(currentUser.value.notification!!)
+                onWeeklyWorkingHoursChanged(currentUser.value.weeklyWorkingHours?: 0)
+                onForcedBreakChanged(currentUser.value.forcedBreakAfter?: 0.0)
+                onForcedBreakToggle(currentUser.value.forcedBreakAfterOn?: false)
+                onForcedEndChanged(currentUser.value.forcedEndAfter?: 0.0)
+                onForcedEndToggle(currentUser.value.forcedEndAfterOn?: false)
+                onNotificationsOn(currentUser.value.notification?: false)
             }
         }
     }
 }
 
 
+/**
+ * Saves the user's profile data.
+ *
+ * This function is responsible for saving the user's profile data, including role, weekly working hours,
+ * forced break settings, forced end settings, and notification preferences.
+ *
+ * @param context The context of the application.
+ * @param currentUser A [MutableState] containing the [User] object for the currently logged-in user.
+ * @param role The role of the user.
+ * @param weeklyWorkingHours The number of weekly working hours for the user.
+ * @param forcedBreakAfter The duration after which a forced break occurs.
+ * @param forcedBreakAfterOn A boolean indicating whether forced breaks are enabled.
+ * @param forcedEndAfter The duration after which a forced end occurs.
+ * @param forcedEndAfterOn A boolean indicating whether forced ends are enabled.
+ * @param notificationsOn A boolean indicating whether notifications are enabled.
+ */
 fun saveUser(
     context: Context,
     currentUser: MutableState<User>,
@@ -331,7 +408,6 @@ fun saveUser(
             }
         },
         onError = {
-            it.printStackTrace()
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     context,
@@ -341,25 +417,4 @@ fun saveUser(
             }
         }
     )
-}
-
-fun inputsAreValid(
-    context: Context,
-    weeklyWorkingHours: Int,
-    forcedBreakAfter: Double,
-    forcedEndAfter: Double
-): Boolean {
-    if (forcedBreakAfter > forcedEndAfter) {
-        Toast.makeText(context, "Forced break cant be greater then forced end.", Toast.LENGTH_SHORT).show()
-        return false
-    }
-    if (forcedEndAfter > weeklyWorkingHours) {
-        Toast.makeText(context, "Forced end cant be greater then weekly working hours.", Toast.LENGTH_SHORT).show()
-        return false
-    }
-    if (forcedBreakAfter > weeklyWorkingHours) {
-        Toast.makeText(context, "Forced break cant be greater then weekly working hours.", Toast.LENGTH_SHORT).show()
-        return false
-    }
-    return true
 }
