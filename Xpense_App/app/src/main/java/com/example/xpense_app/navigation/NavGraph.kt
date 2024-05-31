@@ -28,6 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -74,7 +76,7 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
             ModalDrawerSheet {
                 for (item in NavigationItem.values().filter { it != NavigationItem.Login && it != NavigationItem.Register }) {
                     CreateNavigationItem(
-                        item.name,
+                        stringResource(item.titleResourceId),
                         coroutineScope,
                         drawerState,
                         navController,
@@ -168,8 +170,9 @@ private fun CreateNavigationItem(
 private fun getTitle(navHostController: NavHostController): String {
     val navBackStackEntry by navHostController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val context = LocalContext.current
     return try {
-        NavigationItem.fromRoute(currentRoute ?: NavigationItem.Login.route).name
+        context.getString(NavigationItem.fromRoute(currentRoute ?: NavigationItem.Login.route).titleResourceId)
     } catch (e: IllegalArgumentException) {
         "Title not found"
     }

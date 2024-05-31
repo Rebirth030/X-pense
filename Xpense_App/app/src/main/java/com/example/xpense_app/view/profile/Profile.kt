@@ -17,10 +17,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.xpense_app.R
 import com.example.xpense_app.controller.services.UserService
 import com.example.xpense_app.model.User
 import com.example.xpense_app.model.UserRole
@@ -70,7 +72,7 @@ fun Profile(currentUser: MutableState<User>) {
     ) {
         DropDown(
             currentUser,
-            onSelectedProfile = {userRole ->
+            onSelectedProfile = { userRole ->
                 role = userRole.name
                 updateProfileInputFields(userRole, currentUser,
                     onForcedBreakChanged = { forcedBreakAfter = it },
@@ -182,7 +184,7 @@ fun ImmutableAndInitialCustomProfileInput(
     onWeeklyWorkingHoursChanged: (Int) -> Unit
 ) {
     HourMinuteInput(
-        "Forced break after",
+        stringResource(R.string.forced_break_after),
         role != UserRole.CUSTOM.name,
         floor(forcedBreakAfter).toInt(),
         ((forcedBreakAfter - floor(forcedBreakAfter)) * 60).toInt(),
@@ -196,7 +198,7 @@ fun ImmutableAndInitialCustomProfileInput(
     )
     Spacer(modifier = Modifier.height(20.dp))
     HourMinuteInput(
-        "Forced end after",
+        stringResource(R.string.forced_end_after),
         role != UserRole.CUSTOM.name,
         floor(forcedEndAfter).toInt(),
         ((forcedEndAfter - floor(forcedEndAfter)) * 60).toInt(),
@@ -210,7 +212,7 @@ fun ImmutableAndInitialCustomProfileInput(
     )
     Spacer(modifier = Modifier.height(20.dp))
     HourInput(
-        "Weekly\nworking hours",
+        stringResource(R.string.weekly_working_hours),
         role != UserRole.CUSTOM.name,
         weeklyWorkingHours,
         onInputChange = {
@@ -250,7 +252,7 @@ fun CustomProfileInput(
     onWeeklyWorkingHoursChanged: (Int) -> Unit
 ) {
     MutableHourMinuteInput(
-        "Forced break after",
+        stringResource(R.string.forced_break_after),
         floor(forcedBreakAfter).toInt(),
         ((forcedBreakAfter - floor(forcedBreakAfter)) * 60).toInt(),
         forcedBreakAfterOn,
@@ -263,7 +265,7 @@ fun CustomProfileInput(
     )
     Spacer(modifier = Modifier.height(20.dp))
     MutableHourMinuteInput(
-        "Forced end after",
+        stringResource(R.string.forced_end_after),
         floor(forcedEndAfter).toInt(),
         ((forcedEndAfter - floor(forcedEndAfter)) * 60).toInt(),
         forcedEndAfterOn,
@@ -402,16 +404,17 @@ fun saveUser(
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     context,
-                    "Profile successfully updated to: ${it.role}",
+                    context.getString(R.string.profile_successfully_updated, it.role),
                     Toast.LENGTH_LONG
                 ).show()
             }
         },
         onError = {
+            it.printStackTrace()
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     context,
-                    "An Error has occurred while updating profile!: ${it.message}",
+                    context.getString(R.string.error_message_an_error_has_occurred_while_updating_profile, it.message),
                     Toast.LENGTH_LONG
                 ).show()
             }

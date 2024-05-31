@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -34,28 +33,28 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import com.example.xpense_app.R
 import com.example.xpense_app.model.Project
 import com.example.xpense_app.view.timer.view_model.TimerViewModel
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.timer
@@ -68,7 +67,7 @@ import kotlin.concurrent.timer
  */
 @Composable
 fun CurrentDate() {
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val formatter = DateTimeFormatter.ofPattern(stringResource(R.string.date_time_formatter_date_only))
     val currentDate = LocalDateTime.now().format(formatter)
     DisplayDateTime(text = currentDate)
 }
@@ -82,7 +81,7 @@ fun CurrentDate() {
  */
 @Composable
 fun CurrentTime() {
-    val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+    val formatter = DateTimeFormatter.ofPattern(stringResource(R.string.date_time_formatter_hours_minutes_seconds))
     var currentTime by remember {
         mutableStateOf(LocalDateTime.now().format(formatter))
     }
@@ -116,7 +115,7 @@ fun ProjectList(projects: List<Project>, timerViewModel: TimerViewModel) {
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Projekte",
+            text = stringResource(R.string.projects),
             fontSize = 24.sp,
             textAlign = TextAlign.Center
         )
@@ -342,7 +341,7 @@ fun ProjectChangeDialog(
     AlertDialog(
         onDismissRequest = { onDismiss(false) },
         title = { Text(text = projectName) },
-        text = { Text(text = "Sicher dass du das Projekt wechseln willst?") },
+        text = { Text(text = stringResource(R.string.dialog_message_change_projects)) },
         confirmButton = {
             Button(
                 onClick = {
@@ -358,7 +357,7 @@ fun ProjectChangeDialog(
                 }
             ) {
                 Text(
-                    text = "Ja",
+                    text = stringResource(R.string.yes),
                     color = Color.White
                 )
             }
@@ -371,7 +370,7 @@ fun ProjectChangeDialog(
                 }
             ) {
                 Text(
-                    text = "Abbrechen",
+                    text = stringResource(R.string.cancel),
                     color = Color.White
                 )
             }
@@ -392,8 +391,9 @@ fun TimerButtons(timerViewModel: TimerViewModel) {
     val context = LocalContext.current
     val currentProject by timerViewModel.currentProject.collectAsState()
     val isProjectOnRun by timerViewModel.projectTimersOnRun.collectAsState()
+    val projectStartTimes by timerViewModel.projectTimersStartTime.collectAsState()
     var time by remember {
-        mutableStateOf(0L)
+        mutableLongStateOf(0L)
     }
     val projectIdValue = requireNotNull(currentProject) {
         Toast.makeText(context, "CurrentProject must not be null", Toast.LENGTH_SHORT).show()
@@ -440,14 +440,14 @@ fun TimerButtons(timerViewModel: TimerViewModel) {
                 } else {
                     R.drawable.play_solid
                 }
-                Icon(painterResource(id = icon), contentDescription = "Play/Pause timer")
+                Icon(painterResource(id = icon), contentDescription = stringResource(R.string.play_pause_timer))
             }
             Spacer(modifier = Modifier.height(16.dp))
             IconButton(onClick = {
                 timerViewModel.stopAllProjectTimers()
                 time = 0L
             }) {
-                Icon(painterResource(id = R.drawable.stop_solid), contentDescription = "Stop timer")
+                Icon(painterResource(id = R.drawable.stop_solid), contentDescription = stringResource(R.string.stop_timer))
             }
         }
     }
@@ -505,11 +505,7 @@ fun DisplayDateTime(text: String) {
 
 @Composable
 fun formatTime(timeMi: Long): String {
-    val hours = TimeUnit.MILLISECONDS.toHours(timeMi)
-    val minutes = TimeUnit.MILLISECONDS.toMinutes(timeMi) % 60
-    val seconds = TimeUnit.MILLISECONDS.toSeconds(timeMi) % 60
-
-    return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    return LocalTime.ofNanoOfDay(timeMi).format(DateTimeFormatter.ofPattern(stringResource(R.string.date_time_formatter_hours_minutes_seconds)))
 }
 
 /**
@@ -524,8 +520,5 @@ fun formatTime(timeMi: Long): String {
 
 @Composable
 fun formatTimeProject(timeMi: Long): String {
-    val hours = TimeUnit.MILLISECONDS.toHours(timeMi)
-    val minutes = TimeUnit.MILLISECONDS.toMinutes(timeMi) % 60
-
-    return String.format("%02d:%02d", hours, minutes)
+    return LocalTime.ofNanoOfDay(timeMi).format(DateTimeFormatter.ofPattern(stringResource(R.string.date_time_format_hour_minute)))
 }

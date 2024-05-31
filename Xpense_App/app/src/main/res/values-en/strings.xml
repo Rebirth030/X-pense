@@ -2,13 +2,11 @@
 <resources>
     <string name="add_break_time">Add break time</string>
     <string name="add_expense">Add Expense</string>
-    <string name="app_name" translatable="false">X-Pense</string>
     <string name="back">Back</string>
     <string name="breaktime">Break: %1$s - %2$s</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
     <string name="date">Date</string>
-    <string name="date_time_format_dayname_month_daynumber" translatable="false">E, MMM d</string>
     <string name="date_time_format_expense">dd.MM.yyyy HH:mm</string>
     <string name="date_time_format_hour_minute">HH:mm</string>
     <string name="date_time_formatter_date_only">yyyy-MM-dd</string>
