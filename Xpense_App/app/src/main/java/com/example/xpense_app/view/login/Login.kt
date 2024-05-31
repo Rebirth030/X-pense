@@ -56,6 +56,7 @@ fun LoginForm(navHostController: NavHostController, user: MutableState<User>, ap
     }
 }
 
+
 /**
  * Creates the form for the login with a button to submit the form and a link to the registration page.
  *

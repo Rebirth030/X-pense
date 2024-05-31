@@ -28,8 +28,9 @@ sealed class NavigationItem(val route: String, val name: String, val titleResour
     data object Profiles : NavigationItem(Screen.PROFILES.name, "Profiles", R.string.profile)
     data object Manual : NavigationItem(Screen.MANUAL_BOOKING.name, "Manual Booking", R.string.manual)
     data object Overview : NavigationItem(Screen.OVERVIEW.name, "Overview", R.string.overview)
-    data object Create : NavigationItem(Screen.CREATE_PROJECT.name, "Create Project", R.string.create_project)
-    data object ProjectsOverview : NavigationItem(Screen.PROJECTS_OVERVIEW.name, "Projects Overview")
+    data object CreateProject : NavigationItem(Screen.CREATE_PROJECT.name, "Create Project", R.string.create_project)
+    data object ProjectsOverview : NavigationItem(Screen.PROJECTS_OVERVIEW.name, "Projects Overview",
+                                                  R.string.projects_overview)
     data object Info : NavigationItem(Screen.INFO.name, "Info", R.string.info)
 
     companion object {

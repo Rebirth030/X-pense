@@ -70,4 +70,5 @@
     <string name="create_project">Projekt anlegen</string>
     <string name="profile">Profile</string>
     <string name="week">Woche %1$s</string>
+    <string name="projects_overview">Projektübersicht</string>
 </resources>

@@ -71,4 +71,5 @@
     <string name="info">Info</string>
     <string name="profile">profile</string>
     <string name="week">Week %1$s</string>
+    <string name="projects_overview">Projects Overview</string>
 </resources>
