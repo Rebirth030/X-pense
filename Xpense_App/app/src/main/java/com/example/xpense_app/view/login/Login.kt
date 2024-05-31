@@ -3,6 +3,7 @@ package com.example.xpense_app.view.login
 
 import android.content.Context
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,11 +13,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
+import com.example.xpense_app.R
 import com.example.xpense_app.controller.services.AuthenticationService
 import com.example.xpense_app.controller.services.UserService
 import com.example.xpense_app.model.User
@@ -67,12 +70,12 @@ private fun CreateLoginForm(
     user: MutableState<User>,
     appViewModel: AppViewModel
 ) {
-    val username = createTextField(fieldName = "username")
+    val username = createTextField(fieldName = stringResource(R.string.username))
     val password = createPasswordField()
     val context = LocalContext.current
     Spacer(modifier = Modifier.height(20.dp))
     Text(
-        "Registrieren",
+        stringResource(R.string.register),
         textDecoration = TextDecoration.Underline,
         color = Color.Blue,
         modifier = Modifier.clickable(onClick = { navHostController.navigate(NavigationItem.Register.route) })
@@ -93,7 +96,7 @@ private fun CreateLoginForm(
         shape = RoundedCornerShape(5.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text("Login")
+        Text(stringResource(R.string.login))
     }
 }
 
@@ -131,7 +134,7 @@ fun loginAction(
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     context,
-                    "An Error has occurred while login!: ${it.message}",
+                    context.getString(R.string.error_message_toast_login, it.message),
                     Toast.LENGTH_LONG
                 ).show()
             }

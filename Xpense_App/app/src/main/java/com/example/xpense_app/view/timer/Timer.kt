@@ -19,10 +19,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.xpense_app.R
 import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.AppViewModel
 import com.example.xpense_app.navigation.ViewState
@@ -77,7 +79,7 @@ fun Timer(currentUser: MutableState<User>, onNavigateToLoginScreen: () -> Unit =
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Keine Projekte verfügber.\nBitte erstelle zuvor ein Projekt.",
+                            text = stringResource(R.string.error_message_no_projects_available),
                             fontSize = 24.sp,
                             textAlign = TextAlign.Center
                         )
