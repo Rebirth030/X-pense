@@ -19,10 +19,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.xpense_app.R
 import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.AppViewModel
 import com.example.xpense_app.navigation.ViewState
@@ -33,7 +36,16 @@ import com.example.xpense_app.view.timer.ui.TimerButtons
 import com.example.xpense_app.view.timer.view_model.TimerViewModel
 import com.example.xpense_app.view.timer.view_model.TimerViewModelFactory
 
-
+/**
+ * Component for displaying the timer screen.
+ *
+ * This component displays the timer screen, which provides various functions for time tracking and project management.
+ * It shows the current date and time, lists the available projects, and provides buttons for starting, pausing, and stopping the timer.
+ *
+ * @param currentUser The current logged-in user, represented by a [MutableState] of [User].
+ * @param onNavigateToLoginScreen An optional function called to navigate to the login screen if the user is not logged in.
+ * @param appViewModel The [AppViewModel] used for managing the application state.
+ */
 @Composable
 @ExperimentalMaterial3Api
 fun Timer(currentUser: MutableState<User>, onNavigateToLoginScreen: () -> Unit = {}, appViewModel: AppViewModel) {
@@ -47,8 +59,8 @@ fun Timer(currentUser: MutableState<User>, onNavigateToLoginScreen: () -> Unit =
 
         ViewState.LoggedIn -> {
             val timerViewModel: TimerViewModel = viewModel(factory = TimerViewModelFactory(currentUser))
+            timerViewModel.setContext(LocalContext.current)
             val projects by timerViewModel.projects.collectAsState()
-            val expenses by timerViewModel.expenses.collectAsState()
             Column(
                 modifier = Modifier.padding(10.dp)
             ) {
@@ -77,7 +89,7 @@ fun Timer(currentUser: MutableState<User>, onNavigateToLoginScreen: () -> Unit =
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Keine Projekte verfügber.\nBitte erstelle zuvor ein Projekt.",
+                            text = stringResource(R.string.error_message_no_projects_available),
                             fontSize = 24.sp,
                             textAlign = TextAlign.Center
                         )
