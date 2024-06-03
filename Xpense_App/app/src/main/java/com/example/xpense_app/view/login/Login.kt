@@ -39,8 +39,12 @@ import java.util.*
  * @param appViewModel the app view model
  */
 @Composable
-fun LoginForm(navHostController: NavHostController, user: MutableState<User>, appViewModel: AppViewModel) {
-    Surface {
+fun LoginForm(
+    navHostController: NavHostController,
+    user: MutableState<User>,
+    appViewModel: AppViewModel
+) {
+    Surface(color = MaterialTheme.colorScheme.background) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -74,7 +78,7 @@ private fun CreateLoginForm(
     Text(
         "Registrieren",
         textDecoration = TextDecoration.Underline,
-        color = Color.Blue,
+        color = MaterialTheme.colorScheme.tertiary,
         modifier = Modifier.clickable(onClick = { navHostController.navigate(NavigationItem.Register.route) })
     )
     Spacer(modifier = Modifier.height(20.dp))
@@ -91,7 +95,12 @@ private fun CreateLoginForm(
         },
         enabled = true,
         shape = RoundedCornerShape(5.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
+
     ) {
         Text("Login")
     }

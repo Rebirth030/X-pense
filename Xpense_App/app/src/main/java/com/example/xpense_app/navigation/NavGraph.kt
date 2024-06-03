@@ -13,6 +13,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -36,6 +37,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.rememberNavController
 import com.example.xpense_app.model.User
 import com.example.xpense_app.view.createProject.CreateProjectScreen
@@ -135,8 +137,8 @@ private fun CreateNavigationItem(
     val isSelected = selectedNavItem.value == navRoute
 
     val itemColor = when {
-        isSelected -> Color.LightGray
-        else -> Color.White
+        isSelected -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.inversePrimary
     }
 
     Box(

@@ -17,6 +17,7 @@ import com.example.xpense_app.view.timer.view_model.TimerViewModel
 
 class MainActivity : ComponentActivity() {
     private val appViewModel: AppViewModel by viewModels()
+    private lateinit var timerViewModel: TimerViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         val expenseService: ExpenseService = ExpenseService()
         super.onCreate(savedInstanceState)

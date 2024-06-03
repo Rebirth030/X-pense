@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.xpense_app.view.createProject
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,10 +14,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -70,14 +76,28 @@ fun CreateProjectScreen(currentUser: MutableState<User>, context: Context) {
                 value = projectName,
                 onValueChange = { projectName = it },
                 label = { Text("PROJECT NAME") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface),
+                colors = TextFieldDefaults.textFieldColors(
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.secondary
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
             TextField(
                 value = projectDescription,
                 onValueChange = { projectDescription = it },
                 label = { Text("PROJECT DESCRIPTION") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface),
+                colors = TextFieldDefaults.textFieldColors(
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.secondary
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
             DatePickerTextField(date = date, showDatePicker = showDatePicker)
@@ -91,7 +111,12 @@ fun CreateProjectScreen(currentUser: MutableState<User>, context: Context) {
                         releaseDate = date,
                         currentUser,
                         onSuccess = { showDialog = it })
-                }) {
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary
+                )
+            ) {
                 Text("CREATE PROJECT")
             }
             if (showDialog) {

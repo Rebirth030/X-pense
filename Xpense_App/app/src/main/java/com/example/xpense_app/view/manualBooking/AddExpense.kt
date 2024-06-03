@@ -29,6 +29,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -141,11 +142,17 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
     }
     if (showStartTimePicker.value) {
         TimeDialog(
-            time = startTime, onDismiss = { showStartTimePicker.value = false }, title = "Start Time"
+            time = startTime,
+            onDismiss = { showStartTimePicker.value = false },
+            title = "Start Time"
         )
     }
     if (showEndTimePicker.value) {
-        TimeDialog(time = endTime, onDismiss = { showEndTimePicker.value = false }, title = "End Time")
+        TimeDialog(
+            time = endTime,
+            onDismiss = { showEndTimePicker.value = false },
+            title = "End Time"
+        )
     }
     //endregion
 
@@ -171,7 +178,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
         ) {
             DatePickerTextField(date, showDatePicker)
             Spacer(modifier = Modifier.height(16.dp))
-            TimePickerCardField("Start Time",showStartTimePicker, startTime.value)
+            TimePickerCardField("Start Time", showStartTimePicker, startTime.value)
             TimePickerCardField("End Time", showEndTimePicker, endTime.value)
             Spacer(modifier = Modifier.height(16.dp))
             AddBreakTimeField(showStartBreakPicker, breakStartTime.value, breakEndTime.value)
@@ -207,7 +214,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                 )
                 Button(
                     onClick = { navController.navigate(NavigationItem.Overview.route) },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
                     modifier = Modifier
 
                         .height(IntrinsicSize.Min)
@@ -252,22 +259,55 @@ private fun SaveButton(
 ) {
     Button(
         onClick = {
-            when{
+            when {
                 selectedProject.value.id == null ->
-                    Toast.makeText(context, "Please select a project", Toast.LENGTH_SHORT).show() //Checks if Project is chosen TODO: Implement weeklyTimecardId validation
+                    Toast.makeText(context, "Please select a project", Toast.LENGTH_SHORT)
+                        .show() //Checks if Project is chosen TODO: Implement weeklyTimecardId validation
                 !firstTimeBeforeSecondTime(startTime.value, endTime.value) ->
-                    Toast.makeText(context, "Work start time must be before work end time", Toast.LENGTH_SHORT).show() //checks if start time is before end time
-                breakTimeExists(breakStartTime.value, breakEndTime.value) && (firstTimeBeforeSecondTime(breakStartTime.value, startTime.value) || firstTimeBeforeSecondTime(endTime.value, breakEndTime.value)) ->
-                    Toast.makeText(context, "Break time must be within work time ", Toast.LENGTH_SHORT).show() //checks if break time && (breakstart before startzeit || Endzeit before breakendzeit) --> breaktime muss innerhalb der arbeitszeit sein
-                breakTimeExists(breakStartTime.value, breakEndTime.value) && !firstTimeBeforeSecondTime(breakStartTime.value, breakEndTime.value) ->
-                    Toast.makeText(context, "Break time start must be before end", Toast.LENGTH_SHORT).show() //checks if break start time is before break end time
+                    Toast.makeText(
+                        context,
+                        "Work start time must be before work end time",
+                        Toast.LENGTH_SHORT
+                    ).show() //checks if start time is before end time
+                breakTimeExists(
+                    breakStartTime.value,
+                    breakEndTime.value
+                ) && (firstTimeBeforeSecondTime(
+                    breakStartTime.value,
+                    startTime.value
+                ) || firstTimeBeforeSecondTime(endTime.value, breakEndTime.value)) ->
+                    Toast.makeText(
+                        context,
+                        "Break time must be within work time ",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show() //checks if break time && (breakstart before startzeit || Endzeit before breakendzeit) --> breaktime muss innerhalb der arbeitszeit sein
+                breakTimeExists(
+                    breakStartTime.value,
+                    breakEndTime.value
+                ) && !firstTimeBeforeSecondTime(breakStartTime.value, breakEndTime.value) ->
+                    Toast.makeText(
+                        context,
+                        "Break time start must be before end",
+                        Toast.LENGTH_SHORT
+                    ).show() //checks if break start time is before break end time
                 else -> {
-                    saveExpense(context, date, startTime.value, endTime.value, breakStartTime.value, breakEndTime.value, description, user.value, selectedProject.value)
+                    saveExpense(
+                        context,
+                        date,
+                        startTime.value,
+                        endTime.value,
+                        breakStartTime.value,
+                        breakEndTime.value,
+                        description,
+                        user.value,
+                        selectedProject.value
+                    )
                     navController.navigate(NavigationItem.Overview.route)
                 }
             }
         },
-        colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
         modifier = Modifier.height(IntrinsicSize.Min)
     ) {
         Text(
@@ -291,7 +331,11 @@ private fun AddBreakTimeField(
 ) {
     AssistChip(onClick = { showStartBreakPicker.value = true }, label = {
         Text(
-            text = if (breakTimeExists(breakStartTime, breakEndTime)) "Edit break time" else "Add break time",
+            text = if (breakTimeExists(
+                    breakStartTime,
+                    breakEndTime
+                )
+            ) "Edit break time" else "Add break time",
             style = TextStyle(fontSize = 24.sp)
         )
     })
@@ -317,7 +361,7 @@ private fun TimePickerCardField(
             )
             .fillMaxWidth()
             .clickable { showTimePicker.value = true },
-        colors = CardDefaults.cardColors(containerColor = Color.LightGray)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
     ) {
         Text(
             text = "${name}: ${convertTo12HourFormat(time)}",
@@ -506,15 +550,23 @@ fun DropDown(
             }, modifier = Modifier.align(Alignment.Center)
         ) {
             TextField(
-                value = selectedProject.value.name?: "No description available",
+                value = selectedProject.value.name ?: "No description available",
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 modifier = Modifier.menuAnchor()
             )
-            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.verticalScroll(rememberScrollState())) {
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
                 projects.forEach { item ->
-                    DropdownMenuItem(text = { Text(text = item.name?: "No description available") }, onClick = {
+                    DropdownMenuItem(text = {
+                        Text(
+                            text = item.name ?: "No description available"
+                        )
+                    }, onClick = {
                         selectedProject.value = item
                         expanded = false
                     })

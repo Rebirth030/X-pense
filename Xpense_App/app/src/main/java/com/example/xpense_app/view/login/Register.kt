@@ -39,7 +39,7 @@ import java.util.Base64
  */
 @Composable
 fun CreateRegister(navController: NavHostController) {
-    Surface {
+    Surface(color = MaterialTheme.colorScheme.background) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -72,7 +72,7 @@ fun RegisterForm(navController: NavHostController) {
     Text(
         "Login",
         textDecoration = TextDecoration.Underline,
-        color = Color.Blue,
+        color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.clickable(onClick = { navController.navigate(NavigationItem.Login.route) })
     )
     Spacer(modifier = Modifier.height(20.dp))
@@ -92,7 +92,11 @@ fun RegisterForm(navController: NavHostController) {
             )
         },
         shape = RoundedCornerShape(5.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
     ) {
         Text("Register")
     }

@@ -60,7 +60,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
     }
 
     //TODO: Navigation zeigt info blau nach weiterleitung auf profiles an
-    Surface {
+    Surface(color = MaterialTheme.colorScheme.background) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
