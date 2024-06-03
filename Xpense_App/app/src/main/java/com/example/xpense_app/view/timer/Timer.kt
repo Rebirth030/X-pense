@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -58,6 +59,7 @@ fun Timer(currentUser: MutableState<User>, onNavigateToLoginScreen: () -> Unit =
 
         ViewState.LoggedIn -> {
             val timerViewModel: TimerViewModel = viewModel(factory = TimerViewModelFactory(currentUser))
+            timerViewModel.setContext(LocalContext.current)
             val projects by timerViewModel.projects.collectAsState()
             Column(
                 modifier = Modifier.padding(10.dp)

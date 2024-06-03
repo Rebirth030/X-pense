@@ -143,18 +143,16 @@ fun ProjectList(projects: List<Project>, timerViewModel: TimerViewModel) {
                     onReorderProject = {
                         if (it) {
                             projectList = timerViewModel.reorderProjects()
-                            if(timerViewModel.errorMessage.isNotBlank()) {
-                                Toast.makeText(
-                                    context,
-                                    "Error while reordering project. Message: ${timerViewModel.errorMessage}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
                         }
                     }
                 )
             }
         }
+    }
+    if(timerViewModel.errorMessage.isNotBlank()) {
+        ShowErrorToast(
+            errorMessage = timerViewModel.errorMessage, 
+            errorStringId = R.string.error_while_reordering_project_message)
     }
 }
 
@@ -181,12 +179,12 @@ fun ProjectItem(
     val isProjectOnRun by timerViewModel.projectTimersOnRun.collectAsState()
 
     val projectIdValue = requireNotNull(project.id) {
-        Toast.makeText(context, "Project ID must not be null", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, stringResource(R.string.project_id_must_not_be_null), Toast.LENGTH_SHORT).show()
         return
     }
     val isProjectOnRunValue = isProjectOnRun[projectIdValue] ?: false
     val projectTimerValue = requireNotNull(projectTimers[projectIdValue]) {
-        Toast.makeText(context, "Project timer for ID ${project.id} is null", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, stringResource(R.string.project_timer_must_not_be_null), Toast.LENGTH_SHORT).show()
         return
     }
     Box(
@@ -221,15 +219,13 @@ fun ProjectItem(
             while (isProjectOnRunValue) {
                 delay(1000)
                 timerViewModel.setProjectTime(project)
-                if(timerViewModel.errorMessage.isNotBlank()) {
-                    Toast.makeText(
-                        context,
-                        "Error while setting Project time with message ${timerViewModel.errorMessage}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
             }
         }
+    }
+    if(timerViewModel.errorMessage.isNotBlank()) {
+        ShowErrorToast(
+            errorMessage = timerViewModel.errorMessage,
+            errorStringId = R.string.error_while_setting_project_time)
     }
     if (showProjectChangeDialog) {
         ProjectChangeDialog(
@@ -240,6 +236,11 @@ fun ProjectItem(
                 onReorderProject(it)
             }
         )
+        if(timerViewModel.errorMessage.isNotBlank()) {
+            ShowErrorToast(
+                errorMessage = timerViewModel.errorMessage,
+                errorStringId = R.string.error_while_changing_project)
+        }
     }
 }
 
@@ -262,11 +263,11 @@ fun ProjectLabel(project: Project, projectIsOnRun: Boolean) {
         Color.Blue
     }
     val projectNameValue = requireNotNull(project.name) {
-        Toast.makeText(context, "Project Name must not be null", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, stringResource(R.string.project_name_must_not_be_null), Toast.LENGTH_SHORT).show()
         return
     }
     require(projectNameValue.isNotBlank()) {
-        Toast.makeText(context, "Project Name is blank", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, stringResource(R.string.project_name_is_blank), Toast.LENGTH_SHORT).show()
         return
     }
     Box(
@@ -295,7 +296,10 @@ fun ProjectLabel(project: Project, projectIsOnRun: Boolean) {
 fun ProjectName(project: Project) {
     val context = LocalContext.current
     val projectName = requireNotNull(project.name) {
-        Toast.makeText(context, "Project Name must not be null", Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            context,
+            stringResource(R.string.project_name_must_not_be_null), Toast.LENGTH_SHORT
+        ).show()
         return
     }
     Box(
@@ -335,7 +339,7 @@ fun ProjectChangeDialog(
 ) {
     val context = LocalContext.current
     val projectName = requireNotNull(project.name) {
-        Toast.makeText(context, "Project Name must not be null", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, R.string.project_name_must_not_be_null, Toast.LENGTH_SHORT).show()
         return
     }
     AlertDialog(
@@ -346,13 +350,6 @@ fun ProjectChangeDialog(
             Button(
                 onClick = {
                     timerViewModel.changeProject(project)
-                    if(timerViewModel.errorMessage.isNotBlank()) {
-                        Toast.makeText(
-                            context,
-                            "Error while changing project. Message: ${timerViewModel.errorMessage}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
                     onDismiss(true)
                 }
             ) {
@@ -365,7 +362,6 @@ fun ProjectChangeDialog(
         dismissButton = {
             Button(
                 onClick = {
-                    // change current project
                     onDismiss(false)
                 }
             ) {
@@ -391,16 +387,15 @@ fun TimerButtons(timerViewModel: TimerViewModel) {
     val context = LocalContext.current
     val currentProject by timerViewModel.currentProject.collectAsState()
     val isProjectOnRun by timerViewModel.projectTimersOnRun.collectAsState()
-    val projectStartTimes by timerViewModel.projectTimersStartTime.collectAsState()
     var time by remember {
         mutableLongStateOf(0L)
     }
     val projectIdValue = requireNotNull(currentProject) {
-        Toast.makeText(context, "CurrentProject must not be null", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, stringResource(R.string.current_project_must_not_be_null), Toast.LENGTH_SHORT).show()
         return
     }
     val isProjectOnRunValue = requireNotNull(isProjectOnRun[projectIdValue.id]) {
-        Toast.makeText(context, "Project timer must not be null", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, stringResource(R.string.project_id_must_not_be_null), Toast.LENGTH_SHORT).show()
         return
     }
     Column(
@@ -426,13 +421,6 @@ fun TimerButtons(timerViewModel: TimerViewModel) {
                         timerViewModel.setProjectStartTime(null)
                         timerViewModel.toggleProjectTimer(true)
                     }
-                    if(timerViewModel.errorMessage.isNotBlank()) {
-                        Toast.makeText(
-                            context,
-                            "Error while starting or stopping timer. Message: ${timerViewModel.errorMessage}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
                 }
             ) {
                 val icon = if (isProjectOnRunValue) {
@@ -449,6 +437,11 @@ fun TimerButtons(timerViewModel: TimerViewModel) {
             }) {
                 Icon(painterResource(id = R.drawable.stop_solid), contentDescription = stringResource(R.string.stop_timer))
             }
+        }
+        if(timerViewModel.errorMessage.isNotBlank()) {
+            ShowErrorToast(
+                errorMessage = timerViewModel.errorMessage,
+                errorStringId = R.string.error_while_starting_or_stopping_timer)
         }
     }
     LaunchedEffect(isProjectOnRunValue) {
@@ -505,7 +498,12 @@ fun DisplayDateTime(text: String) {
 
 @Composable
 fun formatTime(timeMi: Long): String {
-    return LocalTime.ofNanoOfDay(timeMi).format(DateTimeFormatter.ofPattern(stringResource(R.string.date_time_formatter_hours_minutes_seconds)))
+    val hours = TimeUnit.MILLISECONDS.toHours(timeMi)
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(timeMi) % 60
+    val seconds = TimeUnit.MILLISECONDS.toSeconds(timeMi) % 60
+
+    return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    // return LocalTime.ofNanoOfDay(timeMi).format(DateTimeFormatter.ofPattern(stringResource(R.string.date_time_formatter_hours_minutes_seconds)))
 }
 
 /**
@@ -520,5 +518,31 @@ fun formatTime(timeMi: Long): String {
 
 @Composable
 fun formatTimeProject(timeMi: Long): String {
-    return LocalTime.ofNanoOfDay(timeMi).format(DateTimeFormatter.ofPattern(stringResource(R.string.date_time_format_hour_minute)))
+    val hours = TimeUnit.MILLISECONDS.toHours(timeMi)
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(timeMi) % 60
+
+    return String.format("%02d:%02d", hours, minutes)
+    // return LocalTime.ofNanoOfDay(timeMi).format(DateTimeFormatter.ofPattern(stringResource(R.string.date_time_format_hour_minute)))
+}
+
+/**
+ * Shows toast when error occurred.
+ *
+ * @param errorMessage of the exception.
+ * @param errorStringId is of the string resource.
+ */
+@Composable
+fun ShowErrorToast(errorMessage: String, errorStringId: Int) {
+    val context = LocalContext.current
+    val errorString = stringResource(id = errorStringId)
+
+    LaunchedEffect(errorMessage) {
+        if (errorMessage.isNotEmpty()) {
+            Toast.makeText(
+                context,
+                "$errorString: $errorMessage",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 }

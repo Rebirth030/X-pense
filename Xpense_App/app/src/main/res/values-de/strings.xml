@@ -71,4 +71,26 @@
     <string name="profile">Profile</string>
     <string name="week">Woche %1$s</string>
     <string name="projects_overview">Projektübersicht</string>
+    <string name="error_while_reordering_project_message">Es ist ein Fehler beim Aktualisieren der Projekte. Nachricht</string>
+    <string name="project_id_must_not_be_null">Es ist ein Fehler bei laden des Projekts aufgetreten.</string>
+    <string name="error_while_setting_project_time">Es ist ein Fehler bei der Projektzeit aufgetreten. Nachricht</string>
+    <string name="project_name_must_not_be_null">Projekt name nicht vorhanden.</string>
+    <string name="error_while_changing_project">Es ist ein Fehler beim Ändern des Projekts aufgetreten. Nachricht</string>
+    <string name="project_name_is_blank">Projektname ist leer.</string>
+    <string name="project_timer_must_not_be_null">Es ist ein Fehler beim Laden der Projektzeit.</string>
+    <string name="current_project_must_not_be_null">Es ist ein Fehler beim Laden des aktuellen Projekts aufgetreten.</string>
+    <string name="error_while_starting_or_stopping_timer">Es ist ein Fehler beim starten oder stoppen des Timers aufgetreten. Nachricht</string>
+
+    <string name="project_id_of_expense_must_not_be_null">Fehler beim Laden der Ausgaben.</string>
+    <string name="expense_paused_time_must_not_be_null">Fehler beim Lesen der Ausgabenzeit.</string>
+    <string name="error_unkown">Unbekannter Fehler.</string>
+    <string name="error_expense_time_must_not_be_null">Fehler beim Lesen der Startzeit der Ausgabe.</string>
+    <string name="error_expense_has_no_project">Fehler, die Ausgabe hat kein Projekt.</string>
+    <string name="error_while_reading_expense_start_time">Fehler beim Lesen der Startzeit der Ausgabe.</string>
+    <string name="error_while_laoding_user">Fehler beim Laden des Benutzers.</string>
+    <string name="error_while_creating_expense">Fehler beim Speichern der Ausgabe.</string>
+    <string name="error_while_updating_expense">Fehler beim Aktualisieren der Ausgabe.</string>
+    <string name="error_current_expense_must_not_be_null">Fehler beim Lesen der aktuellen Ausgabe.</string>
+    <string name="error_while_createing_project">Fehler beim Erstellen des Projekts.</string>
+    <string name="user_role_not_found">Benutzer profile nicht gefunden.</string>
 </resources>

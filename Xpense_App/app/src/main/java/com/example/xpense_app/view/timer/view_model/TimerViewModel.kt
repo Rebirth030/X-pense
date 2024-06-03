@@ -1,17 +1,21 @@
 package com.example.xpense_app.view.timer.view_model
 
 import Expense
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.xpense_app.R
 import com.example.xpense_app.controller.services.ExpenseService
 import com.example.xpense_app.controller.services.ProjectService
 import com.example.xpense_app.model.Project
 import com.example.xpense_app.model.User
+import com.example.xpense_app.view.timer.ui.ShowErrorToast
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +35,7 @@ import java.util.concurrent.TimeUnit
 class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() {
 
     var errorMessage: String = "";
+    private lateinit var context: Context
 
     private val _projects = MutableStateFlow<List<Project>>(emptyList())
     val projects: StateFlow<List<Project>> = _projects.asStateFlow()
@@ -58,6 +63,15 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             loadExpenses()
             loadProjects()
         }
+    }
+
+    /**
+     * Sets current context for string resources.
+     *
+     * @param con current context.
+     */
+    fun setContext(con: Context) {
+        this.context = con
     }
 
     /**
@@ -96,13 +110,13 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                         expenses.value.filter { expense ->
                             expense.state == "RUNNING" || expense.state == "PAUSED"
                         }
-                    if(openExpenses.isNotEmpty()) {
+                    if (openExpenses.isNotEmpty()) {
                         openExpenses.forEach { expense ->
                             val expenseProjectId = requireNotNull(expense.projectId) {
-                                "Project id of expense must not be null"
+                                this.context.getString(R.string.error_expense_has_no_project)
                             }
                             val expensePausedAtTimestamp = requireNotNull(expense.pausedAtTimestamp) {
-                                "Expense paused time must not be null"
+                                this.context.getString(R.string.expense_paused_time_must_not_be_null)
                             }
                             if (expense.state == "RUNNING") {
                                 _currentExpense.value = expense
@@ -122,7 +136,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                         }
                     }
                 } catch (e: IllegalAccessException) {
-                    errorMessage = e.message?: "Unkown error"
+                    errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
                     _projects.value = emptyList()
                     projectsDeferred.complete(Unit)
                 }
@@ -172,7 +186,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
     private fun updateProjectTimers(expense: Expense) {
         try {
             val expenseStartTime = requireNotNull(expense.startDateTime) {
-                "Expense start time must not be null"
+                this.context.getString(R.string.error_while_reading_expense_start_time)
             }
             val date = LocalDateTime.ofInstant(Instant.parse(expenseStartTime), ZoneOffset.UTC)
             val startTimeInMillis = date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
@@ -183,15 +197,15 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             }
 
             val expenseProjectId = requireNotNull(expense.projectId) {
-                "Expense has no project id"
+                this.context.getString(R.string.error_expense_has_no_project)
             }
             val updatedProjectTimersStartTime = _projectTimers.value.toMutableMap()
             updatedProjectTimersStartTime[expenseProjectId] = timeInMillis
             _projectTimers.value = updatedProjectTimersStartTime
             this.setProjectStartTime(expense)
             errorMessage = ""
-        } catch (e:IllegalArgumentException) {
-            errorMessage = e.message?: "Unkown error"
+        } catch (e: IllegalArgumentException) {
+            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
         }
     }
 
@@ -207,9 +221,11 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
      */
     fun setProjectTime(project: Project) {
         try {
-            val projectId = requireNotNull(project.id) { "Project id must not be null" }
+            val projectId = requireNotNull(project.id) {
+                this.context.getString(R.string.project_id_must_not_be_null)
+            }
             val projectStartTimer = requireNotNull(projectTimersStartTime.value[projectId]) {
-                "Project timer start time must not be null"
+                this.context.getString(R.string.project_timer_must_not_be_null)
             }
             val updatedProjectTimers = projectTimers.value.toMutableMap().apply {
                 this[projectId] = System.currentTimeMillis() - projectStartTimer
@@ -217,7 +233,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             _projectTimers.value = updatedProjectTimers
             errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message?: "Unkown error"
+            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
         }
     }
 
@@ -234,21 +250,29 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
     fun setProjectStartTime(expense: Expense?) {
         try {
             val projectId = if (expense != null) {
-                requireNotNull(expense.projectId) { "Expense has no project id" }
+                requireNotNull(expense.projectId) {
+                    this.context.getString(R.string.error_expense_has_no_project)
+                }
                 expense.projectId
             } else {
-                val currentProjectVal = requireNotNull(currentProject.value) { "Current project must not be null" }
-                requireNotNull(currentProjectVal.id) { "Current project must not be null" }
+                val currentProjectVal = requireNotNull(currentProject.value) {
+                    this.context.getString(R.string.current_project_must_not_be_null)
+                }
+                requireNotNull(currentProjectVal.id) {
+                    this.context.getString(R.string.current_project_must_not_be_null)
+                }
                 currentProjectVal.id
             }
-            val currentTimer = requireNotNull(projectTimers.value[projectId]) { "Project timer for ID $projectId must not be null" }
+            val currentTimer = requireNotNull(projectTimers.value[projectId]) {
+                this.context.getString(R.string.project_timer_must_not_be_null)
+            }
             val updatedProjectTimers = projectTimersStartTime.value.toMutableMap().apply {
                 this[projectId] = System.currentTimeMillis() - currentTimer
             }
             _projectTimersStartTime.value = updatedProjectTimers
             errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message?: "Unkown error"
+            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
 
         }
     }
@@ -265,8 +289,12 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
      */
     fun toggleProjectTimer(run: Boolean) {
         try {
-            val currentProjectValue = requireNotNull(currentProject.value) { "Current project must not be null" }
-            val currentProjectId = requireNotNull(currentProjectValue.id) { "Current project id must not be null" }
+            val currentProjectValue = requireNotNull(currentProject.value) {
+                this.context.getString(R.string.current_project_must_not_be_null)
+            }
+            val currentProjectId = requireNotNull(currentProjectValue.id) {
+                this.context.getString(R.string.current_project_must_not_be_null)
+            }
             _projectTimersOnRun.value += (currentProjectId to run)
             if (currentExpense.value == null) {
                 this.createNewExpense()
@@ -281,7 +309,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             }
             errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message?: "Unkown error"
+            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
         }
     }
 
@@ -296,11 +324,18 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
      */
     private fun createNewExpense() {
         try {
-            val currentUser = requireNotNull(currentUser.value) { "Current user must not be null" }
-            val currentUserId = requireNotNull(currentUser.id) { "Current user id must not be null" }
-            val currentProject = requireNotNull(currentProject.value) { "Current project must not be null" }
-            val currentProjectId = requireNotNull(currentProject.id) { "Current project id must not be null" }
-
+            val currentUser = requireNotNull(currentUser.value) {
+                this.context.getString(R.string.error_while_laoding_user)
+            }
+            val currentUserId = requireNotNull(currentUser.id) {
+                this.context.getString(R.string.error_while_laoding_user)
+            }
+            val currentProject = requireNotNull(currentProject.value) {
+                this.context.getString(R.string.current_project_must_not_be_null)
+            }
+            val currentProjectId = requireNotNull(currentProject.id) {
+                this.context.getString(R.string.current_project_must_not_be_null)
+            }
             val expense = Expense(
                 null,
                 this.getCurrentDate(),
@@ -312,7 +347,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             this.saveExpense(expense)
             errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message?: "Unkown error"
+            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
         }
     }
 
@@ -330,7 +365,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
     private fun updateCurrentExpense(newState: String) {
         try {
             val currentExpense = requireNotNull(currentExpense.value) {
-                "Current expense must not be null"
+                this.context.getString(R.string.project_id_of_expense_must_not_be_null)
             }
             val updatedExpense = if (newState == "PAUSED") {
                 val currentTimestamp = projectTimers.value[currentExpense.projectId]
@@ -341,7 +376,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             this.updateExpense(updatedExpense)
             errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message?: "Unkown error"
+            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
         }
 
     }
@@ -372,7 +407,9 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                 _expenses.value = updatedExpenses
                 errorMessage = ""
             },
-            onError = { errorMessage = "Error while save Expense" }
+            onError = {
+                errorMessage = this.context.getString(R.string.error_while_creating_expense)
+            }
         )
     }
 
@@ -395,9 +432,10 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
      * @throws IllegalArgumentException If the current expense is null.
      */
     private fun updateExpense(expense: Expense) {
+        val expensesDeferred = CompletableDeferred<Unit>()
         try {
             val currentExpense = requireNotNull(currentExpense.value) {
-                "Current expense must not be null"
+                this.context.getString(R.string.error_current_expense_must_not_be_null)
             }
             ExpenseService.updateExpense(
                 expense = expense,
@@ -408,14 +446,17 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                     val updatedExpenses = expenses.value.toMutableList()
                     updatedExpenses[targetIdx] = it
                     _expenses.value = updatedExpenses
+                    errorMessage = ""
+                    expensesDeferred.complete(Unit)
                 },
                 onError = {
-                    throw IllegalArgumentException("Could not update expense.")
+                    errorMessage = it.message ?: this.context.getString(R.string.error_while_updating_expense)
+                    expensesDeferred.complete(Unit)
                 }
             )
-            errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message?: "Unkwon error"
+            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
+            expensesDeferred.complete(Unit)
         }
     }
 
@@ -433,21 +474,24 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
     fun changeProject(newProject: Project) {
         try {
             val currentProject = requireNotNull(currentProject.value) {
-                "Current project must not be null"
+                this.context.getString(R.string.current_project_must_not_be_null)
             }
-            requireNotNull(currentProject.id) { "Current project id must be null" }
+            requireNotNull(currentProject.id) {
+                this.context.getString(R.string.current_project_must_not_be_null)
+            }
 
             _expenses.value = expenses.value.filter { expense -> expense.state != "FINISHED" }
-            val timerWasRunning = projectTimersOnRun.value[currentProject.id]?: false
+            val timerWasRunning = projectTimersOnRun.value[currentProject.id] ?: false
             _projectTimersOnRun.value += (currentProject.id to false)
             val oldExpense = requireNotNull(expenses.value.find { expense -> expense.projectId == currentProject.id }) {
-                "Current project has no matching expense"
+                this.context.getString(R.string.error_expense_has_no_project)
             }
             val updatedOldExpense =
                 oldExpense.copy(state = "PAUSED", pausedAtTimestamp = _projectTimers.value[oldExpense.projectId])
             this.updateExpense(updatedOldExpense)
-
-            requireNotNull(newProject.id) { "New project id must not be null" }
+            requireNotNull(newProject.id) {
+                this.context.getString(R.string.error_while_createing_project)
+            }
             _currentProject.value = newProject
 
             val expenseAlreadyStarted = expenses.value.find { expense ->
@@ -463,9 +507,10 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                 _currentExpense.value = expenseAlreadyStarted
                 this.toggleProjectTimer(timerWasRunning)
             }
+
             errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message?: "Unknown error"
+            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
         }
     }
 
@@ -493,7 +538,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             return reorderedProjects
         } catch (e: IllegalArgumentException) {
             // error message
-            return  _projects.value
+            return _projects.value
         }
     }
 

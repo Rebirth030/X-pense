@@ -30,6 +30,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -88,7 +90,7 @@ fun DropDown(
         requireNotNull(UserRole.entries.find { role -> role.name == currentUser.value.role }) {
             Toast.makeText(
                 context,
-                "user role not found",
+                stringResource(R.string.user_role_not_found),
                 Toast.LENGTH_LONG
             ).show()
             "Custom"
@@ -165,7 +167,7 @@ fun HourMinuteInput(
         )
         Row(modifier = Modifier.padding(top = 10.dp)) {
             IntegerInput(
-                "Hours",
+                stringResource(R.string.hours),
                 readOnly,
                 inputHour.toString(),
                 maxVal = 10,
@@ -181,7 +183,7 @@ fun HourMinuteInput(
                 style = TextStyle(fontSize = 40.sp)
             )
             IntegerInput(
-                "Minutes",
+                stringResource(R.string.minutes),
                 readOnly,
                 inputMinute.toString(),
                 maxVal = 60,
