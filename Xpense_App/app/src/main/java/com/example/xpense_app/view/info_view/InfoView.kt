@@ -21,11 +21,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.xpense_app.R
 import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.NavigationItem
 import com.example.xpense_app.view.overview.GetExpenses
@@ -33,6 +35,7 @@ import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
 import java.time.ZonedDateTime
+import java.time.temporal.TemporalAdjusters
 
 //TODO: Navigation zeigt info blau nach weiterleitung auf profiles an
 
@@ -61,12 +64,12 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
         ) {
             if (user.value.weeklyWorkingHours == null) {//TODO: Zu Profile ändern
                 AlertDialog(
-                    title = { Text("Please set your weekly working hours in the profile") },
+                    title = { Text(stringResource(R.string.set_weekly_workinghours)) },
                     onDismissRequest = { navController.navigate(NavigationItem.Profiles.route) },
                     confirmButton = { navController.navigate(NavigationItem.Profiles.route) })
             } else {
                 UserFullNameHeader(user.value)
-                Text(text = "Remaining working hours for today:")
+                Text(text = stringResource(R.string.remaining_working_hours_for_today))
                 WorkingHoursCard(
                     calculateTodaysRemainingWorkingHours(
                         expenses.value,
@@ -74,7 +77,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                     )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Remaining working hours for this week:")
+                Text(text = stringResource(R.string.remaining_working_hours_for_this_week))
                 WorkingHoursCard(
                     calculateThisWeeksRemainingWorkingHours(
                         expenses.value,
@@ -82,7 +85,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                     )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Remaining working hours for this month:")
+                Text(text = stringResource(R.string.remaining_working_hours_for_this_month))
                 WorkingHoursCard(
                     calculateThisMonthsRemainingWorkingHours(
                         expenses.value,
@@ -90,7 +93,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                     )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Worked hours this Month:")
+                Text(text = stringResource(R.string.worked_hours_this_month))
                 WorkingHoursCard(
                     calculateThisMonthsRemainingWorkingHours(
                         expenses.value,
@@ -99,7 +102,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                     )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Role:")
+                Text(text = stringResource(R.string.role_tag))
                 Card(
                     modifier = Modifier
                         .padding(
@@ -159,6 +162,7 @@ private fun WorkingHoursCard(text: String) {
  *
  * @param expenses the list of expenses
  */
+@Composable
 fun calculateTodaysRemainingWorkingHours(expenses: List<Expense>, weeklyWorkingHours: Int): String {
     val todayExpenses = expenses.filter { expense ->
         val startDateTime = ZonedDateTime.parse(expense.startDateTime)
@@ -166,7 +170,11 @@ fun calculateTodaysRemainingWorkingHours(expenses: List<Expense>, weeklyWorkingH
         startDate == LocalDate.now(startDateTime.zone)
     }
     val remainingHours = weeklyWorkingHours * 60 / 5 - calculateWorkedMinutes(todayExpenses)
-    return "${remainingHours / 60} hours and ${remainingHours % 60} minutes"
+    return stringResource(
+        R.string.remaining_hours_and_minutes,
+        remainingHours / 60,
+        remainingHours % 60
+    )
 }
 
 /**
@@ -175,6 +183,7 @@ fun calculateTodaysRemainingWorkingHours(expenses: List<Expense>, weeklyWorkingH
  * @param expenses the list of expenses
  * @param weeklyWorkingHours the weekly working hours
  */
+@Composable
 fun calculateThisWeeksRemainingWorkingHours(
     expenses: List<Expense>,
     weeklyWorkingHours: Int
@@ -188,7 +197,11 @@ fun calculateThisWeeksRemainingWorkingHours(
         startDate.isAfter(startOfWeek.minusDays(1)) && startDate.isBefore(endOfWeek.plusDays(1))
     }
     val remainingHours = weeklyWorkingHours * 60 - calculateWorkedMinutes(thisWeekExpenses)
-    return "${remainingHours / 60} hours and ${remainingHours % 60} minutes"
+    return stringResource(
+        R.string.remaining_hours_and_minutes,
+        remainingHours / 60,
+        remainingHours % 60
+    )
 }
 
 /**
@@ -198,6 +211,7 @@ fun calculateThisWeeksRemainingWorkingHours(
  * @param weeklyWorkingHours the weekly working hours
  * @param returnWorkedHours whether to return the worked hours
  */
+@Composable
 fun calculateThisMonthsRemainingWorkingHours(
     expenses: List<Expense>,
     weeklyWorkingHours: Int,
@@ -209,15 +223,21 @@ fun calculateThisMonthsRemainingWorkingHours(
         val startDate = startDateTime.toLocalDate()
         startDate.year == now.year && startDate.month == now.month
     }
-    val remainingHours = weeklyWorkingHours * 60 - calculateWorkedMinutes(thisMonthExpenses)
+    val remainingMinutes = weeklyWorkingHours / 5.0 * getWorkingDaysInCurrentMonth() * 60 - calculateWorkedMinutes(thisMonthExpenses)
     return if (returnWorkedHours) {
-        "${calculateWorkedMinutes(thisMonthExpenses) / 60} hours and ${
+        stringResource(
+            R.string.worked_minutes_and_hours,
+            calculateWorkedMinutes(thisMonthExpenses) / 60,
             calculateWorkedMinutes(
                 thisMonthExpenses
             ) % 60
-        } minutes"
+        )
     } else {
-        "${remainingHours / 60} hours and ${remainingHours % 60} minutes"
+        stringResource(
+            R.string.remaining_hours_and_minutes,
+            remainingMinutes / 60,
+            remainingMinutes % 60
+        )
     }
 }
 
@@ -234,6 +254,29 @@ fun calculateWorkedMinutes(expenses: List<Expense>): Long {
         val duration = Duration.between(startDateTime, endDateTime)
         duration.toMinutes()
     }
+}
+
+/**
+ * Get the number of working days in the current month.
+ *
+ * @return the number of working days
+ */
+fun getWorkingDaysInCurrentMonth(): Int {
+    val today = LocalDate.now()
+    val firstDayOfMonth = today.with(TemporalAdjusters.firstDayOfMonth())
+    val lastDayOfMonth = today.with(TemporalAdjusters.lastDayOfMonth())
+
+    var workingDaysCount = 0
+    var currentDay = firstDayOfMonth
+
+    while (!currentDay.isAfter(lastDayOfMonth)) {
+        if (currentDay.dayOfWeek != DayOfWeek.SATURDAY && currentDay.dayOfWeek != DayOfWeek.SUNDAY) {
+            workingDaysCount++
+        }
+        currentDay = currentDay.plusDays(1)
+    }
+
+    return workingDaysCount
 }
 
 

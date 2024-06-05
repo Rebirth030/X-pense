@@ -72,4 +72,12 @@
     <string name="profile">profile</string>
     <string name="week">Week %1$s</string>
     <string name="projects_overview">Projects Overview</string>
+    <string name="worked_minutes_and_hours">%1$s hours and %2$s minutes</string>
+    <string name="remaining_hours_and_minutes">%1$s hours and %2$s minutes</string>
+    <string name="role_tag">Role:</string>
+    <string name="worked_hours_this_month">Worked hours this Month:</string>
+    <string name="remaining_working_hours_for_this_month">Remaining working hours for this month:</string>
+    <string name="remaining_working_hours_for_this_week">Remaining working hours for this week:</string>
+    <string name="remaining_working_hours_for_today">Remaining working hours for today:</string>
+    <string name="set_weekly_workinghours">Please set your weekly working hours in the profile</string>
 </resources>
