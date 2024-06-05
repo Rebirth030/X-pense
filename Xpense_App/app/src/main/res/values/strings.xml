@@ -10,6 +10,7 @@
     <string name="date">Date</string>
     <string name="date_time_format_dayname_month_daynumber" translatable="false">E, MMM d</string>
     <string name="date_time_format_expense">dd.MM.yyyy HH:mm</string>
+    <!--<string name="date_time_format_current_time">yyyy-MM-dd'T'HH:mm:ss'Z'</string>-->
     <string name="date_time_format_hour_minute">HH:mm</string>
     <string name="date_time_formatter_date_only">yyyy-MM-dd</string>
     <string name="date_time_formatter_hours_minutes_seconds">HH:mm:ss</string>
@@ -82,4 +83,26 @@
     <string name="remaining_working_hours_for_this_week">Remaining working hours for this week:</string>
     <string name="remaining_working_hours_for_today">Remaining working hours for today:</string>
     <string name="set_weekly_workinghours">Please set your weekly working hours in the profile</string>
+    <string name="error_while_reordering_project_message">Error while reordering project. Message</string>
+    <string name="project_id_must_not_be_null">Project ID must not be null</string>
+    <string name="error_while_setting_project_time">Error while setting Project time. Message</string>
+    <string name="project_name_must_not_be_null">Error while loading project.</string>
+    <string name="error_while_changing_project">Error while changing project. Message</string>
+    <string name="project_name_is_blank">project name is empty.</string>
+    <string name="project_timer_must_not_be_null">Error while loading project time.</string>
+    <string name="current_project_must_not_be_null">Error while loading current project.</string>
+    <string name="error_while_starting_or_stopping_timer">Error while starting or stopping timer. Message</string>
+
+    <string name="project_id_of_expense_must_not_be_null">Error while loading Expense.</string>
+    <string name="expense_paused_time_must_not_be_null">Error while reading expense time.</string>
+    <string name="error_unkown">Unknown Error.</string>
+    <string name="error_expense_time_must_not_be_null">Error while reading start time of Expense.</string>
+    <string name="error_expense_has_no_project">Error, expense has no project.</string>
+    <string name="error_while_reading_expense_start_time">Error while reading Expense start time.</string>
+    <string name="error_while_laoding_user">Error while loading user.</string>
+    <string name="error_while_creating_expense">Error while saving expense.</string>
+    <string name="error_while_updating_expense">Error while updating expense.</string>
+    <string name="error_current_expense_must_not_be_null">Error while reading current Expense.</string>
+    <string name="error_while_createing_project">Error while creating project.</string>
+    <string name="user_role_not_found">User role not found</string>
 </resources>
