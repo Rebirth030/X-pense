@@ -93,4 +93,12 @@
     <string name="error_current_expense_must_not_be_null">Fehler beim Lesen der aktuellen Ausgabe.</string>
     <string name="error_while_createing_project">Fehler beim Erstellen des Projekts.</string>
     <string name="user_role_not_found">Benutzer profile nicht gefunden.</string>
+    <string name="worked_minutes_and_hours">%1$s Stunden und %2$s Minuten</string>
+    <string name="remaining_hours_and_minutes">%1$s Stunden und %2$s Minuten</string>
+    <string name="role_tag">Rolle:</string>
+    <string name="worked_hours_this_month">Diesen Monat gearbeitete Stunden:</string>
+    <string name="remaining_working_hours_for_this_month">Verbleibende Arbeitsstunden diesen Monat:</string>
+    <string name="remaining_working_hours_for_this_week">Verbleibende Arbeitsstunden diese Woche:</string>
+    <string name="remaining_working_hours_for_today">Verbleibende Arbeitsstunden heute:</string>
+    <string name="set_weekly_workinghours">Bitte setze deine wochentlichen Arbeitsstunden fest</string>
 </resources>
