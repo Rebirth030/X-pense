@@ -167,6 +167,7 @@ object NotificationService {
             while (isActive) {
                 checkForNotifications(currentUser, context, timerViewModel)
                 delay(1 * 60 * 1000) // Check notifications every 1 minutes
+                // uwu
             }
         }
     }
