@@ -114,7 +114,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                         .padding(
                             vertical = 4.dp, horizontal = 16.dp
                         )
-                        .fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.LightGray)
+                        .fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 ) {
                     Text(
                         text = user.value.role,
@@ -143,7 +143,7 @@ private fun WorkingHoursCard(text: String) {
             .padding(
                 vertical = 4.dp, horizontal = 16.dp
             )
-            .fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.LightGray)
+            .fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Text(
             text = text,
