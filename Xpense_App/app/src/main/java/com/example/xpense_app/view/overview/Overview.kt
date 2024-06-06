@@ -97,7 +97,7 @@ fun CreateOverview(user: User, navController: NavController) {
         )
     }
 
-    Surface {
+    Surface(color = MaterialTheme.colorScheme.background) {
         Scaffold(
             floatingActionButton = {
                 CreateActionButtons(navController)
@@ -128,13 +128,12 @@ fun CreateOverview(user: User, navController: NavController) {
 private fun CreateActionButtons(
     navController: NavController
 ) {
-    val buttonColor = if (isSystemInDarkTheme()) Color(51, 51, 51) else Color(211, 211, 211)
     Column {
         IconButton(
             onClick = { navController.navigate(NavigationItem.Manual.route) },
             modifier = Modifier
                 .padding(5.dp)
-                .background(buttonColor, RoundedCornerShape(50))
+                .background(MaterialTheme.colorScheme.tertiary, RoundedCornerShape(50))
         ) {
             Icon(Icons.TwoTone.Add, contentDescription = stringResource(R.string.add_expense))
         }
@@ -142,7 +141,7 @@ private fun CreateActionButtons(
             onClick = { navController.navigate(NavigationItem.Timer.route) },
             modifier = Modifier
                 .padding(5.dp)
-                .background(buttonColor, RoundedCornerShape(50))
+                .background(MaterialTheme.colorScheme.tertiary, RoundedCornerShape(50))
         ) {
             Icon(
                 painterResource(id = R.drawable.ic_hourglass),
@@ -444,7 +443,7 @@ fun ExpenseCard(expense: Expense, modifier: Modifier = Modifier) {
             modifier = modifier
                 .fillMaxSize()
                 .padding(end = 2.dp, bottom = 2.dp)
-                .background(Color.Cyan, shape = RoundedCornerShape(4.dp))
+                .background(MaterialTheme.colorScheme.onSecondaryContainer, shape = RoundedCornerShape(4.dp))
                 .padding(4.dp)
                 .clickable { showDialog.value = true }
         ) {

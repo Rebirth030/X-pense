@@ -14,6 +14,7 @@ import com.example.xpense_app.view.theme.XPense_AppTheme
 
 class MainActivity : ComponentActivity() {
     private val appViewModel: AppViewModel by viewModels()
+    private lateinit var timerViewModel: TimerViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

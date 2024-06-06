@@ -1,6 +1,7 @@
 package com.example.xpense_app.view.info_view
 
 import Expense
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -31,6 +38,11 @@ import com.example.xpense_app.R
 import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.NavigationItem
 import com.example.xpense_app.view.overview.GetExpenses
+import com.example.xpense_app.controller.services.ExpenseService
+import com.example.xpense_app.model.User
+import com.example.xpense_app.navigation.NavigationItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
@@ -54,7 +66,8 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
 
     GetExpenses(user = user.value, expenses = expenses)
 
-    Surface {
+    
+    Surface(color = MaterialTheme.colorScheme.background) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -103,12 +116,13 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = stringResource(R.string.role_tag))
+
                 Card(
                     modifier = Modifier
                         .padding(
                             vertical = 4.dp, horizontal = 16.dp
                         )
-                        .fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.LightGray)
+                        .fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 ) {
                     Text(
                         text = user.value.role,
@@ -147,7 +161,7 @@ private fun WorkingHoursCard(text: String) {
             .padding(
                 vertical = 4.dp, horizontal = 16.dp
             )
-            .fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.LightGray)
+            .fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Text(
             text = text,
@@ -197,6 +211,7 @@ fun calculateThisWeeksRemainingWorkingHours(
         startDate.isAfter(startOfWeek.minusDays(1)) && startDate.isBefore(endOfWeek.plusDays(1))
     }
     val remainingHours = weeklyWorkingHours * 60 - calculateWorkedMinutes(thisWeekExpenses)
+
     return stringResource(
         R.string.remaining_hours_and_minutes,
         remainingHours / 60,
@@ -212,6 +227,7 @@ fun calculateThisWeeksRemainingWorkingHours(
  * @param returnWorkedHours whether to return the worked hours
  */
 @Composable
+=======
 fun calculateThisMonthsRemainingWorkingHours(
     expenses: List<Expense>,
     weeklyWorkingHours: Int,

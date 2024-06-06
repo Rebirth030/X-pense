@@ -29,6 +29,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -45,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -65,7 +67,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
-
 
 /**
  * This Composable function displays the user interface for adding expenses.
@@ -207,7 +208,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                 )
                 Button(
                     onClick = { navController.navigate(NavigationItem.Overview.route) },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
                     modifier = Modifier
 
                         .height(IntrinsicSize.Min)
@@ -346,6 +347,7 @@ private fun checkConditionsToCreateExpense(
 }
 
 /**
+
  * This Composable function displays a button for adding a break time.
  *
  * @param showStartBreakPicker The state of the break time picker dialog.
@@ -384,7 +386,7 @@ private fun TimePickerCardField(
             )
             .fillMaxWidth()
             .clickable { showTimePicker.value = true },
-        colors = CardDefaults.cardColors(containerColor = Color.LightGray)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
     ) {
         Text(
             text = "${name}: ${convertTo12HourFormat(time)}",

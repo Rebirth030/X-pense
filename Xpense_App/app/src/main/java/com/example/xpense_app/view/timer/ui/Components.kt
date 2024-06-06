@@ -26,9 +26,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -258,9 +261,9 @@ fun ProjectItem(
 fun ProjectLabel(project: Project, projectIsOnRun: Boolean) {
     val context = LocalContext.current
     val color = if (projectIsOnRun) {
-        Color.Green
+        MaterialTheme.colorScheme.tertiary
     } else {
-        Color.Blue
+        MaterialTheme.colorScheme.tertiaryContainer
     }
     val projectNameValue = requireNotNull(project.name) {
         Toast.makeText(context, stringResource(R.string.project_name_must_not_be_null), Toast.LENGTH_SHORT).show()
@@ -351,7 +354,8 @@ fun ProjectChangeDialog(
                 onClick = {
                     timerViewModel.changeProject(project)
                     onDismiss(true)
-                }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
             ) {
                 Text(
                     text = stringResource(R.string.yes),
@@ -363,7 +367,8 @@ fun ProjectChangeDialog(
             Button(
                 onClick = {
                     onDismiss(false)
-                }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
             ) {
                 Text(
                     text = stringResource(R.string.cancel),
