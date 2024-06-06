@@ -8,8 +8,6 @@ import com.laborsoftware.xpense.mapper.UserMapper;
 import com.laborsoftware.xpense.repository.UserRepository;
 import com.laborsoftware.xpense.service.crud.ICrudService;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +22,6 @@ import java.util.Optional;
 @Service
 @Transactional
 public class UserService implements ICrudService<UserDTO, Long> {
-
-    Logger logger = LoggerFactory.getLogger(UserService.class);
-
     private final UserRepository userRepository;
 
     @Autowired
@@ -57,7 +52,6 @@ public class UserService implements ICrudService<UserDTO, Long> {
             UserDTO result = userMapper.toDto(applicationUser);
             return ResponseEntity.ok().body(result);
         } catch (Exception ex) {
-            ex.printStackTrace();
             logger.error(ex.toString());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -76,7 +70,7 @@ public class UserService implements ICrudService<UserDTO, Long> {
                 return ResponseEntity.ok().body(result);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.toString());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
@@ -88,7 +82,6 @@ public class UserService implements ICrudService<UserDTO, Long> {
         try {
             userRepository.deleteById(id);
         } catch (Exception ex) {
-            ex.printStackTrace();
             logger.error(ex.toString());
         }
     }
@@ -116,18 +109,8 @@ public class UserService implements ICrudService<UserDTO, Long> {
                 );
             }
         } catch (ResourceNotFoundException e) {
-            e.printStackTrace();
+            logger.error(e.toString());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    private boolean eMailIsPresent(String email) {
-        List<ApplicationUser> allApplicationUsers = userRepository.findAll();
-        for (ApplicationUser applicationUser : allApplicationUsers) {
-            if (applicationUser.geteMail().equals(email)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

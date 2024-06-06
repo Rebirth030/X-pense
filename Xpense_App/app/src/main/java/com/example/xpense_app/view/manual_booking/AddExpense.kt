@@ -43,12 +43,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.xpense_app.R
 import com.example.xpense_app.controller.services.ExpenseService
 import com.example.xpense_app.controller.services.ProjectService
 import com.example.xpense_app.model.Project
@@ -126,13 +130,13 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
         TimeDialog(time = breakStartTime, onDismiss = {
             showStartBreakPicker.value = false
             showEndBreakePicker = true
-        }, title = "Break Start Time")
+        }, title = stringResource(R.string.time_dialog_start_break_title))
     }
     if (showEndBreakePicker) {
         TimeDialog(
             time = breakEndTime,
             onDismiss = { showEndBreakePicker = false },
-            title = "Break End Time"
+            title = stringResource(R.string.time_dialog_end_break_title)
         )
     }
 
@@ -141,31 +145,21 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
     }
     if (showStartTimePicker.value) {
         TimeDialog(
-            time = startTime,
-            onDismiss = { showStartTimePicker.value = false },
-            title = "Start Time"
+            time = startTime, onDismiss = { showStartTimePicker.value = false }, title = stringResource(
+                R.string.start_time
+            )
         )
     }
     if (showEndTimePicker.value) {
         TimeDialog(
-            time = endTime,
-            onDismiss = { showEndTimePicker.value = false },
-            title = "End Time"
+            time = endTime, onDismiss = { showEndTimePicker.value = false }, title = stringResource(
+                R.string.end_time
+            )
         )
     }
     //endregion
 
-    LaunchedEffect(key1 = Unit) {
-        ProjectService.getProjects(token = user.value.token,
-            onSuccess = { projects.addAll(it) },
-            onError = {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context, "Error loading projects", Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
-    }
+    GetProjects(user, projects, context)
 
     Surface {
         Column(
@@ -177,8 +171,10 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
         ) {
             DatePickerTextField(date, showDatePicker)
             Spacer(modifier = Modifier.height(16.dp))
-            TimePickerCardField("Start Time", showStartTimePicker, startTime.value)
-            TimePickerCardField("End Time", showEndTimePicker, endTime.value)
+            TimePickerCardField(
+                stringResource(R.string.start_time), showStartTimePicker, startTime.value
+            )
+            TimePickerCardField(stringResource(R.string.end_time), showEndTimePicker, endTime.value)
             Spacer(modifier = Modifier.height(16.dp))
             AddBreakTimeField(showStartBreakPicker, breakStartTime.value, breakEndTime.value)
             if (breakTimeExists(breakStartTime.value, breakEndTime.value)) {
@@ -190,14 +186,13 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
             TextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Description") },
+                label = { Text(stringResource(R.string.description)) },
                 modifier = Modifier.padding(16.dp)
             )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                    .padding(16.dp), horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 SaveButton(
                     selectedProject,
@@ -219,12 +214,34 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
                         .height(IntrinsicSize.Min)
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.cancel),
                     )
                 }
             }
         }
 
+    }
+}
+
+/**
+ * This Composable function fetches the projects from the server.
+ *
+ * @param user The currently logged in user.
+ * @param projects The list of projects to fill.
+ * @param context The application context.
+ */
+@Composable
+private fun GetProjects(
+    user: MutableState<User>, projects: MutableList<Project>, context: Context
+) {
+    LaunchedEffect(key1 = Unit) {
+        ProjectService.getProjects(token = user.value.token, onSuccess = { projects.addAll(it) }, onError = {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context, context.getString(R.string.error_message_error_loading_projects), Toast.LENGTH_SHORT
+                ).show()
+            }
+        })
     }
 }
 
@@ -258,64 +275,79 @@ private fun SaveButton(
 ) {
     Button(
         onClick = {
-            when {
-                selectedProject.value.id == null ->
-                    Toast.makeText(context, "Please select a project", Toast.LENGTH_SHORT)
-                        .show() //Checks if Project is chosen TODO: Implement weeklyTimecardId validation
-                !firstTimeBeforeSecondTime(startTime.value, endTime.value) ->
-                    Toast.makeText(
-                        context,
-                        "Work start time must be before work end time",
-                        Toast.LENGTH_SHORT
-                    ).show() //checks if start time is before end time
-                breakTimeExists(
-                    breakStartTime.value,
-                    breakEndTime.value
-                ) && (firstTimeBeforeSecondTime(
-                    breakStartTime.value,
-                    startTime.value
-                ) || firstTimeBeforeSecondTime(endTime.value, breakEndTime.value)) ->
-                    Toast.makeText(
-                        context,
-                        "Break time must be within work time ",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show() //checks if break time && (breakstart before startzeit || Endzeit before breakendzeit) --> breaktime muss innerhalb der arbeitszeit sein
-                breakTimeExists(
-                    breakStartTime.value,
-                    breakEndTime.value
-                ) && !firstTimeBeforeSecondTime(breakStartTime.value, breakEndTime.value) ->
-                    Toast.makeText(
-                        context,
-                        "Break time start must be before end",
-                        Toast.LENGTH_SHORT
-                    ).show() //checks if break start time is before break end time
-                else -> {
-                    saveExpense(
-                        context,
-                        date,
-                        startTime.value,
-                        endTime.value,
-                        breakStartTime.value,
-                        breakEndTime.value,
-                        description,
-                        user.value,
-                        selectedProject.value
-                    )
-                    navController.navigate(NavigationItem.Overview.route)
-                }
-            }
+            checkConditionsToCreateExpense(selectedProject, context, startTime, endTime, breakStartTime, breakEndTime)
+            saveExpense(
+                context,
+                date,
+                startTime.value,
+                endTime.value,
+                breakStartTime.value,
+                breakEndTime.value,
+                description,
+                user.value,
+                selectedProject.value
+            )
+            navController.navigate(NavigationItem.Overview.route)
         },
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
         modifier = Modifier.height(IntrinsicSize.Min)
     ) {
         Text(
-            text = "Save",
+            text = stringResource(R.string.save),
         )
     }
 }
 
 /**
+ * This function checks the conditions for creating an expense.
+ * It checks:
+ * if a project is selected,
+ * if the start time is before the end time
+ * and if a break exists,
+ * if the start time of the break is before the end time of the break,
+ * as well as if the break time is within the work time.
+ * If any of these conditions are not met, a Toast message is displayed.
+ *
+ * @param selectedProject The currently selected project.
+ * @param context The application context.
+ * @param startTime The start time of the work.
+ * @param endTime The end time of the work.
+ * @param breakStartTime The start time of the break.
+ * @param breakEndTime The end time of the break.
+ */
+private fun checkConditionsToCreateExpense(
+    selectedProject: MutableState<Project>,
+    context: Context,
+    startTime: MutableState<Time>,
+    endTime: MutableState<Time>,
+    breakStartTime: MutableState<Time>,
+    breakEndTime: MutableState<Time>
+) {
+    try {
+        require(selectedProject.value.id != null) {
+            context.getString(R.string.error_message_please_select_a_project)
+        }
+        require(firstTimeBeforeSecondTime(startTime.value, endTime.value)) {
+            context.getString(R.string.error_message_work_start_time_must_be_before_work_end_time)
+        }
+        if (breakTimeExists(breakStartTime.value, breakEndTime.value)) {
+            require(firstTimeBeforeSecondTime(breakStartTime.value, breakEndTime.value)) {
+                context.getString(R.string.error_message_break_time_start_must_be_before_end)
+            }
+            require(firstTimeBeforeSecondTime(startTime.value, breakStartTime.value)) {
+                context.getString(R.string.error_message_break_time_must_be_within_work_time)
+            }
+            require(firstTimeBeforeSecondTime(breakEndTime.value, endTime.value)) {
+                context.getString(R.string.error_message_break_time_must_be_within_work_time)
+            }
+        }
+    } catch (e: IllegalArgumentException) {
+        Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+    }
+}
+
+/**
+
  * This Composable function displays a button for adding a break time.
  *
  * @param showStartBreakPicker The state of the break time picker dialog.
@@ -324,18 +356,14 @@ private fun SaveButton(
  */
 @Composable
 private fun AddBreakTimeField(
-    showStartBreakPicker: MutableState<Boolean>,
-    breakStartTime: Time,
-    breakEndTime: Time
+    showStartBreakPicker: MutableState<Boolean>, breakStartTime: Time, breakEndTime: Time
 ) {
     AssistChip(onClick = { showStartBreakPicker.value = true }, label = {
         Text(
             text = if (breakTimeExists(
-                    breakStartTime,
-                    breakEndTime
+                    breakStartTime, breakEndTime
                 )
-            ) "Edit break time" else "Add break time",
-            style = TextStyle(fontSize = 24.sp)
+            ) stringResource(R.string.edit_break_time) else stringResource(R.string.add_break_time), style = TextStyle(fontSize = 24.sp)
         )
     })
 }
@@ -349,9 +377,7 @@ private fun AddBreakTimeField(
  */
 @Composable
 private fun TimePickerCardField(
-    name: String,
-    showTimePicker: MutableState<Boolean>,
-    time: Time
+    name: String, showTimePicker: MutableState<Boolean>, time: Time
 ) {
     Card(
         modifier = Modifier
@@ -378,19 +404,13 @@ private fun TimePickerCardField(
  */
 @Composable
 fun DatePickerTextField(date: Date, showDatePicker: MutableState<Boolean>) {
-    OutlinedTextField(
-        value = DateFormat.getDateInstance(
-            DateFormat.DEFAULT, Locale.getDefault()
-        ).format(date),
-        onValueChange = {},
-        label = { Text("Date") },
-        readOnly = true,
-        trailingIcon = {
-            IconButton(onClick = { showDatePicker.value = true }) {
-                Icon(Icons.Filled.DateRange, contentDescription = "Select date")
-            }
-        },
-        modifier = Modifier.padding(16.dp)
+    OutlinedTextField(value = DateFormat.getDateInstance(
+        DateFormat.DEFAULT, Locale.getDefault()
+    ).format(date), onValueChange = {}, label = { Text(stringResource(R.string.date)) }, readOnly = true, trailingIcon = {
+        IconButton(onClick = { showDatePicker.value = true }) {
+            Icon(Icons.Filled.DateRange, contentDescription = stringResource(R.string.select_date))
+        }
+    }, modifier = Modifier.padding(16.dp)
     )
 }
 
@@ -420,12 +440,11 @@ fun saveExpense(
     user: User,
     project: Project
 ) {
-    if (breakStartTime.hour != breakEndTime.hour || breakStartTime.minute != breakEndTime.minute) {
-        //Vor der Pause
+    if (breakTimeExists(breakStartTime, breakEndTime)) {
+        // Before Break
         createExpense(context, date, startTime, breakStartTime, description, user, project)
-        //Nach der Pause
+        // After Break
         createExpense(context, date, breakEndTime, endTime, description, user, project)
-
     } else {
         createExpense(context, date, startTime, endTime, description, user, project)
     }
@@ -443,23 +462,12 @@ fun saveExpense(
  * @param project The project associated with the expense.
  */
 private fun createExpense(
-    context: Context,
-    date: Date,
-    startTime: Time,
-    endTime: Time,
-    description: String,
-    user: User,
-    project: Project
+    context: Context, date: Date, startTime: Time, endTime: Time, description: String, user: User, project: Project
 ) {
-
-    val startDateTime =
-        ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).withHour(startTime.hour)
-            .withMinute(startTime.minute).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
-
-
-    val endDateTime =
-        ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).withHour(endTime.hour)
-            .withMinute(endTime.minute).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
+    val startDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).withHour(startTime.hour)
+        .withMinute(startTime.minute).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
+    val endDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).withHour(endTime.hour)
+        .withMinute(endTime.minute).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
 
     ExpenseService.createExpense(expense = Expense(
         id = null,
@@ -472,13 +480,13 @@ private fun createExpense(
     ), token = user.token, onSuccess = {
         withContext(Dispatchers.Main) {
             Toast.makeText(
-                context, "Expense saved", Toast.LENGTH_SHORT
+                context, context.getString(R.string.expense_saved), Toast.LENGTH_SHORT
             ).show()
         }
     }, onError = {
         withContext(Dispatchers.Main) {
             Toast.makeText(
-                context, "Error saving expense", Toast.LENGTH_SHORT
+                context, context.getString(R.string.error_message_saving_expense), Toast.LENGTH_SHORT
             ).show()
         }
         it.printStackTrace()
@@ -491,8 +499,7 @@ private fun createExpense(
  * @param secondTime The second time.
  */
 fun firstTimeBeforeSecondTime(firstTime: Time, secondTime: Time): Boolean {
-    return (LocalTime.of(firstTime.hour, firstTime.minute)
-        .isBefore(LocalTime.of(secondTime.hour, secondTime.minute)))
+    return (LocalTime.of(firstTime.hour, firstTime.minute).isBefore(LocalTime.of(secondTime.hour, secondTime.minute)))
 }
 
 /**
@@ -518,8 +525,9 @@ private fun breakTimeExists(breakStartTime: Time, breakEndTime: Time): Boolean {
 fun BreakTimeField(
     startTime: Time, endTime: Time
 ) {
-    val breakTime =
-        "Break: " + convertTo12HourFormat(startTime) + " - " + convertTo12HourFormat(endTime)
+    val breakTime = stringResource(
+        R.string.breaktime, convertTo12HourFormat(startTime), convertTo12HourFormat(endTime)
+    )
 
     OutlinedTextField(
         value = breakTime, onValueChange = {}, readOnly = true, modifier = Modifier.padding(16.dp)
@@ -549,7 +557,7 @@ fun DropDown(
             }, modifier = Modifier.align(Alignment.Center)
         ) {
             TextField(
-                value = selectedProject.value.name ?: "No description available",
+                value = selectedProject.value.name ?: stringResource(R.string.no_description_available),
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -563,7 +571,7 @@ fun DropDown(
                 projects.forEach { item ->
                     DropdownMenuItem(text = {
                         Text(
-                            text = item.name ?: "No description available"
+                            text = item.name ?: stringResource(R.string.no_description_available)
                         )
                     }, onClick = {
                         selectedProject.value = item
@@ -582,14 +590,13 @@ fun DropDown(
  * @return The time in 12-hour format as a string.
  */
 fun convertTo12HourFormat(time: Time): String {
-    return if (time.is24hour) {
-        String.format(Locale.getDefault(), "%02d:%02d", time.hour, time.minute)
+    val localTime = LocalTime.of(time.hour, time.minute)
+    val formatter = if (time.is24hour) {
+        DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())
     } else {
-        val hourIn12Format =
-            if (time.hour > 12) time.hour - 12 else if (time.hour == 0) 12 else time.hour
-        val period = if (time.hour >= 12) "PM" else "AM"
-        String.format(Locale.getDefault(), "%02d:%02d %s", hourIn12Format, time.minute, period)
+        DateTimeFormatter.ofPattern("hh:mm a", Locale.getDefault())
     }
+    return localTime.format(formatter)
 }
 
 data class Time(var hour: Int, var minute: Int, var is24hour: Boolean = false)

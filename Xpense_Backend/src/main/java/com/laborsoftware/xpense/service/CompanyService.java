@@ -1,16 +1,12 @@
 package com.laborsoftware.xpense.service;
 
-import com.laborsoftware.xpense.domain.ApplicationUser;
 import com.laborsoftware.xpense.domain.Company;
 import com.laborsoftware.xpense.domain.dto.CompanyDTO;
-import com.laborsoftware.xpense.domain.dto.UserDTO;
 import com.laborsoftware.xpense.exceptions.ResourceNotFoundException;
 import com.laborsoftware.xpense.mapper.CompanyMapper;
 import com.laborsoftware.xpense.repository.CompanyRepository;
 import com.laborsoftware.xpense.service.crud.ICrudService;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +21,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping
 public class CompanyService implements ICrudService<CompanyDTO, Long> {
-
-    Logger logger = LoggerFactory.getLogger(CompanyService.class);
-
     private final CompanyRepository companyRepository;
 
     @Autowired
@@ -51,7 +44,6 @@ public class CompanyService implements ICrudService<CompanyDTO, Long> {
             CompanyDTO result = companyMapper.toDto(company);
             return ResponseEntity.ok().body(result);
         } catch (Exception ex) {
-            ex.printStackTrace();
             logger.error(ex.toString());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -69,14 +61,14 @@ public class CompanyService implements ICrudService<CompanyDTO, Long> {
                 return ResponseEntity.ok().body(result);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.toString());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
     @DeleteMapping("/companies/{id}")
-    public void delete(@RequestHeader("Authorization") String token,Long id) {
+    public void delete(@RequestHeader("Authorization") String token, @PathVariable Long id) {
         logger.debug("Request to delete ");
         try {
             Optional<Company> companyToDelete = companyRepository.findById(id);
@@ -87,7 +79,7 @@ public class CompanyService implements ICrudService<CompanyDTO, Long> {
             }
             companyRepository.deleteById(id);
         } catch (Exception ex) {
-            ex.printStackTrace();
+
             logger.error(ex.toString());
         }
     }
@@ -103,7 +95,7 @@ public class CompanyService implements ICrudService<CompanyDTO, Long> {
 
     @Override
     @GetMapping("/companies/{id}")
-    public ResponseEntity<CompanyDTO> findOne(@RequestHeader("Authorization") String token, Long id) {
+    public ResponseEntity<CompanyDTO> findOne(@RequestHeader("Authorization") String token, @PathVariable Long id) {
         try {
             Optional<Company> optionalCompany  = companyRepository.findById(id);
             if(optionalCompany.isPresent()) {
@@ -116,7 +108,7 @@ public class CompanyService implements ICrudService<CompanyDTO, Long> {
                 );
             }
         } catch (ResourceNotFoundException e) {
-            e.printStackTrace();
+            logger.error(e.toString());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }

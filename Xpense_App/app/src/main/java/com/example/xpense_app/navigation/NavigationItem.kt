@@ -1,5 +1,7 @@
 package com.example.xpense_app.navigation
 
+import com.example.xpense_app.R
+
 /**
  * Enum containing the different screens in the app
  */
@@ -8,26 +10,28 @@ enum class Screen {
     LOGIN,
     REGISTER,
     PROFILES,
-    MANUAL,
+    MANUAL_BOOKING,
     OVERVIEW,
-    CREATE,
-    INFO
+    CREATE_PROJECT,
+    INFO,
+    PROJECTS_OVERVIEW
 }
 
 /**
  * Sealed class for the different navigation items in the app
  * Each item has a route which is the name of the screen
  */
-sealed class NavigationItem(val route: String, val name: String) {
-
-    data object Timer : NavigationItem(Screen.TIMER.name, "Timer")
-    data object Login : NavigationItem(Screen.LOGIN.name, "Login")
-    data object Register : NavigationItem(Screen.REGISTER.name, "Register")
-    data object Profiles : NavigationItem(Screen.PROFILES.name, "Profiles")
-    data object Manual : NavigationItem(Screen.MANUAL.name, "Manual Booking")
-    data object Overview : NavigationItem(Screen.OVERVIEW.name, "Overview")
-    data object Create : NavigationItem(Screen.CREATE.name, "Create Project")
-    data object Info : NavigationItem(Screen.INFO.name, "Info")
+sealed class NavigationItem(val route: String, val name: String, val titleResourceId: Int) {
+    data object Timer : NavigationItem(Screen.TIMER.name, "Timer", R.string.timer)
+    data object Login : NavigationItem(Screen.LOGIN.name, "Login", R.string.login)
+    data object Register : NavigationItem(Screen.REGISTER.name, "Register", R.string.register)
+    data object Profiles : NavigationItem(Screen.PROFILES.name, "Profiles", R.string.profile)
+    data object Manual : NavigationItem(Screen.MANUAL_BOOKING.name, "Manual Booking", R.string.manual)
+    data object Overview : NavigationItem(Screen.OVERVIEW.name, "Overview", R.string.overview)
+    data object CreateProject : NavigationItem(Screen.CREATE_PROJECT.name, "Create Project", R.string.create_project)
+    data object ProjectsOverview : NavigationItem(Screen.PROJECTS_OVERVIEW.name, "Projects Overview",
+                                                  R.string.projects_overview)
+    data object Info : NavigationItem(Screen.INFO.name, "Info", R.string.info)
 
     companion object {
 

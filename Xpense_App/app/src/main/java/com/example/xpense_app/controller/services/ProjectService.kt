@@ -16,26 +16,6 @@ import kotlinx.coroutines.launch
 
 class ProjectService {
 
-    private var _projects = mutableListOf<Project>()
-    private val apiService =
-        RetrofitInstance.getAPIService(ProjectAPIService::class) as ProjectAPIService
-    fun getProjects(
-        onSuccess: (List<Project>) -> Unit,
-        onError: (Exception) -> Unit
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-
-            try {
-                val response = apiService.getProjects();
-                _projects.clear()
-                _projects.addAll(response.body()!!)
-                onSuccess(response.body()!!)
-            } catch (e: Exception) {
-                onError(e)
-            }
-        }
-    }
-
     companion object {
         private val apiService2 =
             RetrofitInstance.getAPIService(ProjectAPIService::class) as ProjectAPIService

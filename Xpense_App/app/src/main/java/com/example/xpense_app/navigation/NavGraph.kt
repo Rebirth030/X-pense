@@ -28,6 +28,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -43,6 +46,8 @@ import com.example.xpense_app.view.login.LoginForm
 import com.example.xpense_app.view.manual_booking.AddExpense
 import com.example.xpense_app.view.overview.CreateOverview
 import com.example.xpense_app.view.profile.Profile
+import com.example.xpense_app.view.projects_overview.ProjectsOverview
+import com.example.xpense_app.view.timer.Timer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -73,7 +78,7 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
             ModalDrawerSheet {
                 for (item in NavigationItem.values().filter { it != NavigationItem.Login && it != NavigationItem.Register }) {
                     CreateNavigationItem(
-                        item.name,
+                        stringResource(item.titleResourceId),
                         coroutineScope,
                         drawerState,
                         navController,
@@ -93,7 +98,7 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
             })}
 
         }, content = { padding ->
-            NavHost(navController = navController, startDestination = NavigationItem.Login.route) {
+            NavHost(navController = navController, startDestination = NavigationItem.Login.route, modifier = Modifier.padding(padding)) {
                 composable(NavigationItem.Login.route) { LoginForm(navController, currentUser, appViewModel) }
                 composable(NavigationItem.Register.route) { CreateRegister(navController) }
                 composable(NavigationItem.Timer.route) { Timer(currentUser, onNavigateToLoginScreen = {
@@ -101,9 +106,10 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
             }, appViewModel) }
                 composable(NavigationItem.Profiles.route) { Profile(currentUser) }
                 composable(NavigationItem.Manual.route) { AddExpense(navController, currentUser) }
-                composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController, padding) }
-                composable(NavigationItem.Create.route) { CreateProjectScreen(currentUser, context) }
+                composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController) }
+                composable(NavigationItem.CreateProject.route) { CreateProjectScreen(currentUser, context) }
                 composable(NavigationItem.Info.route) { CreateInfoView(navController, currentUser) }
+                composable(NavigationItem.ProjectsOverview.route) { ProjectsOverview(currentUser.value, navController) }
             }})
     }
 }
@@ -166,9 +172,10 @@ private fun CreateNavigationItem(
 private fun getTitle(navHostController: NavHostController): String {
     val navBackStackEntry by navHostController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    try {
-        return NavigationItem.fromRoute(currentRoute ?: NavigationItem.Login.route).name
+    val context = LocalContext.current
+    return try {
+        context.getString(NavigationItem.fromRoute(currentRoute ?: NavigationItem.Login.route).titleResourceId)
     } catch (e: IllegalArgumentException) {
-        return "Title not found"
+        "Title not found"
     }
 }

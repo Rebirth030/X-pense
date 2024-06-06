@@ -5,10 +5,9 @@ import com.laborsoftware.xpense.domain.dto.ProjectDTO;
 import com.laborsoftware.xpense.exceptions.ResourceNotFoundException;
 import com.laborsoftware.xpense.mapper.ProjectMapper;
 import com.laborsoftware.xpense.repository.ProjectRepository;
+import com.laborsoftware.xpense.repository.UserRepository;
 import com.laborsoftware.xpense.service.crud.ICrudService;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,20 +22,21 @@ import java.util.Optional;
 @RestController
 @RequestMapping
 public class ProjectService implements ICrudService<ProjectDTO, Long> {
-
-    Logger logger = LoggerFactory.getLogger(ProjectService.class);
-
     private final ProjectRepository projectRepository;
 
     @Autowired
     public final ProjectMapper projectMapper;
 
+    public final UserRepository userRepository;
+
     public ProjectService(
             ProjectRepository projectRepository,
-            ProjectMapper projectMapper
+            ProjectMapper projectMapper,
+            UserRepository userRepository
     ) {
         this.projectRepository = projectRepository;
         this.projectMapper = projectMapper;
+        this.userRepository = userRepository;
     }
 
 
@@ -50,7 +50,6 @@ public class ProjectService implements ICrudService<ProjectDTO, Long> {
             ProjectDTO result = projectMapper.toDto(project);
             return ResponseEntity.ok().body(result);
         } catch (Exception ex) {
-            ex.printStackTrace();
             logger.error(ex.toString());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -69,14 +68,14 @@ public class ProjectService implements ICrudService<ProjectDTO, Long> {
                 return ResponseEntity.ok().body(result);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.toString());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
     @DeleteMapping("/projects/{id}")
-    public void delete(@RequestHeader("Authorization") String token,Long id) {
+    public void delete(@RequestHeader("Authorization") String token,@PathVariable Long id) {
         logger.debug("Request to delete Project {} ", id);
         try {
             Optional<Project> projectToDelete = projectRepository.findById(id);
@@ -87,7 +86,6 @@ public class ProjectService implements ICrudService<ProjectDTO, Long> {
             }
             projectRepository.deleteById(id);
         } catch (Exception ex) {
-            ex.printStackTrace();
             logger.error(ex.toString());
         }
     }
@@ -102,7 +100,7 @@ public class ProjectService implements ICrudService<ProjectDTO, Long> {
 
     @Override
     @GetMapping("/projects/{id}")
-    public ResponseEntity<ProjectDTO> findOne(@RequestHeader("Authorization") String token,Long id) {
+    public ResponseEntity<ProjectDTO> findOne(@RequestHeader("Authorization") String token,@PathVariable Long id) {
         try {
             Optional<Project> optionalProject = projectRepository.findById(id);
             if (optionalProject.isPresent()) {
@@ -115,7 +113,7 @@ public class ProjectService implements ICrudService<ProjectDTO, Long> {
                 );
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.toString());
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }

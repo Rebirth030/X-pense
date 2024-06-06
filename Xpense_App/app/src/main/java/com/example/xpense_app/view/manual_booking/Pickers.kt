@@ -18,12 +18,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
-
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.example.xpense_app.R
 import androidx.compose.ui.unit.dp
 import java.util.Date
 
@@ -54,14 +56,14 @@ fun DateDialog(
             }
 
             ) {
-                Text(text = "OK")
+                Text(text = stringResource(R.string.ok))
             }
         },
         dismissButton = {
             Button(onClick = {
                 onDismiss()
             }) {
-                Text(text = "Cancel")
+                Text(text = stringResource(R.string.cancel))
             }
         }
     ) {
@@ -124,7 +126,7 @@ fun TimeDialog(
             ) {
                 // dismiss button
                 TextButton(onClick = onDismiss) {
-                    Text(text = "Dismiss")
+                    Text(text = stringResource(R.string.dismiss))
                 }
 
                 // confirm button
@@ -135,7 +137,7 @@ fun TimeDialog(
                         onDismiss()
                     }
                 ) {
-                    Text(text = "Confirm")
+                    Text(text = stringResource(R.string.confirm))
                 }
             }
         }

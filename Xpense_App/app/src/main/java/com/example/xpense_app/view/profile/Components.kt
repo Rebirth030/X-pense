@@ -1,6 +1,6 @@
 package com.example.xpense_app.view.profile
 
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,18 +32,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.decapitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
+import com.example.xpense_app.R
 import com.example.xpense_app.model.User
 import com.example.xpense_app.model.UserRole
 
 
+/**
+ * Displays a button for saving user data.
+ *
+ * This composable function is responsible for rendering a button that allows the user to save their profile data.
+ *
+ * @param onSaveUser Callback function triggered when the save button is clicked. It passes a boolean value indicating
+ *                    whether the button is clicked.
+ */
 @Composable
 fun SaveButton(onSaveUser: (Boolean) -> Unit) {
     Row(modifier = Modifier.fillMaxWidth()) {
@@ -56,23 +64,43 @@ fun SaveButton(onSaveUser: (Boolean) -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
         ) {
-            Text("Save")
+            Text(stringResource(R.string.save))
         }
     }
 }
 
+/**
+ * Displays a drop-down menu for selecting the user's profile role.
+ *
+ * This composable function is responsible for rendering a drop-down menu that allows the user to select
+ * their profile role from the provided options.
+ *
+ * @param currentUser A [MutableState] containing the [User] object for the currently logged-in user.
+ * @param onSelectedProfile Callback function triggered when a profile role is selected from the drop-down menu.
+ *                          It passes the selected [UserRole] to the caller.
+ */
 @Composable
 @ExperimentalMaterial3Api
 fun DropDown(
     currentUser: MutableState<User>,
     onSelectedProfile: (UserRole) -> Unit
 ) {
+    val context = LocalContext.current
     var isExpended by remember {
         mutableStateOf(false)
     }
+    val userRole =
+        requireNotNull(UserRole.entries.find { role -> role.name == currentUser.value.role }) {
+            Toast.makeText(
+                context,
+                stringResource(R.string.user_role_not_found),
+                Toast.LENGTH_LONG
+            ).show()
+            "Custom"
+        }
     var selectedOption by remember {
         mutableStateOf(
-            UserRole.entries.find { role -> role.name == currentUser.value.role }!!.description
+            userRole.description
         )
     }
 
@@ -110,6 +138,21 @@ fun DropDown(
     }
 }
 
+
+/**
+ * Displays input fields for entering hours and minutes.
+ *
+ * This composable function is responsible for rendering input fields that allow the user to enter hours and minutes.
+ *
+ * @param label The label for the input fields.
+ * @param readOnly A boolean indicating whether the input fields are read-only.
+ * @param inputHour The value of the hour input field.
+ * @param inputMinute The value of the minute input field.
+ * @param inputOn A boolean indicating whether the input is enabled.
+ * @param onInputChange Callback function triggered when the input value is changed. It passes the new value as a double.
+ * @param onSwitchToggle Callback function triggered when the switch toggle is changed. It passes a boolean indicating
+ *                       whether the switch is toggled.
+ */
 @Composable
 fun HourMinuteInput(
     label: String,
@@ -127,7 +170,7 @@ fun HourMinuteInput(
         )
         Row(modifier = Modifier.padding(top = 10.dp)) {
             IntegerInput(
-                "Hours",
+                stringResource(R.string.hours),
                 readOnly,
                 inputHour.toString(),
                 maxVal = 10,
@@ -143,7 +186,7 @@ fun HourMinuteInput(
                 style = TextStyle(fontSize = 40.sp)
             )
             IntegerInput(
-                "Minutes",
+                stringResource(R.string.minutes),
                 readOnly,
                 inputMinute.toString(),
                 maxVal = 60,
@@ -162,7 +205,16 @@ fun HourMinuteInput(
     }
 }
 
-
+/**
+ * Displays an input field for entering hours.
+ *
+ * This composable function is responsible for rendering an input field that allows the user to enter hours.
+ *
+ * @param label The label for the input field.
+ * @param readOnly A boolean indicating whether the input field is read-only.
+ * @param inputValue The value of the hour input field.
+ * @param onInputChange Callback function triggered when the input value is changed. It passes the new value as an integer.
+ */
 @Composable
 fun HourInput(
     label: String,
@@ -178,7 +230,7 @@ fun HourInput(
         )
         Spacer(modifier = Modifier.weight(1f))
         IntegerInput(
-            "Hours",
+            stringResource(R.string.hours),
             readOnly,
             inputValue.toString(),
             maxVal = 100,
@@ -191,7 +243,15 @@ fun HourInput(
     }
 }
 
-
+/**
+ * Displays a toggle switch for enabling/disabling notifications.
+ *
+ * This composable function is responsible for rendering a toggle switch that allows the user to enable or disable notifications.
+ *
+ * @param notificationsOn A boolean indicating whether notifications are currently enabled.
+ * @param onSwitchToggle Callback function triggered when the toggle switch is changed. It passes a boolean indicating
+ *                       whether notifications are toggled.
+ */
 @Composable
 fun NotificationInput(
     notificationsOn: Boolean,
@@ -202,7 +262,7 @@ fun NotificationInput(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Notifications:",
+            text = stringResource(R.string.notifications),
             style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
         )
         Spacer(modifier = Modifier.weight(1f))
@@ -213,6 +273,17 @@ fun NotificationInput(
     }
 }
 
+/**
+ * Displays an input field for entering integer values.
+ *
+ * This composable function is responsible for rendering an input field that allows the user to enter integer values.
+ *
+ * @param label The label for the input field.
+ * @param readOnly A boolean indicating whether the input field is read-only.
+ * @param inputValue The value of the integer input field.
+ * @param maxVal The maximum allowed value for the input field.
+ * @param onInputSelected Callback function triggered when the input value is selected. It passes the new value as a string.
+ */
 @Composable
 fun IntegerInput(
     label: String,
@@ -226,7 +297,7 @@ fun IntegerInput(
     } else {
         TextField(
             modifier = Modifier.width(100.dp),
-            readOnly = readOnly,
+            readOnly = true,
             value = inputValue,
             onValueChange = {
                 onInputSelected(it)
@@ -237,6 +308,17 @@ fun IntegerInput(
     }
 }
 
+/**
+ * Displays an input field for entering mutable values within a specified range.
+ *
+ * This composable function is responsible for rendering an input field that allows the user to enter mutable values
+ * within a specified range.
+ *
+ * @param label The label for the input field.
+ * @param minVal The minimum allowed value for the input field.
+ * @param maxVal The maximum allowed value for the input field.
+ * @param onInputSelected Callback function triggered when the input value is selected. It passes the new value as a string.
+ */
 @Composable
 fun MutableInput(
     label: String,
@@ -259,6 +341,15 @@ fun MutableInput(
     )
 }
 
+/**
+ * Displays a switch button for toggling a boolean value.
+ *
+ * This composable function is responsible for rendering a switch button that allows the user to toggle a boolean value.
+ *
+ * @param inputOn A boolean indicating whether the switch button is currently on.
+ * @param onSwitchToggle Callback function triggered when the switch button is toggled. It passes a boolean indicating
+ *                       whether the switch button is toggled.
+ */
 @Composable
 fun SwitchButton(
     inputOn: Boolean,
@@ -283,6 +374,16 @@ fun SwitchButton(
     )
 }
 
+/**
+ * Composable function to create a mutable hour and minute input field.
+ *
+ * @param label The label of the input field.
+ * @param inputHour The current hour value.
+ * @param inputMinute The current minute value.
+ * @param inputOn The current state of the switch.
+ * @param onInputChange The callback function to handle input changes.
+ * @param onSwitchToggle The callback function to handle switch changes.
+ */
 @Composable
 fun MutableHourMinuteInput(
     label: String,
@@ -313,7 +414,7 @@ fun MutableHourMinuteInput(
                         }
                     }
                 },
-                label = { Text("Hours") },
+                label = { Text(stringResource(R.string.hours)) },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
             Text(
@@ -334,7 +435,7 @@ fun MutableHourMinuteInput(
                         }
                     }
                 },
-                label = { Text("Minutes") },
+                label = { Text(stringResource(R.string.minutes)) },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -346,6 +447,14 @@ fun MutableHourMinuteInput(
     }
 }
 
+/**
+ * Displays an input field for entering mutable hour values.
+ *
+ * This function is responsible for rendering an input field that allows the user to enter mutable hour values.
+ *
+ * @param inputHour The value of the hour input field.
+ * @param onInputSelected Callback function triggered when the hour input value is selected. It passes the new value as an integer.
+ */
 @Composable
 fun MutableHourInput(inputHour: Int, onInputSelected: (Int) -> Unit) {
     var hour by remember { mutableStateOf(inputHour.toString()) }
@@ -362,7 +471,7 @@ fun MutableHourInput(inputHour: Int, onInputSelected: (Int) -> Unit) {
                 }
             }
         },
-        label = { Text("Hours") },
+        label = { Text(stringResource(R.string.hours)) },
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
     )
 }

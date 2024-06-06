@@ -4,5 +4,5 @@ public enum ApplicationUserRole {
     EMPLOYEE,
     FREELANCER,
     WORK_STUDENT,
-    COSTUMED
+    CUSTOM
 }
