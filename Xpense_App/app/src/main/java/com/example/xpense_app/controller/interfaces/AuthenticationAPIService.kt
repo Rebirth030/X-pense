@@ -14,4 +14,6 @@ interface AuthenticationAPIService: APIService {
     @Headers("Content-Type: application/json")
     @POST("/auth/signup")
     suspend fun registerUser(@Body user: User): User
+
+
 }

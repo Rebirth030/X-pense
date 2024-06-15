@@ -21,14 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,11 +31,6 @@ import com.example.xpense_app.R
 import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.NavigationItem
 import com.example.xpense_app.view.overview.GetExpenses
-import com.example.xpense_app.controller.services.ExpenseService
-import com.example.xpense_app.model.User
-import com.example.xpense_app.navigation.NavigationItem
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
@@ -227,7 +215,6 @@ fun calculateThisWeeksRemainingWorkingHours(
  * @param returnWorkedHours whether to return the worked hours
  */
 @Composable
-=======
 fun calculateThisMonthsRemainingWorkingHours(
     expenses: List<Expense>,
     weeklyWorkingHours: Int,
