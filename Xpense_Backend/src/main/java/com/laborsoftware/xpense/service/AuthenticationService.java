@@ -11,10 +11,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -96,6 +93,10 @@ public class AuthenticationService {
         } else {
             return ResponseEntity.ok(userMapper.toDto(authenticatedUser));
         }
+    }
+    @GetMapping("/connectivity-check")
+    public ResponseEntity<Void> checkConnection() {
+        return ResponseEntity.ok().build();
     }
 
 }
