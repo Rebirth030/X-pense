@@ -290,7 +290,7 @@ private fun SaveButton(
                 navController.navigate(NavigationItem.Overview.route)
             }
         },
-        colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
         modifier = Modifier.height(IntrinsicSize.Min)
     ) {
         Text(
@@ -316,7 +316,6 @@ private fun SaveButton(
  * @param breakStartTime The start time of the break.
  * @param breakEndTime The end time of the break.
  */
-//TODO: Zeigen
 private fun checkConditionsToCreateExpense(
     selectedProject: MutableState<Project>,
     context: Context,

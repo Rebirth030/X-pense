@@ -102,4 +102,8 @@
     <string name="remaining_working_hours_for_this_week">Remaining working hours for this week:</string>
     <string name="remaining_working_hours_for_today">Remaining working hours for today:</string>
     <string name="set_weekly_workinghours">Please set your weekly working hours in the profile</string>
+    <string name="enter_ip">Please enter the IP-Address of the server.</string>
+    <string name="example_ip">Example: 10.0.2.2</string>
+    <string name="testing_ip">Testing (use Localhost)</string>
+    <string name="check_ip">Connection Error! Please try check your IP-Address.</string>
 </resources>

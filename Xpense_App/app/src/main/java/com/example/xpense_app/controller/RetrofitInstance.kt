@@ -47,7 +47,7 @@ object RetrofitInstance {
     }
 
     fun setURL(ip: String) {
-        baseURLApi = "http://$ip"
+        baseURLApi = "http://$ip:8080"
         apiService = Retrofit.Builder()
             .baseUrl(baseURLApi)
             .addConverterFactory(GsonConverterFactory.create(json))

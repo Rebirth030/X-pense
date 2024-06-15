@@ -101,4 +101,8 @@
     <string name="remaining_working_hours_for_this_week">Verbleibende Arbeitsstunden diese Woche:</string>
     <string name="remaining_working_hours_for_today">Verbleibende Arbeitsstunden heute:</string>
     <string name="set_weekly_workinghours">Bitte setze deine wochentlichen Arbeitsstunden fest</string>
+    <string name="enter_ip">Die IP-Adresse des Servers eingeben.</string>
+    <string name="example_ip">Beispiel: 10.0.2.2</string>
+    <string name="testing_ip">Testing (benutzt Localhost)</string>
+    <string name="check_ip">Verbindungsfehler! Versuche eine Valide IP einzugeben</string>
 </resources>

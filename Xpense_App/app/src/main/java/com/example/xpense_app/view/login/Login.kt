@@ -43,12 +43,6 @@ import java.util.*
  */
 @Composable
 fun LoginForm(navHostController: NavHostController, user: MutableState<User>, appViewModel: AppViewModel) {
-    var ipInput = remember {
-        mutableStateOf("")
-    }
-    var showIPModal = remember {
-        mutableStateOf(true)
-    }
     Surface {
             Surface(color = MaterialTheme.colorScheme.background) {
                 Column(
@@ -58,7 +52,6 @@ fun LoginForm(navHostController: NavHostController, user: MutableState<User>, ap
                         .fillMaxSize()
                         .padding(horizontal = 30.dp)
                 ) {
-                    IPEntry(showDialog = showIPModal, inputText = ipInput)
                     CreateLoginForm(navHostController, user, appViewModel)
                 }
             }
