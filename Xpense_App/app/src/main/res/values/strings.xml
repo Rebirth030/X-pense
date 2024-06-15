@@ -105,4 +105,8 @@
     <string name="error_current_expense_must_not_be_null">Error while reading current Expense.</string>
     <string name="error_while_createing_project">Error while creating project.</string>
     <string name="user_role_not_found">User role not found</string>
+    <string name="enter_ip">Please enter the IP-Address of the server.</string>
+    <string name="example_ip">Example: 10.0.2.2</string>
+    <string name="testing_ip">Testing (use Localhost)</string>
+    <string name="check_ip">Connection Error! Please try check your IP-Address.</string>
 </resources>

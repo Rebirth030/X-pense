@@ -42,6 +42,7 @@ import com.example.xpense_app.view.create_project.CreateProjectScreen
 import com.example.xpense_app.view.info_view.CreateInfoView
 import com.example.xpense_app.view.timer.Timer
 import com.example.xpense_app.view.login.CreateRegister
+import com.example.xpense_app.view.login.IPEntry
 import com.example.xpense_app.view.login.LoginForm
 import com.example.xpense_app.view.manual_booking.AddExpense
 import com.example.xpense_app.view.overview.CreateOverview
@@ -69,8 +70,15 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
     val selectedNavItem = remember {
         mutableStateOf<NavigationItem?>(null)
     }
+    val ipInput = remember {
+        mutableStateOf("")
+    }
+    val showIPModal = remember {
+        mutableStateOf(true)
+    }
     val title = getTitle(navController)
     val currentUser = remember { mutableStateOf(User(password = "", username = "")) }
+    IPEntry(showDialog = showIPModal, inputText = ipInput)
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = true,

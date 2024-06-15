@@ -42,115 +42,117 @@ import java.util.*
  * @param appViewModel the app view model
  */
 @Composable
-fun LoginForm(
-    navHostController: NavHostController,
-    user: MutableState<User>,
-    appViewModel: AppViewModel
-) {
-    Surface(color = MaterialTheme.colorScheme.background) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 30.dp)
+fun LoginForm(navHostController: NavHostController, user: MutableState<User>, appViewModel: AppViewModel) {
+    Surface {
+            Surface(color = MaterialTheme.colorScheme.background) {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 30.dp)
+                ) {
+                    CreateLoginForm(navHostController, user, appViewModel)
+                }
+            }
+        }
+    }
+
+
+        /**
+         * Creates the form for the login with a button to submit the form and a link to the registration page.
+         *
+         * @param navHostController the navigation controller
+         * @param user the user object
+         * @param appViewModel the app view model
+         * @return the form
+         */
+        @Composable
+        private fun CreateLoginForm(
+            navHostController: NavHostController,
+            user: MutableState<User>,
+            appViewModel: AppViewModel
         ) {
-            CreateLoginForm(navHostController, user, appViewModel)
-        }
-    }
-}
-
-
-/**
- * Creates the form for the login with a button to submit the form and a link to the registration page.
- *
- * @param navHostController the navigation controller
- * @param user the user object
- * @param appViewModel the app view model
- * @return the form
- */
-@Composable
-private fun CreateLoginForm(
-    navHostController: NavHostController,
-    user: MutableState<User>,
-    appViewModel: AppViewModel
-) {
-    val username = createTextField(fieldName = stringResource(R.string.username))
-    val password = createPasswordField()
-    val context = LocalContext.current
-    Spacer(modifier = Modifier.height(20.dp))
-    Text(
-        stringResource(R.string.register),
-        textDecoration = TextDecoration.Underline,
-        color = MaterialTheme.colorScheme.tertiary,
-        modifier = Modifier.clickable(onClick = { navHostController.navigate(NavigationItem.Register.route) })
-    )
-    Spacer(modifier = Modifier.height(20.dp))
-    Button(
-        onClick = {
-            loginAction(
-                username.value,
-                password.value,
-                navHostController,
-                context,
-                user
+            val username = createTextField(fieldName = stringResource(R.string.username))
+            val password = createPasswordField()
+            val context = LocalContext.current
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                stringResource(R.string.register),
+                textDecoration = TextDecoration.Underline,
+                color = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.clickable(onClick = { navHostController.navigate(NavigationItem.Register.route) })
             )
-            appViewModel.setLoggedIn(true)
-        },
-        enabled = true,
-        shape = RoundedCornerShape(5.dp),
-        modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        )
+            Spacer(modifier = Modifier.height(20.dp))
+            Button(
+                onClick = {
+                    loginAction(
+                        username.value,
+                        password.value,
+                        navHostController,
+                        context,
+                        user
+                    )
+                    appViewModel.setLoggedIn(true)
+                },
+                enabled = true,
+                shape = RoundedCornerShape(5.dp),
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
 
-    ) {
-        Text(stringResource(R.string.login))
-    }
-}
-
-
-/**
- * Submits the form to the server and navigates to the login page if successful.
- *
- * @param username the username
- * @param password the password
- * @param navController the navigation controller
- * @param context the context
- * @param userResult the user object
- */
-fun loginAction(
-    username: String,
-    password: String,
-    navController: NavHostController,
-    context: Context,
-    userResult: MutableState<User>,
-) {
-
-    AuthenticationService.loginUser(
-        user = User(
-            username = username,
-            password = password
-        ),
-        onSuccess = { user ->
-            withContext(Dispatchers.Main) {
-                userResult.value = user
-                userResult.value.token = "Bearer " + user.token
-                navController.navigate(NavigationItem.Overview.route)
-            }
-        },
-        onError = {
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.error_message_toast_login, it.message),
-                    Toast.LENGTH_LONG
-                ).show()
+            ) {
+                Text(stringResource(R.string.login))
             }
         }
-    )
-}
+
+
+
+
+        /**
+         * Submits the form to the server and navigates to the login page if successful.
+         *
+         * @param username the username
+         * @param password the password
+         * @param navController the navigation controller
+         * @param context the context
+         * @param userResult the user object
+         */
+        fun loginAction(
+            username: String,
+            password: String,
+            navController: NavHostController,
+            context: Context,
+            userResult: MutableState<User>,
+        ) {
+
+            AuthenticationService.loginUser(
+                user = User(
+                    username = username,
+                    password = password
+                ),
+                onSuccess = { user ->
+                    withContext(Dispatchers.Main) {
+                        userResult.value = user
+                        userResult.value.token = "Bearer " + user.token
+                        navController.navigate(NavigationItem.Overview.route)
+                    }
+                },
+                onError = {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.error_message_toast_login, it.message),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            )
+        }
+
+
 
 
 

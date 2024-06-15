@@ -275,21 +275,22 @@ private fun SaveButton(
 ) {
     Button(
         onClick = {
-            checkConditionsToCreateExpense(selectedProject, context, startTime, endTime, breakStartTime, breakEndTime)
-            saveExpense(
-                context,
-                date,
-                startTime.value,
-                endTime.value,
-                breakStartTime.value,
-                breakEndTime.value,
-                description,
-                user.value,
-                selectedProject.value
-            )
-            navController.navigate(NavigationItem.Overview.route)
+            if (checkConditionsToCreateExpense(selectedProject, context, startTime, endTime, breakStartTime, breakEndTime)) {
+                saveExpense(
+                    context,
+                    date,
+                    startTime.value,
+                    endTime.value,
+                    breakStartTime.value,
+                    breakEndTime.value,
+                    description,
+                    user.value,
+                    selectedProject.value
+                )
+                navController.navigate(NavigationItem.Overview.route)
+            }
         },
-        colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
         modifier = Modifier.height(IntrinsicSize.Min)
     ) {
         Text(
@@ -322,7 +323,7 @@ private fun checkConditionsToCreateExpense(
     endTime: MutableState<Time>,
     breakStartTime: MutableState<Time>,
     breakEndTime: MutableState<Time>
-) {
+) : Boolean {
     try {
         require(selectedProject.value.id != null) {
             context.getString(R.string.error_message_please_select_a_project)
@@ -343,7 +344,9 @@ private fun checkConditionsToCreateExpense(
         }
     } catch (e: IllegalArgumentException) {
         Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+        return false
     }
+    return true
 }
 
 /**
