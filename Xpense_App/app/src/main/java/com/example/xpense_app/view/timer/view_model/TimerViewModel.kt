@@ -2,26 +2,20 @@ package com.example.xpense_app.view.timer.view_model
 
 import Expense
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.xpense_app.R
 import com.example.xpense_app.controller.services.ExpenseService
 import com.example.xpense_app.controller.services.ProjectService
 import com.example.xpense_app.model.Project
 import com.example.xpense_app.model.User
-import com.example.xpense_app.view.timer.ui.ShowErrorToast
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.lang.IllegalArgumentException
@@ -29,13 +23,13 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.TimeUnit
 
 class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() {
-
-    var errorMessage: String = "";
     private lateinit var context: Context
+
+    //var errorMessage: String = "";
 
     private val _projects = MutableStateFlow<List<Project>>(emptyList())
     val projects: StateFlow<List<Project>> = _projects.asStateFlow()
@@ -131,12 +125,10 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                                 this.updateProjectTimers(expense)
                                 _projectTimers.value = updatedTimer
                             }
-                            errorMessage = ""
                             projectsDeferred.complete(Unit)
                         }
                     }
                 } catch (e: IllegalAccessException) {
-                    errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
                     _projects.value = emptyList()
                     projectsDeferred.complete(Unit)
                 }
@@ -203,9 +195,8 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             updatedProjectTimersStartTime[expenseProjectId] = timeInMillis
             _projectTimers.value = updatedProjectTimersStartTime
             this.setProjectStartTime(expense)
-            errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
+            this.showErrorToast(e.message ?: this.context.getString(R.string.error_unkown))
         }
     }
 
@@ -231,9 +222,8 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                 this[projectId] = System.currentTimeMillis() - projectStartTimer
             }
             _projectTimers.value = updatedProjectTimers
-            errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
+            this.showErrorToast(e.message ?: this.context.getString(R.string.error_unkown))
         }
     }
 
@@ -270,10 +260,8 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                 this[projectId] = System.currentTimeMillis() - currentTimer
             }
             _projectTimersStartTime.value = updatedProjectTimers
-            errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
-
+            this.showErrorToast(e.message ?: this.context.getString(R.string.error_unkown))
         }
     }
 
@@ -296,10 +284,12 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                 this.context.getString(R.string.current_project_must_not_be_null)
             }
             _projectTimersOnRun.value += (currentProjectId to run)
-            if (currentExpense.value == null) {
+
+            val expense = expenses.value.find { expense -> expense.projectId == currentProjectId }
+            if (expense == null) {
                 this.createNewExpense()
             } else {
-                // update state
+                _currentExpense.value = expense
                 val state = if (run) {
                     "RUNNING"
                 } else {
@@ -307,9 +297,8 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                 }
                 this.updateCurrentExpense(state)
             }
-            errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
+            this.showErrorToast(e.message ?: this.context.getString(R.string.error_unkown))
         }
     }
 
@@ -345,9 +334,8 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                 currentProjectId,
             );
             this.saveExpense(expense)
-            errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
+            this.showErrorToast(e.message ?: this.context.getString(R.string.error_unkown))
         }
     }
 
@@ -374,11 +362,9 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                 currentExpense.copy(state = newState)
             }
             this.updateExpense(updatedExpense)
-            errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
+            this.showErrorToast(e.message ?: this.context.getString(R.string.error_unkown))
         }
-
     }
 
     /**
@@ -405,10 +391,9 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                 _currentExpense.value = it
                 val updatedExpenses = expenses.value.toMutableList().plus(it)
                 _expenses.value = updatedExpenses
-                errorMessage = ""
             },
             onError = {
-                errorMessage = this.context.getString(R.string.error_while_creating_expense)
+                this.showErrorToast(context.getString(R.string.error_while_creating_expense))
             }
         )
     }
@@ -434,28 +419,24 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
     private fun updateExpense(expense: Expense) {
         val expensesDeferred = CompletableDeferred<Unit>()
         try {
-            val currentExpense = requireNotNull(currentExpense.value) {
-                this.context.getString(R.string.error_current_expense_must_not_be_null)
-            }
             ExpenseService.updateExpense(
                 expense = expense,
                 token = currentUser.value.token,
                 onSuccess = {
                     _currentExpense.value = it
-                    val targetIdx = expenses.value.indexOfFirst { currentExpense.id == it.id }
+                    val targetIdx = expenses.value.indexOfFirst { expense.id == it.id }
                     val updatedExpenses = expenses.value.toMutableList()
                     updatedExpenses[targetIdx] = it
                     _expenses.value = updatedExpenses
-                    errorMessage = ""
                     expensesDeferred.complete(Unit)
                 },
                 onError = {
-                    errorMessage = it.message ?: this.context.getString(R.string.error_while_updating_expense)
+                    this.showErrorToast(it.message ?: this.context.getString(R.string.error_unkown))
                     expensesDeferred.complete(Unit)
                 }
             )
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
+            this.showErrorToast(e.message ?: this.context.getString(R.string.error_unkown))
             expensesDeferred.complete(Unit)
         }
     }
@@ -507,10 +488,8 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                 _currentExpense.value = expenseAlreadyStarted
                 this.toggleProjectTimer(timerWasRunning)
             }
-
-            errorMessage = ""
         } catch (e: IllegalArgumentException) {
-            errorMessage = e.message ?: this.context.getString(R.string.error_unkown)
+            this.showErrorToast(e.message ?: this.context.getString(R.string.error_unkown))
         }
     }
 
@@ -537,7 +516,6 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             _projects.value = reorderedProjects
             return reorderedProjects
         } catch (e: IllegalArgumentException) {
-            // error message
             return _projects.value
         }
     }
@@ -582,7 +560,22 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
      */
     private fun getCurrentDate(): String {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-        val currentDateTime = LocalDateTime.now()
+        val currentDateTime = ZonedDateTime.now()
         return currentDateTime.format(formatter)
+    }
+
+    /**
+     * Shows error toast.
+     *
+     * @param message of the error toast.
+     */
+    private fun showErrorToast(message: String) {
+        runBlocking {
+            Toast.makeText(
+                context,
+                message,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 }

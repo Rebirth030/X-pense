@@ -64,7 +64,6 @@ fun Timer(currentUser: MutableState<User>, onNavigateToLoginScreen: () -> Unit =
             Column(
                 modifier = Modifier.padding(10.dp)
             ) {
-                Spacer(modifier = Modifier.height(50.dp)) // header
                 CurrentDate()
                 Spacer(modifier = Modifier.height(10.dp))
                 CurrentTime()

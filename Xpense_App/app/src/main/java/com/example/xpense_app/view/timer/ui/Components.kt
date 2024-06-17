@@ -152,11 +152,6 @@ fun ProjectList(projects: List<Project>, timerViewModel: TimerViewModel) {
             }
         }
     }
-    if(timerViewModel.errorMessage.isNotBlank()) {
-        ShowErrorToast(
-            errorMessage = timerViewModel.errorMessage, 
-            errorStringId = R.string.error_while_reordering_project_message)
-    }
 }
 
 /**
@@ -225,11 +220,6 @@ fun ProjectItem(
             }
         }
     }
-    if(timerViewModel.errorMessage.isNotBlank()) {
-        ShowErrorToast(
-            errorMessage = timerViewModel.errorMessage,
-            errorStringId = R.string.error_while_setting_project_time)
-    }
     if (showProjectChangeDialog) {
         ProjectChangeDialog(
             project = project,
@@ -239,11 +229,6 @@ fun ProjectItem(
                 onReorderProject(it)
             }
         )
-        if(timerViewModel.errorMessage.isNotBlank()) {
-            ShowErrorToast(
-                errorMessage = timerViewModel.errorMessage,
-                errorStringId = R.string.error_while_changing_project)
-        }
     }
 }
 
@@ -393,7 +378,7 @@ fun TimerButtons(timerViewModel: TimerViewModel) {
     val currentProject by timerViewModel.currentProject.collectAsState()
     val isProjectOnRun by timerViewModel.projectTimersOnRun.collectAsState()
     var time by remember {
-        mutableLongStateOf(0L)
+        mutableLongStateOf(timerViewModel.getOverallTime())
     }
     val projectIdValue = requireNotNull(currentProject) {
         Toast.makeText(context, stringResource(R.string.current_project_must_not_be_null), Toast.LENGTH_SHORT).show()
@@ -442,11 +427,6 @@ fun TimerButtons(timerViewModel: TimerViewModel) {
             }) {
                 Icon(painterResource(id = R.drawable.stop_solid), contentDescription = stringResource(R.string.stop_timer))
             }
-        }
-        if(timerViewModel.errorMessage.isNotBlank()) {
-            ShowErrorToast(
-                errorMessage = timerViewModel.errorMessage,
-                errorStringId = R.string.error_while_starting_or_stopping_timer)
         }
     }
     LaunchedEffect(isProjectOnRunValue) {
@@ -508,7 +488,6 @@ fun formatTime(timeMi: Long): String {
     val seconds = TimeUnit.MILLISECONDS.toSeconds(timeMi) % 60
 
     return String.format("%02d:%02d:%02d", hours, minutes, seconds)
-    // return LocalTime.ofNanoOfDay(timeMi).format(DateTimeFormatter.ofPattern(stringResource(R.string.date_time_formatter_hours_minutes_seconds)))
 }
 
 /**
@@ -527,27 +506,4 @@ fun formatTimeProject(timeMi: Long): String {
     val minutes = TimeUnit.MILLISECONDS.toMinutes(timeMi) % 60
 
     return String.format("%02d:%02d", hours, minutes)
-    // return LocalTime.ofNanoOfDay(timeMi).format(DateTimeFormatter.ofPattern(stringResource(R.string.date_time_format_hour_minute)))
-}
-
-/**
- * Shows toast when error occurred.
- *
- * @param errorMessage of the exception.
- * @param errorStringId is of the string resource.
- */
-@Composable
-fun ShowErrorToast(errorMessage: String, errorStringId: Int) {
-    val context = LocalContext.current
-    val errorString = stringResource(id = errorStringId)
-
-    LaunchedEffect(errorMessage) {
-        if (errorMessage.isNotEmpty()) {
-            Toast.makeText(
-                context,
-                "$errorString: $errorMessage",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
 }
