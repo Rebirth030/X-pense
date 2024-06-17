@@ -22,14 +22,16 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
 	implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation ("org.mapstruct:mapstruct:1.5.5.Final")
-	annotationProcessor ("org.mapstruct:mapstruct-processor:1.5.5.Final")
-    runtimeOnly("com.mysql:mysql-connector-j")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.mapstruct:mapstruct:1.5.5.Final")
+	implementation("org.springframework.boot:spring-boot-starter-mail")
+	implementation("com.sun.mail:jakarta.mail:2.0.1")
+	annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
+	runtimeOnly("com.mysql:mysql-connector-j")
 	runtimeOnly("org.postgresql:postgresql")
 	providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation ("com.h2database:h2")
+	testImplementation("com.h2database:h2")
 }
 
 tasks.withType<Test> {
