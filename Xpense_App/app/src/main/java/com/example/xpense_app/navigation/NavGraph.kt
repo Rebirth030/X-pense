@@ -1,7 +1,8 @@
 package com.example.xpense_app.navigation
 
-import android.annotation.SuppressLint
+import EncryptedSharedPreferencesHelper
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -21,7 +22,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +39,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.xpense_app.controller.services.UserService
 import com.example.xpense_app.model.User
 import com.example.xpense_app.view.create_project.CreateProjectScreen
 import com.example.xpense_app.view.info_view.CreateInfoView
@@ -47,34 +51,36 @@ import com.example.xpense_app.view.profile.Profile
 import com.example.xpense_app.view.projects_overview.ProjectsOverview
 import com.example.xpense_app.view.timer.Timer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Composable function defining the navigation graph of the Xpense app.
  * Manages navigation between different screens and provides a navigation drawer for accessing app features.
  *
  * @param context The context of the calling component.
- * @param timerViewModel The view model for the timer feature.
  * @param appViewModel The view model for the entire application.
  */
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavGraph(context: Context, appViewModel: AppViewModel) {
     val navController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val selectedNavItem = remember {
-        mutableStateOf<NavigationItem?>(null)
-    }
-    val title = getTitle(navController)
+    val selectedNavItem = remember { mutableStateOf<NavigationItem?>(null) }
     val currentUser = remember { mutableStateOf(User(password = "", username = "")) }
+    val hasLoggedIn by appViewModel.hasLoggedIn.collectAsState(initial = false)
+
+    CheckUserLoggedIn(navController, appViewModel, currentUser)
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = true,
         drawerContent = {
             ModalDrawerSheet {
-                for (item in NavigationItem.values().filter { it != NavigationItem.Login && it != NavigationItem.Register }) {
+                for (item in NavigationItem.values()
+                    .filter { it != NavigationItem.Login && it != NavigationItem.Register }) {
                     CreateNavigationItem(
                         stringResource(item.titleResourceId),
                         coroutineScope,
@@ -88,27 +94,96 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
         }
     ) {
         Scaffold(topBar = {
-            if(navController.currentDestination?.route != NavigationItem.Login.route && navController.currentDestination?.route != NavigationItem.Register.route){
-            TopAppBar(title = { Text(text = title) }, navigationIcon = {
-                IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
-                        Icon(Icons.Rounded.Menu, contentDescription = "Menu", modifier = Modifier.padding(horizontal = 8.dp))
-                    }
-            })}
-
+            CreateTopAppBar(navController, coroutineScope, drawerState)
         }, content = { padding ->
-            NavHost(navController = navController, startDestination = NavigationItem.Login.route, modifier = Modifier.padding(padding)) {
+            NavHost(
+                navController = navController,
+                startDestination = if(hasLoggedIn) NavigationItem.Overview.route else NavigationItem.Login.route,
+                modifier = Modifier.padding(padding)
+            ) {
                 composable(NavigationItem.Login.route) { LoginForm(navController, currentUser, appViewModel) }
                 composable(NavigationItem.Register.route) { CreateRegister(navController) }
-                composable(NavigationItem.Timer.route) { Timer(currentUser, onNavigateToLoginScreen = {
-                navController.navigate(NavigationItem.Login.route)
-            }, appViewModel) }
+                composable(NavigationItem.Timer.route) {
+                    Timer(currentUser, onNavigateToLoginScreen = {
+                        navController.navigate(NavigationItem.Login.route)
+                    }, appViewModel)
+                }
                 composable(NavigationItem.Profiles.route) { Profile(currentUser) }
                 composable(NavigationItem.Manual.route) { AddExpense(navController, currentUser) }
                 composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController) }
                 composable(NavigationItem.CreateProject.route) { CreateProjectScreen(currentUser, context) }
                 composable(NavigationItem.Info.route) { CreateInfoView(navController, currentUser) }
                 composable(NavigationItem.ProjectsOverview.route) { ProjectsOverview(currentUser.value, navController) }
-            }})
+            }
+        })
+    }
+}
+
+/**
+ * Composable function to check if the user is already logged in.
+ * If the user is logged in, the app navigates to the overview screen.
+ *
+ * @param navController The navigation controller for managing navigation.
+ * @param appViewModel The view model for the entire application.
+ * @param currentUser The current user of the application.
+ */
+@Composable
+fun CheckUserLoggedIn(navController: NavHostController, appViewModel: AppViewModel, currentUser: MutableState<User>) {
+    val token = EncryptedSharedPreferencesHelper(LocalContext.current).getToken()
+    if (token.isNullOrEmpty()){
+        return
+    }
+    val context = LocalContext.current
+    LaunchedEffect(key1 = "token check") {
+        UserService.getUserByToken(
+            token = token,
+            onSuccess = { user ->
+                if(user == null){
+                    appViewModel.setLoggedIn(false)
+                    return@getUserByToken
+                }
+                withContext(Dispatchers.Main){
+                    currentUser.value = user
+                    currentUser.value.token = token
+                    appViewModel.setLoggedIn(true)
+                    navController.navigate(NavigationItem.Overview.route)
+                    Toast.makeText(context, "Autologin Successful.", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onError = {
+                withContext(Dispatchers.Main){
+                    Toast.makeText(context, "Autologin Failed, please login again.", Toast.LENGTH_SHORT).show()
+                    appViewModel.setLoggedIn(false)
+                }
+            }
+        )
+    }
+}
+
+/**
+ * Composable function to create the top app bar of the Xpense app.
+ *
+ * @param navController The navigation controller for managing navigation.
+ * @param coroutineScope The coroutine scope for launching actions.
+ * @param drawerState The state of the navigation drawer.
+ */
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun CreateTopAppBar(
+    navController: NavHostController,
+    coroutineScope: CoroutineScope,
+    drawerState: DrawerState
+) {
+    if (navController.currentDestination?.route != NavigationItem.Login.route && navController.currentDestination?.route != NavigationItem.Register.route) {
+        TopAppBar(title = { Text(text = getTitle(navController)) }, navigationIcon = {
+            IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
+                Icon(
+                    Icons.Rounded.Menu,
+                    contentDescription = "Menu",
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
+        })
     }
 }
 
@@ -145,20 +220,21 @@ private fun CreateNavigationItem(
             .padding(horizontal = 8.dp)
             .background(itemColor, shape = RoundedCornerShape(26.dp))
     ) {
-    NavigationDrawerItem(
-        label = { Text(text = text) },
-        selected = isSelected,
-        onClick = {
-            selectedNavItem.value = navRoute
-            coroutineScope.launch {
-                drawerState.close()
+        NavigationDrawerItem(
+            label = { Text(text = text) },
+            selected = isSelected,
+            onClick = {
+                selectedNavItem.value = navRoute
+                coroutineScope.launch {
+                    drawerState.close()
+                }
+                navController.navigate(navRoute.route) {
+                    popUpTo(0)
+                }
             }
-            navController.navigate(navRoute.route) {
-                popUpTo(0)
-            }
-        }
-    )
-}}
+        )
+    }
+}
 
 /**
  * Retrieves the title of the current screen based on the navigation destination.

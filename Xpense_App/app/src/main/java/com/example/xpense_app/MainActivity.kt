@@ -12,6 +12,7 @@ import com.example.xpense_app.navigation.AppViewModel
 import com.example.xpense_app.navigation.NavGraph
 import com.example.xpense_app.view.theme.XPense_AppTheme
 
+
 class MainActivity : ComponentActivity() {
     private val appViewModel: AppViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
