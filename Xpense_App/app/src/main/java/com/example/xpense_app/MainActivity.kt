@@ -13,6 +13,7 @@ import com.example.xpense_app.navigation.NavGraph
 import com.example.xpense_app.view.theme.XPense_AppTheme
 import com.example.xpense_app.view.timer.view_model.TimerViewModel
 
+
 class MainActivity : ComponentActivity() {
     private val appViewModel: AppViewModel by viewModels()
     private lateinit var timerViewModel: TimerViewModel

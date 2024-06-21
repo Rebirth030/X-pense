@@ -1,15 +1,11 @@
 package com.example.xpense_app.controller.interfaces
 
 import com.example.xpense_app.model.User
-import com.google.gson.GsonBuilder
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
-import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 
@@ -24,6 +20,9 @@ interface UserAPIService: APIService {
 
     @PUT("users/{id}")
     suspend fun updateUser(@Header("Authorization") token: String, @Path("id") id: Long, @Body user: User): Response<User>
+
+    @GET("users/getByToken")
+    suspend fun getUserByToken(@Header("Authorization") token: String): Response<User>
 
 
     /*
