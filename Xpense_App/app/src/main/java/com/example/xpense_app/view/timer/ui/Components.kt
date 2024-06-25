@@ -1,6 +1,6 @@
 package com.example.xpense_app.view.timer.ui
 
-import android.util.Log
+import Expense
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -172,6 +172,7 @@ fun ProjectItem(
     var showProjectChangeDialog by remember { mutableStateOf(false) }
     val projectTimers by timerViewModel.projectTimers.collectAsState()
     val isProjectOnRun by timerViewModel.projectTimersOnRun.collectAsState()
+    val expenses by timerViewModel.expenses.collectAsState()
 
     val projectIdValue = requireNotNull(project.id) {
         Toast.makeText(context, stringResource(R.string.project_id_must_not_be_null), Toast.LENGTH_SHORT).show()
@@ -182,10 +183,11 @@ fun ProjectItem(
         Toast.makeText(context, stringResource(R.string.project_timer_must_not_be_null), Toast.LENGTH_SHORT).show()
         return
     }
+    val expenseIsPaused = expenses.find {expense -> expense.projectId == projectIdValue && expense.state == "PAUSED" && expense.endDateTime == null}
     val borderColor =
-        if (isProjectOnRunValue) {
+        if(isProjectOnRunValue) {
             Color(0xFF87CC92)
-        } else if (projectTimerValue > 0) {
+        } else if(expenseIsPaused != null) {
             Color(0xFFFAC384)
         } else {
             Color.Transparent
@@ -212,7 +214,7 @@ fun ProjectItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
-            ProjectLabel(project = project, isProjectOnRunValue, projectTimerValue)
+            ProjectLabel(project = project, isProjectOnRunValue, projectTimerValue, expenseIsPaused)
             ProjectName(project = project)
             Spacer(modifier = Modifier.weight(1f))
             Box(
@@ -258,7 +260,7 @@ fun ProjectItem(
  * @param projectIsOnRun Boolean value indicating whether the project is currently running.
  */
 @Composable
-fun ProjectLabel(project: Project, projectIsOnRun: Boolean, projectTimerValue: Long) {
+fun ProjectLabel(project: Project, projectIsOnRun: Boolean, projectTimerValue: Long, expense: Expense?) {
     val context = LocalContext.current
     val color = if (projectIsOnRun) {
         MaterialTheme.colorScheme.tertiary
@@ -279,14 +281,14 @@ fun ProjectLabel(project: Project, projectIsOnRun: Boolean, projectTimerValue: L
             .background(color = MaterialTheme.colorScheme.tertiaryContainer, shape = CircleShape),
         contentAlignment = Alignment.Center
     ) {
-        if (projectIsOnRun) {
+         if (projectIsOnRun) {
             Icon(
                 modifier = Modifier.size(24.dp, 24.dp),
                 painter = painterResource(R.drawable.play_solid),
                 contentDescription = "playLabel",
                 tint = Color(0xFF35C44d)
             )
-        } else if (projectTimerValue > 0) {
+        } else if (expense != null) {
             Icon(
                 painter = painterResource(R.drawable.pause_solid),
                 contentDescription = "pauseLabel",

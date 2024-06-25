@@ -3,7 +3,6 @@ package com.example.xpense_app.view.timer.view_model
 import Expense
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -285,9 +284,15 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             }
             _projectTimersOnRun.value += (currentProjectId to run)
 
-            val expense = expenses.value.find { expense -> expense.projectId == currentProjectId }
+            val expense = expenses.value.find { expense -> expense.projectId == currentProjectId && expense.endDateTime == null}
             if (expense == null) {
-                this.createNewExpense()
+                _projectTimersOnRun.value += (currentProjectId to true)
+                _projectTimersStartTime.value += (currentProjectId to System.currentTimeMillis())
+                _projectTimers.value += (currentProjectId to 0L)
+                val newExpense = requireNotNull(this.createNewExpense()) {
+                    this.context.getString(R.string.current_project_must_not_be_null)
+                }
+                _currentExpense.value = newExpense
             } else {
                 _currentExpense.value = expense
                 val state = if (run) {
@@ -311,7 +316,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
      *
      * @throws IllegalArgumentException If the current user, their ID, the current project, or its ID is null.
      */
-    private fun createNewExpense() {
+    private fun createNewExpense(state: String? = "RUNNING"): Expense? {
         try {
             val currentUser = requireNotNull(currentUser.value) {
                 this.context.getString(R.string.error_while_laoding_user)
@@ -329,14 +334,16 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
                 null,
                 this.getCurrentDate(),
                 null,
-                "RUNNING",
+                state,
                 currentUserId,
                 currentProjectId,
             );
             this.saveExpense(expense)
+            return expense
         } catch (e: IllegalArgumentException) {
             this.showErrorToast(e.message ?: this.context.getString(R.string.error_unkown))
         }
+        return null
     }
 
     /**
@@ -464,16 +471,21 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             _expenses.value = expenses.value.filter { expense -> expense.state != "FINISHED" }
             val timerWasRunning = projectTimersOnRun.value[currentProject.id] ?: false
             _projectTimersOnRun.value += (currentProject.id to false)
-            val oldExpense = requireNotNull(expenses.value.find { expense -> expense.projectId == currentProject.id }) {
-                this.context.getString(R.string.error_expense_has_no_project)
-            }
-            val updatedOldExpense =
-                oldExpense.copy(state = "PAUSED", pausedAtTimestamp = _projectTimers.value[oldExpense.projectId])
-            this.updateExpense(updatedOldExpense)
             requireNotNull(newProject.id) {
                 this.context.getString(R.string.error_while_createing_project)
             }
             _currentProject.value = newProject
+            val oldExpense = expenses.value.find { expense -> expense.projectId == currentProject.id }
+            if(oldExpense != null) {
+                val updatedOldExpense =
+                    oldExpense.copy(state = "PAUSED", pausedAtTimestamp = _projectTimers.value[oldExpense.projectId])
+                this.updateExpense(updatedOldExpense)
+            } else {
+                _currentExpense.value = requireNotNull(this.createNewExpense("PAUSED")) {
+                    this.context.getString(R.string.error_while_creating_expense)
+                }
+            }
+
 
             val expenseAlreadyStarted = expenses.value.find { expense ->
                 (expense.projectId == newProject.id)
@@ -529,10 +541,12 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
      */
     fun stopAllProjectTimers() {
         _projectTimersOnRun.value = _projectTimersOnRun.value.mapValues { (_, _) -> false }
-        expenses.value.forEach { expense ->
+        _expenses.value = expenses.value.map { expense ->
             val updatedExpense = expense.copy(state = "FINISHED", endDateTime = this.getCurrentDate())
             this.updateExpense(updatedExpense)
+            updatedExpense
         }
+        this.loadProjects()
     }
 
     /**
