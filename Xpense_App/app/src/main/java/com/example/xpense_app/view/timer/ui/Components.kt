@@ -44,7 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,10 +56,8 @@ import com.example.xpense_app.model.Project
 import com.example.xpense_app.view.timer.view_model.TimerViewModel
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
-import kotlin.concurrent.timer
 
 /**
  * Composable function to display the current date.
@@ -109,8 +106,8 @@ fun CurrentTime() {
 @Composable
 @ExperimentalMaterial3Api
 fun ProjectList(projects: List<Project>, timerViewModel: TimerViewModel) {
-    val context = LocalContext.current
     var projectList by remember { mutableStateOf(projects) }
+    projectList = timerViewModel.reorderProjects()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -185,19 +182,37 @@ fun ProjectItem(
         Toast.makeText(context, stringResource(R.string.project_timer_must_not_be_null), Toast.LENGTH_SHORT).show()
         return
     }
+    val borderColor =
+        if (isProjectOnRunValue) {
+            Color(0xFF87CC92)
+        } else if (projectTimerValue > 0) {
+            Color(0xFFFAC384)
+        } else {
+            Color.Transparent
+        }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clickable(onClick = { showProjectChangeDialog = true }),
+            .clickable(onClick = {
+                showProjectChangeDialog = true
+                /* Change project without dialog
+                timerViewModel.changeProject(project);
+                onReorderProject(true)
+                 */
+            })
+            .border(1.dp, borderColor, shape = RoundedCornerShape(24.dp))
+            .background(borderColor, shape = RoundedCornerShape(24.dp)),
         contentAlignment = Alignment.Center,
     ) {
         Row(
             modifier = Modifier
-                .fillMaxHeight(),
+                .fillMaxHeight()
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
-            ProjectLabel(project = project, isProjectOnRunValue)
+            ProjectLabel(project = project, isProjectOnRunValue, projectTimerValue)
             ProjectName(project = project)
             Spacer(modifier = Modifier.weight(1f))
             Box(
@@ -243,7 +258,7 @@ fun ProjectItem(
  * @param projectIsOnRun Boolean value indicating whether the project is currently running.
  */
 @Composable
-fun ProjectLabel(project: Project, projectIsOnRun: Boolean) {
+fun ProjectLabel(project: Project, projectIsOnRun: Boolean, projectTimerValue: Long) {
     val context = LocalContext.current
     val color = if (projectIsOnRun) {
         MaterialTheme.colorScheme.tertiary
@@ -261,15 +276,30 @@ fun ProjectLabel(project: Project, projectIsOnRun: Boolean) {
     Box(
         modifier = Modifier
             .size(50.dp)
-            .background(color = color, shape = CircleShape),
+            .background(color = MaterialTheme.colorScheme.tertiaryContainer, shape = CircleShape),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = projectNameValue.substring(0, 1),
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            fontSize = 20.sp
-        )
+        if (projectIsOnRun) {
+            Icon(
+                modifier = Modifier.size(24.dp, 24.dp),
+                painter = painterResource(R.drawable.play_solid),
+                contentDescription = "playLabel",
+                tint = Color(0xFF35C44d)
+            )
+        } else if (projectTimerValue > 0) {
+            Icon(
+                painter = painterResource(R.drawable.pause_solid),
+                contentDescription = "pauseLabel",
+                tint = Color(0xFFE69335)
+            )
+        } else {
+            Text(
+                text = projectNameValue.substring(0, 1),
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                fontSize = 20.sp
+            )
+        }
     }
 }
 

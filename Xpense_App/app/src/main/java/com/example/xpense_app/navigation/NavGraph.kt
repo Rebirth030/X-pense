@@ -31,8 +31,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -40,6 +40,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.xpense_app.R
 import com.example.xpense_app.controller.services.UserService
 import com.example.xpense_app.model.User
 import com.example.xpense_app.view.create_project.CreateProjectScreen
@@ -52,7 +53,6 @@ import com.example.xpense_app.view.manual_booking.AddExpense
 import com.example.xpense_app.view.overview.CreateOverview
 import com.example.xpense_app.view.profile.Profile
 import com.example.xpense_app.view.projects_overview.ProjectsOverview
-import com.example.xpense_app.view.timer.Timer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -92,13 +92,24 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
             ModalDrawerSheet {
                 for (item in NavigationItem.values()
                     .filter { it != NavigationItem.Login && it != NavigationItem.Register }) {
+                    var navItemIconId = -1
+                    when(item.toString()) {
+                        "CreateProject" -> navItemIconId = R.drawable.create_project_24
+                        "Info" -> navItemIconId = R.drawable.info
+                        "Manual" -> navItemIconId = R.drawable.manual
+                        "Overview" -> navItemIconId = R.drawable.overview
+                        "Profiles" -> navItemIconId = R.drawable.profile
+                        "ProjectsOverview" -> navItemIconId = R.drawable.project_overview
+                        "Timer" -> navItemIconId = R.drawable.timer
+                    }
                     CreateNavigationItem(
                         stringResource(item.titleResourceId),
                         coroutineScope,
                         drawerState,
                         navController,
                         item,
-                        selectedNavItem
+                        selectedNavItem,
+                        navItemIconId
                     )
                 }
             }
@@ -109,7 +120,7 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
         }, content = { padding ->
             NavHost(
                 navController = navController,
-                startDestination = if(hasLoggedIn) NavigationItem.Overview.route else NavigationItem.Login.route,
+                startDestination = if (hasLoggedIn) NavigationItem.Overview.route else NavigationItem.Login.route,
                 modifier = Modifier.padding(padding)
             ) {
                 composable(NavigationItem.Login.route) { LoginForm(navController, currentUser, appViewModel) }
@@ -141,7 +152,7 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
 @Composable
 fun CheckUserLoggedIn(navController: NavHostController, appViewModel: AppViewModel, currentUser: MutableState<User>) {
     val token = EncryptedSharedPreferencesHelper(LocalContext.current).getToken()
-    if (token.isNullOrEmpty()){
+    if (token.isNullOrEmpty()) {
         return
     }
     val context = LocalContext.current
@@ -149,11 +160,11 @@ fun CheckUserLoggedIn(navController: NavHostController, appViewModel: AppViewMod
         UserService.getUserByToken(
             token = token,
             onSuccess = { user ->
-                if(user == null){
+                if (user == null) {
                     appViewModel.setLoggedIn(false)
                     return@getUserByToken
                 }
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     currentUser.value = user
                     currentUser.value.token = token
                     appViewModel.setLoggedIn(true)
@@ -162,7 +173,7 @@ fun CheckUserLoggedIn(navController: NavHostController, appViewModel: AppViewMod
                 }
             },
             onError = {
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Autologin Failed, please login again.", Toast.LENGTH_SHORT).show()
                     appViewModel.setLoggedIn(false)
                 }
@@ -216,10 +227,10 @@ private fun CreateNavigationItem(
     drawerState: DrawerState,
     navController: NavHostController,
     navRoute: NavigationItem,
-    selectedNavItem: MutableState<NavigationItem?>
+    selectedNavItem: MutableState<NavigationItem?>,
+    navItemIconId: Int
 ) {
     val isSelected = selectedNavItem.value == navRoute
-
     val itemColor = when {
         isSelected -> MaterialTheme.colorScheme.primary
         else -> MaterialTheme.colorScheme.inversePrimary
@@ -232,6 +243,15 @@ private fun CreateNavigationItem(
             .background(itemColor, shape = RoundedCornerShape(26.dp))
     ) {
         NavigationDrawerItem(
+            icon = {
+                if(navItemIconId > 0) {
+                    Icon(
+                        painter = painterResource(navItemIconId),
+                        contentDescription = "create project",
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
+            },
             label = { Text(text = text) },
             selected = isSelected,
             onClick = {
