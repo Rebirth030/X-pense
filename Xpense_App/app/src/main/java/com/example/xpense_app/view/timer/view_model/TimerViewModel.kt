@@ -17,11 +17,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.lang.IllegalArgumentException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -179,7 +177,7 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
             val expenseStartTime = requireNotNull(expense.startDateTime) {
                 this.context.getString(R.string.error_while_reading_expense_start_time)
             }
-            val date = LocalDateTime.ofInstant(Instant.parse(expenseStartTime), ZoneOffset.UTC)
+            val date = LocalDateTime.ofInstant(Instant.parse(expenseStartTime), ZoneId.systemDefault())
             val startTimeInMillis = date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
             var timeInMillis = System.currentTimeMillis() - startTimeInMillis

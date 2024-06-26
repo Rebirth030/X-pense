@@ -1,7 +1,6 @@
 package com.example.xpense_app.view.info_view
 
 import Expense
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -252,6 +251,9 @@ fun calculateThisMonthsRemainingWorkingHours(
  */
 fun calculateWorkedMinutes(expenses: List<Expense>): Long {
     return expenses.sumOf { expense ->
+        if(expense.startDateTime == null || expense.endDateTime == null) {
+            return@sumOf 0
+        }
         val startDateTime = ZonedDateTime.parse(expense.startDateTime)
         val endDateTime = ZonedDateTime.parse(expense.endDateTime)
         val duration = Duration.between(startDateTime, endDateTime)
