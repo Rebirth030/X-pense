@@ -5,7 +5,6 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -443,7 +442,7 @@ fun ExpenseCard(expense: Expense, modifier: Modifier = Modifier) {
             modifier = modifier
                 .fillMaxSize()
                 .padding(end = 2.dp, bottom = 2.dp)
-                .background(MaterialTheme.colorScheme.onSecondaryContainer, shape = RoundedCornerShape(4.dp))
+                .background(MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(4.dp))
                 .padding(4.dp)
                 .clickable { showDialog.value = true }
         ) {
