@@ -445,7 +445,7 @@ fun ExpenseCard(expense: Expense, modifier: Modifier = Modifier) {
         ) {
             // TODO : Make prettier maybe get Project instead of only id
             Text(
-                text = "Startzeit: ${
+                text = "Start: ${
                     parseDateTime(expense.startDateTime).format(
                         DateTimeFormatter.ofPattern(
                             EXPENSE_TIME_FORMAT
@@ -454,7 +454,7 @@ fun ExpenseCard(expense: Expense, modifier: Modifier = Modifier) {
                 }"
             )
             Text(
-                text = "Endzeit: ${
+                text = "End: ${
                     parseDateTime(expense.endDateTime).format(
                         DateTimeFormatter.ofPattern(
                             EXPENSE_TIME_FORMAT
@@ -481,14 +481,14 @@ fun ExpenseDetailsDialog(expense: Expense, onDismiss: () -> Unit) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(text = "Expense Details", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 Text(
-                    text = "Start Time: ${
+                    text = "Start: ${
                         parseDateTime(expense.startDateTime).format(
                             DateTimeFormatter.ofPattern(EXPENSE_TIME_FORMAT)
                         )
                     }"
                 )
                 Text(
-                    text = "End Time: ${
+                    text = "End: ${
                         parseDateTime(expense.endDateTime).format(
                             DateTimeFormatter.ofPattern(
                                 EXPENSE_TIME_FORMAT

@@ -124,7 +124,7 @@ fun HourMinuteInput(
         )
         Row(modifier = Modifier.padding(top = 10.dp)) {
             IntegerInput(
-                "Hours",
+                "h",
                 readOnly,
                 inputHour.toString(),
                 maxVal = 10,
@@ -140,7 +140,7 @@ fun HourMinuteInput(
                 style = TextStyle(fontSize = 40.sp)
             )
             IntegerInput(
-                "Minutes",
+                "min",
                 readOnly,
                 inputMinute.toString(),
                 maxVal = 60,
@@ -175,7 +175,7 @@ fun HourInput(
         )
         Spacer(modifier = Modifier.weight(1f))
         IntegerInput(
-            "Hours",
+            "h",
             readOnly,
             inputValue.toString(),
             maxVal = 100,
@@ -310,7 +310,7 @@ fun MutableHourMinuteInput(
                         }
                     }
                 },
-                label = { Text("Hours") },
+                label = { Text("h") },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
             Text(
@@ -331,7 +331,7 @@ fun MutableHourMinuteInput(
                         }
                     }
                 },
-                label = { Text("Minutes") },
+                label = { Text("min") },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -359,7 +359,7 @@ fun MutableHourInput(inputHour: Int, onInputSelected: (Int) -> Unit) {
                 }
             }
         },
-        label = { Text("Hours") },
+        label = { Text("h") },
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
     )
 }

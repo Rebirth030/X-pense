@@ -70,12 +70,12 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
         ) {
             if (user.value.weeklyWorkingHours == 0) {//TODO: Zu Profile ändern
                 AlertDialog(
-                    title = { Text("Please set your weekly working hours in the profile") },
+                    title = { Text("Please set your weekly hours in the profile") },
                     onDismissRequest = { navController.navigate(NavigationItem.Profiles.route) },
                     confirmButton = { navController.navigate(NavigationItem.Profiles.route) })
             } else {
                 UserFullNameHeader(user.value)
-                Text(text = "Remaining working hours for today:")
+                Text(text = "Remaining hours for today:")
                 WorkingHoursCard(
                     calculateTodaysRemainingWorkingHours(
                         expenses,
@@ -83,7 +83,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                     )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Remaining working hours for this week:")
+                Text(text = "Remaining hours for this week:")
                 WorkingHoursCard(
                     calculateThisWeeksRemainingWorkingHours(
                         expenses,
@@ -91,7 +91,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                     )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Remaining working hours for this month:")
+                Text(text = "Remaining hours for this month:")
                 WorkingHoursCard(
                     calculateThisMonthsRemainingWorkingHours(
                         expenses,
@@ -99,7 +99,7 @@ fun CreateInfoView(navController: NavController, user: MutableState<User>) {
                     )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Worked hours this Month:")
+                Text(text = "Worked hours this month:")
                 WorkingHoursCard(
                     calculateThisMonthsRemainingWorkingHours(
                         expenses,
@@ -160,7 +160,7 @@ fun calculateTodaysRemainingWorkingHours(expenses: List<Expense>, weeklyWorkingH
         startDate == LocalDate.now(startDateTime.zone)
     }
     val remainingHours = weeklyWorkingHours * 60 / 5 - calculateWorkedMinutes(todayExpenses)
-    return "${remainingHours / 60} hours and ${remainingHours % 60} minutes"
+    return "${remainingHours / 60} h:  ${remainingHours % 60} min"
 }
 
 fun calculateThisWeeksRemainingWorkingHours(
@@ -176,7 +176,7 @@ fun calculateThisWeeksRemainingWorkingHours(
         startDate.isAfter(startOfWeek.minusDays(1)) && startDate.isBefore(endOfWeek.plusDays(1))
     }
     val remainingHours = weeklyWorkingHours * 60 - calculateWorkedMinutes(thisWeekExpenses)
-    return "${remainingHours / 60} hours and ${remainingHours % 60} minutes"
+    return "${remainingHours / 60} h: ${remainingHours % 60} min"
 }
 
 fun calculateThisMonthsRemainingWorkingHours(
@@ -192,13 +192,13 @@ fun calculateThisMonthsRemainingWorkingHours(
     }
     val remainingHours = weeklyWorkingHours * 60 - calculateWorkedMinutes(thisMonthExpenses)
     if (returnWorkedHours) {
-        return "${calculateWorkedMinutes(thisMonthExpenses) / 60} hours and ${
+        return "${calculateWorkedMinutes(thisMonthExpenses) / 60} h: ${
             calculateWorkedMinutes(
                 thisMonthExpenses
             ) % 60
-        } minutes"
+        } min"
     } else {
-        return "${remainingHours / 60} hours and ${remainingHours % 60} minutes"
+        return "${remainingHours / 60} h: ${remainingHours % 60} min"
     }
 }
 

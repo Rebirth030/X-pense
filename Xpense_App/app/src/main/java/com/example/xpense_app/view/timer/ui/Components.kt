@@ -91,7 +91,7 @@ fun ProjectList(projects: List<Project>, timerViewModel: TimerViewModel) {
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Projekte",
+            text = "Projects",
             fontSize = 24.sp,
             textAlign = TextAlign.Center
         )
@@ -236,7 +236,7 @@ fun ProjectChangeDialog(
     AlertDialog(
         onDismissRequest = { onDismiss(false) },
         title = { Text(text = project.name!!) },
-        text = { Text(text = "Sicher dass du das Projekt wechseln willst?") },
+        text = { Text(text = "Are you sure, you want to change the project?") },
         confirmButton = {
             Button(
                 onClick = {
@@ -245,7 +245,7 @@ fun ProjectChangeDialog(
                 }
             ) {
                 Text(
-                    text = "Ja",
+                    text = "Yes",
                     color = Color.White
                 )
             }
@@ -258,7 +258,7 @@ fun ProjectChangeDialog(
                 }
             ) {
                 Text(
-                    text = "Abbrechen",
+                    text = "Cancel",
                     color = Color.White
                 )
             }
@@ -305,14 +305,14 @@ fun TimerButtons(timerViewModel: TimerViewModel) {
                 } else {
                     R.drawable.play_solid
                 }
-                Icon(painterResource(id = icon), contentDescription = "Play/Pause timer")
+                Icon(painterResource(id = icon), contentDescription = "Play/Pause")
             }
             Spacer(modifier = Modifier.height(16.dp))
             IconButton(onClick = {
                 timerViewModel.stopAllProjectTimers()
                 time = 0L
             }) {
-                Icon(painterResource(id = R.drawable.stop_solid), contentDescription = "Stop timer")
+                Icon(painterResource(id = R.drawable.stop_solid), contentDescription = "Stop")
             }
         }
     }

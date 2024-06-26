@@ -69,14 +69,14 @@ fun CreateProjectScreen(currentUser: MutableState<User>, context: Context) {
             TextField(
                 value = projectName,
                 onValueChange = { projectName = it },
-                label = { Text("PROJECT NAME") },
+                label = { Text("Project Name") },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
             TextField(
                 value = projectDescription,
                 onValueChange = { projectDescription = it },
-                label = { Text("PROJECT DESCRIPTION") },
+                label = { Text("Project Description") },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -92,7 +92,7 @@ fun CreateProjectScreen(currentUser: MutableState<User>, context: Context) {
                         currentUser,
                         onSuccess = { showDialog = it })
                 }) {
-                Text("CREATE PROJECT")
+                Text("Create Project")
             }
             if (showDialog) {
                 Success(
@@ -184,7 +184,7 @@ fun Success(name: String, description: String, releaseDate: Date, onClose: () ->
             Button(
                 onClick = onClose
             ) {
-                Text("close")
+                Text("Close")
             }
         })
 

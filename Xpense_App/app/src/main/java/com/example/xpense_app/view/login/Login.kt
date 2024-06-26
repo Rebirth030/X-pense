@@ -67,7 +67,7 @@ private fun CreateLoginForm(
     user: MutableState<User>,
     appViewModel: AppViewModel
 ) {
-    val username = createTextField(fieldName = "username")
+    val username = createTextField(fieldName = "Username")
     val password = createPasswordField()
     val context = LocalContext.current
     Spacer(modifier = Modifier.height(20.dp))

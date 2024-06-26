@@ -147,7 +147,7 @@ fun ImmutableAndInitialCostumedProfileInput(
     onWeeklyWorkingHoursChanged: (Int) -> Unit
 ) {
     HourMinuteInput(
-        "Forced break after",
+        "Forced Break After",
         role != UserRole.COSTUMED.name,
         floor(forcedBreakAfter).toInt(),
         ((forcedBreakAfter - floor(forcedBreakAfter)) * 60).toInt(),
@@ -161,7 +161,7 @@ fun ImmutableAndInitialCostumedProfileInput(
     )
     Spacer(modifier = Modifier.height(20.dp))
     HourMinuteInput(
-        "Forced end after",
+        "Forced End After",
         role != UserRole.COSTUMED.name,
         floor(forcedEndAfter).toInt(),
         ((forcedEndAfter - floor(forcedEndAfter)) * 60).toInt(),
@@ -175,7 +175,7 @@ fun ImmutableAndInitialCostumedProfileInput(
     )
     Spacer(modifier = Modifier.height(20.dp))
     HourInput(
-        "Weekly\nworking hours",
+        "Weekly\n hours",
         role != UserRole.COSTUMED.name,
         weeklyWorkingHours,
         onInputChange = {
@@ -198,7 +198,7 @@ fun CostumedProfileInput(
     onWeeklyWorkingHoursChanged: (Int) -> Unit
 ) {
     MutableHourMinuteInput(
-        "Forced break after",
+        "Forced Break After",
         floor(forcedBreakAfter).toInt(),
         ((forcedBreakAfter - floor(forcedBreakAfter)) * 60).toInt(),
         forcedBreakAfterOn,
@@ -211,7 +211,7 @@ fun CostumedProfileInput(
     )
     Spacer(modifier = Modifier.height(20.dp))
     MutableHourMinuteInput(
-        "Forced end after",
+        "Forced End After",
         floor(forcedEndAfter).toInt(),
         ((forcedEndAfter - floor(forcedEndAfter)) * 60).toInt(),
         forcedEndAfterOn,
@@ -226,7 +226,7 @@ fun CostumedProfileInput(
     Row(modifier = Modifier.padding(10.dp))
     {
         Text(
-            text = "Weekly\nworking hours:",
+            text = "Weekly\nhours:",
             style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
         )
         Spacer(modifier = Modifier.weight(1f))

@@ -58,12 +58,12 @@ fun CreateRegister(navController: NavHostController) {
  */
 @Composable
 fun RegisterForm(navController: NavHostController) {
-    val email = createTextField("email")
-    val firstname = createTextField("firstname")
-    val lastname = createTextField("lastname")
+    val email = createTextField("Email")
+    val firstname = createTextField("Firstname")
+    val lastname = createTextField("Lastname")
     val country = "Deutschland"
     val language = "DE"
-    val username = createTextField("username")
+    val username = createTextField("Username")
     val password = createPasswordField(false)
     val repeatPassword = createPasswordField()
     val context = LocalContext.current

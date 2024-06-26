@@ -77,7 +77,7 @@ fun Timer(currentUser: MutableState<User>, onNavigateToLoginScreen: () -> Unit =
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Keine Projekte verfügber.\nBitte erstelle zuvor ein Projekt.",
+                            text = "No projects available.\nPlease create a project.",
                             fontSize = 24.sp,
                             textAlign = TextAlign.Center
                         )

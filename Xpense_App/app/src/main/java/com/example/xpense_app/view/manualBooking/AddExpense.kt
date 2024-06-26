@@ -126,13 +126,13 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
         TimeDialog(time = breakStartTime, onDismiss = {
             showStartBreakPicker.value = false
             showEndBreakePicker = true
-        }, title = "Break Start Time")
+        }, title = "Break Start")
     }
     if (showEndBreakePicker) {
         TimeDialog(
             time = breakEndTime,
             onDismiss = { showEndBreakePicker = false },
-            title = "Break End Time"
+            title = "Break End"
         )
     }
 
@@ -141,11 +141,11 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
     }
     if (showStartTimePicker.value) {
         TimeDialog(
-            time = startTime, onDismiss = { showStartTimePicker.value = false }, title = "Start Time"
+            time = startTime, onDismiss = { showStartTimePicker.value = false }, title = "Start"
         )
     }
     if (showEndTimePicker.value) {
-        TimeDialog(time = endTime, onDismiss = { showEndTimePicker.value = false }, title = "End Time")
+        TimeDialog(time = endTime, onDismiss = { showEndTimePicker.value = false }, title = "End")
     }
     //endregion
 
@@ -171,8 +171,8 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
         ) {
             DatePickerTextField(date, showDatePicker)
             Spacer(modifier = Modifier.height(16.dp))
-            TimePickerCardField("Start Time",showStartTimePicker, startTime.value)
-            TimePickerCardField("End Time", showEndTimePicker, endTime.value)
+            TimePickerCardField("Start",showStartTimePicker, startTime.value)
+            TimePickerCardField("End", showEndTimePicker, endTime.value)
             Spacer(modifier = Modifier.height(16.dp))
             AddBreakTimeField(showStartBreakPicker, breakStartTime.value, breakEndTime.value)
             if (breakTimeExists(breakStartTime.value, breakEndTime.value)) {
