@@ -1,6 +1,5 @@
 package com.example.xpense_app.view.login
 
-
 import EncryptedSharedPreferencesHelper
 import android.content.Context
 import android.widget.Toast
@@ -22,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -45,7 +43,7 @@ import kotlinx.coroutines.withContext
  */
 @Composable
 fun LoginForm(navHostController: NavHostController, user: MutableState<User>, appViewModel: AppViewModel) {
-    Surface (color = MaterialTheme.colorScheme.background) {
+    Surface(color = MaterialTheme.colorScheme.background) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -59,54 +57,54 @@ fun LoginForm(navHostController: NavHostController, user: MutableState<User>, ap
 }
 
 
-        /**
-         * Creates the form for the login with a button to submit the form and a link to the registration page.
-         *
-         * @param navHostController the navigation controller
-         * @param user the user object
-         * @param appViewModel the app view model
-         * @return the form
-         */
-        @Composable
-        private fun CreateLoginForm(
-            navHostController: NavHostController,
-            user: MutableState<User>,
-            appViewModel: AppViewModel
-        ) {
-            val username = createTextField(fieldName = stringResource(R.string.username))
-            val password = createPasswordField()
-            val context = LocalContext.current
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                stringResource(R.string.register),
-                textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.colorScheme.tertiary,
-                modifier = Modifier.clickable(onClick = { navHostController.navigate(NavigationItem.Register.route) })
+/**
+ * Creates the form for the login with a button to submit the form and a link to the registration page.
+ *
+ * @param navHostController the navigation controller
+ * @param user the user object
+ * @param appViewModel the app view model
+ * @return the form
+ */
+@Composable
+private fun CreateLoginForm(
+    navHostController: NavHostController,
+    user: MutableState<User>,
+    appViewModel: AppViewModel
+) {
+    val username = createTextField(fieldName = stringResource(R.string.username))
+    val password = createPasswordField()
+    val context = LocalContext.current
+    Spacer(modifier = Modifier.height(20.dp))
+    Text(
+        stringResource(R.string.register),
+        textDecoration = TextDecoration.Underline,
+        color = MaterialTheme.colorScheme.tertiary,
+        modifier = Modifier.clickable(onClick = { navHostController.navigate(NavigationItem.Register.route) })
+    )
+    Spacer(modifier = Modifier.height(20.dp))
+    Button(
+        onClick = {
+            loginAction(
+                username.value,
+                password.value,
+                navHostController,
+                context,
+                user,
+                appViewModel
             )
-            Spacer(modifier = Modifier.height(20.dp))
-            Button(
-                onClick = {
-                    loginAction(
-                        username.value,
-                        password.value,
-                        navHostController,
-                        context,
-                        user
-                    )
-                    appViewModel.setLoggedIn(true)
-                },
-                enabled = true,
-                shape = RoundedCornerShape(5.dp),
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                )
+        },
+        enabled = true,
+        shape = RoundedCornerShape(5.dp),
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
 
-            ) {
-                Text(stringResource(R.string.login))
-            }
-        }
+    ) {
+        Text(stringResource(R.string.login))
+    }
+}
 
 
 /**
@@ -124,8 +122,8 @@ fun loginAction(
     navController: NavHostController,
     context: Context,
     userResult: MutableState<User>,
+    appViewModel: AppViewModel
 ) {
-
     AuthenticationService.loginUser(
         user = User(
             username = username,
@@ -135,6 +133,7 @@ fun loginAction(
             withContext(Dispatchers.Main) {
                 userResult.value = user
                 userResult.value.token = "Bearer " + user.token
+                appViewModel.setLoggedIn(true)
                 EncryptedSharedPreferencesHelper(context).saveCredentials(user.token)
                 navController.navigate(NavigationItem.Overview.route)
             }
