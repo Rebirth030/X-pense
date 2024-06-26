@@ -542,10 +542,15 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
     fun stopAllProjectTimers() {
         _projectTimersOnRun.value = _projectTimersOnRun.value.mapValues { (_, _) -> false }
         _expenses.value = expenses.value.map { expense ->
-            val updatedExpense = expense.copy(state = "FINISHED", endDateTime = this.getCurrentDate())
-            this.updateExpense(updatedExpense)
-            updatedExpense
+            if (expense.state == "RUNNING" || expense.state == "PAUSED") {
+                val updatedExpense = expense.copy(state = "FINISHED", endDateTime = getCurrentDate())
+                updateExpense(updatedExpense)
+                updatedExpense
+            } else {
+                expense
+            }
         }
+
         this.loadProjects()
     }
 
