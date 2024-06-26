@@ -113,4 +113,17 @@ public class UserService implements ICrudService<UserDTO, Long> {
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
+    
+    @GetMapping("/users/getByToken")
+    public ResponseEntity<UserDTO> getByToken(@RequestHeader("Authorization") String token) {
+        try {
+            String tokenValue = token.split(" ")[1];
+            ApplicationUser user = userRepository.findByToken(tokenValue).orElseThrow();
+            UserDTO result = userMapper.toDto(user);
+            return ResponseEntity.ok().body(result);
+        } catch (Exception e) {
+            logger.error(e.toString());
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 }

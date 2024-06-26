@@ -5,7 +5,10 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
@@ -45,14 +48,13 @@ import com.example.xpense_app.controller.services.UserService
 import com.example.xpense_app.model.User
 import com.example.xpense_app.view.create_project.CreateProjectScreen
 import com.example.xpense_app.view.info_view.CreateInfoView
-import com.example.xpense_app.view.timer.Timer
 import com.example.xpense_app.view.login.CreateRegister
-import com.example.xpense_app.view.login.IPEntry
 import com.example.xpense_app.view.login.LoginForm
 import com.example.xpense_app.view.manual_booking.AddExpense
 import com.example.xpense_app.view.overview.CreateOverview
 import com.example.xpense_app.view.profile.Profile
 import com.example.xpense_app.view.projects_overview.ProjectsOverview
+import com.example.xpense_app.view.timer.Timer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,15 +74,8 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val selectedNavItem = remember { mutableStateOf<NavigationItem?>(null) }
-    val ipInput = remember {
-        mutableStateOf("")
-    }
-    val showIPModal = remember {
-        mutableStateOf(true)
-    }
     val title = getTitle(navController)
     val currentUser = remember { mutableStateOf(User(password = "", username = "")) }
-    IPEntry(showDialog = showIPModal, inputText = ipInput)
     val hasLoggedIn by appViewModel.hasLoggedIn.collectAsState(initial = false)
 
     CheckUserLoggedIn(navController, appViewModel, currentUser)
@@ -93,7 +88,7 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
                 for (item in NavigationItem.values()
                     .filter { it != NavigationItem.Login && it != NavigationItem.Register }) {
                     var navItemIconId = -1
-                    when(item.toString()) {
+                    when (item.toString()) {
                         "CreateProject" -> navItemIconId = R.drawable.create_project_24
                         "Info" -> navItemIconId = R.drawable.info
                         "Manual" -> navItemIconId = R.drawable.manual
@@ -123,7 +118,13 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
                 startDestination = if (hasLoggedIn) NavigationItem.Overview.route else NavigationItem.Login.route,
                 modifier = Modifier.padding(padding)
             ) {
-                composable(NavigationItem.Login.route) { LoginForm(navController, currentUser, appViewModel) }
+                composable(NavigationItem.Login.route) {
+                    LoginForm(
+                        navController,
+                        currentUser,
+                        appViewModel
+                    )
+                }
                 composable(NavigationItem.Register.route) { CreateRegister(navController) }
                 composable(NavigationItem.Timer.route) {
                     Timer(currentUser, onNavigateToLoginScreen = {
@@ -131,11 +132,36 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
                     }, appViewModel)
                 }
                 composable(NavigationItem.Profiles.route) { Profile(currentUser) }
-                composable(NavigationItem.Manual.route) { AddExpense(navController, currentUser) }
-                composable(NavigationItem.Overview.route) { CreateOverview(currentUser.value, navController) }
-                composable(NavigationItem.CreateProject.route) { CreateProjectScreen(currentUser, context) }
-                composable(NavigationItem.Info.route) { CreateInfoView(navController, currentUser) }
-                composable(NavigationItem.ProjectsOverview.route) { ProjectsOverview(currentUser.value, navController) }
+                composable(NavigationItem.Manual.route) {
+                    AddExpense(
+                        navController,
+                        currentUser
+                    )
+                }
+                composable(NavigationItem.Overview.route) {
+                    CreateOverview(
+                        currentUser.value,
+                        navController
+                    )
+                }
+                composable(NavigationItem.CreateProject.route) {
+                    CreateProjectScreen(
+                        currentUser,
+                        context
+                    )
+                }
+                composable(NavigationItem.Info.route) {
+                    CreateInfoView(
+                        navController,
+                        currentUser
+                    )
+                }
+                composable(NavigationItem.ProjectsOverview.route) {
+                    ProjectsOverview(
+                        currentUser.value,
+                        navController
+                    )
+                }
             }
         })
     }
@@ -150,7 +176,11 @@ fun NavGraph(context: Context, appViewModel: AppViewModel) {
  * @param currentUser The current user of the application.
  */
 @Composable
-fun CheckUserLoggedIn(navController: NavHostController, appViewModel: AppViewModel, currentUser: MutableState<User>) {
+fun CheckUserLoggedIn(
+    navController: NavHostController,
+    appViewModel: AppViewModel,
+    currentUser: MutableState<User>
+) {
     val token = EncryptedSharedPreferencesHelper(LocalContext.current).getToken()
     if (token.isNullOrEmpty()) {
         return
@@ -174,7 +204,11 @@ fun CheckUserLoggedIn(navController: NavHostController, appViewModel: AppViewMod
             },
             onError = {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Autologin Failed, please login again.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Autologin Failed, please login again.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     appViewModel.setLoggedIn(false)
                 }
             }
@@ -194,8 +228,9 @@ fun CheckUserLoggedIn(navController: NavHostController, appViewModel: AppViewMod
 private fun CreateTopAppBar(
     navController: NavHostController,
     coroutineScope: CoroutineScope,
-    drawerState: DrawerState
+    drawerState: DrawerState,
 ) {
+    val context = LocalContext.current
     if (navController.currentDestination?.route != NavigationItem.Login.route && navController.currentDestination?.route != NavigationItem.Register.route) {
         TopAppBar(title = { Text(text = getTitle(navController)) }, navigationIcon = {
             IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
@@ -204,6 +239,20 @@ private fun CreateTopAppBar(
                     contentDescription = "Menu",
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
+            }
+
+        }, actions = {
+            IconButton(onClick = {
+                EncryptedSharedPreferencesHelper(context).clearToken()
+                navController.navigate(NavigationItem.Login.route)
+
+            }) {
+                Icon(
+                    rememberLogout(),
+                    contentDescription = "logout",
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+
             }
         })
     }
@@ -244,7 +293,7 @@ private fun CreateNavigationItem(
     ) {
         NavigationDrawerItem(
             icon = {
-                if(navItemIconId > 0) {
+                if (navItemIconId > 0) {
                     Icon(
                         painter = painterResource(navItemIconId),
                         contentDescription = "create project",
@@ -279,7 +328,11 @@ private fun getTitle(navHostController: NavHostController): String {
     val currentRoute = navBackStackEntry?.destination?.route
     val context = LocalContext.current
     return try {
-        context.getString(NavigationItem.fromRoute(currentRoute ?: NavigationItem.Login.route).titleResourceId)
+        context.getString(
+            NavigationItem.fromRoute(
+                currentRoute ?: NavigationItem.Login.route
+            ).titleResourceId
+        )
     } catch (e: IllegalArgumentException) {
         "Title not found"
     }
