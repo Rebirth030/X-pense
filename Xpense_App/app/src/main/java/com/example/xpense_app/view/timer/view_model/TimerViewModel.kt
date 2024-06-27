@@ -576,8 +576,8 @@ class TimerViewModel(private val currentUser: MutableState<User>) : ViewModel() 
      * @return The current date and time as a formatted string.
      */
     private fun getCurrentDate(): String {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-        val currentDateTime = ZonedDateTime.now()
+        val formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
+        val currentDateTime = ZonedDateTime.now().withZoneSameInstant(ZoneId.systemDefault())
         return currentDateTime.format(formatter)
     }
 
