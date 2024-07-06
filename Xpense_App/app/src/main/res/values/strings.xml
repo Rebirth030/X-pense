@@ -119,4 +119,7 @@
     <string name="description2">Description: %1$s</string>
     <string name="release_date">Release Date: %1$s</string>
     <string name="close">Close</string>
+    <string name="autologin_successful">Autologin Successful.</string>
+    <string name="autologin_failed_please_login_again">Autologin failed, please login again.</string>
+    <string name="title_not_found">Title not found</string>
 </resources>

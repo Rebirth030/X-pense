@@ -116,4 +116,8 @@
     <string name="description2">Beschreibung: %1$s</string>
     <string name="release_date">Erscheinungsdatum: %1$s</string>
     <string name="close">Schließen</string>
+    <string name="autologin_successful">Autologin erfolgreich.</string>
+    <string name="autologin_failed_please_login_again">Autologin gescheitert, bitte erneut einloggen.</string>
+    <string name="autologin_failed_please_login_again">A</string>
+    <string name="title_not_found">Titel wurde nicht gefunden</string>
 </resources>

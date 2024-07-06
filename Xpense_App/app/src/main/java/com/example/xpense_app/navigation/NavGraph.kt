@@ -199,14 +199,15 @@ fun CheckUserLoggedIn(
                     currentUser.value.token = token
                     appViewModel.setLoggedIn(true)
                     navController.navigate(NavigationItem.Overview.route)
-                    Toast.makeText(context, "Autologin Successful.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context,
+                        context.getString(R.string.autologin_successful), Toast.LENGTH_SHORT).show()
                 }
             },
             onError = {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         context,
-                        "Autologin Failed, please login again.",
+                        context.getString(R.string.autologin_failed_please_login_again),
                         Toast.LENGTH_SHORT
                     ).show()
                     appViewModel.setLoggedIn(false)
@@ -334,6 +335,6 @@ private fun getTitle(navHostController: NavHostController): String {
             ).titleResourceId
         )
     } catch (e: IllegalArgumentException) {
-        "Title not found"
+        stringResource(R.string.title_not_found)
     }
 }
