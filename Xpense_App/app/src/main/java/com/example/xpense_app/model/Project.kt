@@ -9,6 +9,5 @@ data class Project(
     @SerializedName("releaseDate") val releaseDate: String?,
     @SerializedName("expectedExpense") val expectedExpense: Long?,
     @SerializedName("currentExpense") val currentExpense: Long?,
-    @SerializedName("companyId") val companyId: Long?,
     @SerializedName("userId") val userId: Long?
 )

@@ -37,7 +37,6 @@ import com.example.xpense_app.model.Project
 import com.example.xpense_app.model.User
 import com.example.xpense_app.view.manual_booking.DateDialog
 import com.example.xpense_app.view.manual_booking.DatePickerTextField
-import com.example.xpense_app.view.manual_booking.*
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -159,7 +158,6 @@ fun createProject(
     currentUser: MutableState<User>,
     onSuccess: (Boolean) -> Unit
 ) {
-
     try {
         require(name.isNotBlank()) { context.getString(R.string.please_enter_a_project_name) }
         require(description.isNotBlank()) { context.getString(R.string.please_enter_a_project_description) }
@@ -167,12 +165,13 @@ fun createProject(
     } catch (e: IllegalArgumentException) {
         Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
         onSuccess(false)
+        return
     }
 
     val formattedDate = ZonedDateTime.ofInstant(releaseDate.toInstant(), ZoneId.systemDefault())
         .format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
     val project =
-        Project(null, name, description, formattedDate, null, null, 1, currentUser.value.id)
+        Project(null, name, description, formattedDate, null, null, currentUser.value.id)
     ProjectService.createProject(
         project,
         currentUser.value.token,

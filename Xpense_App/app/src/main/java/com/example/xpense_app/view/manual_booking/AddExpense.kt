@@ -43,10 +43,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -60,10 +58,10 @@ import com.example.xpense_app.model.User
 import com.example.xpense_app.navigation.NavigationItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.time.ZonedDateTime
 import java.text.DateFormat
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
@@ -90,7 +88,7 @@ fun AddExpense(navController: NavController, user: MutableState<User>) {
         mutableListOf<Project>()
     }
     val selectedProject = remember {
-        mutableStateOf(Project(null, "None", null, null, null, null, null, null))
+        mutableStateOf(Project(null, "None", null, null, null, null, null))
     }
     val showDatePicker = remember {
         mutableStateOf(false)

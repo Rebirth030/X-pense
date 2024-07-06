@@ -104,7 +104,6 @@ fun ProjectCard(project: Project) {
             Text(text = "Project: ${project.name.orEmpty()}", fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = Modifier.padding(bottom = 5.dp))
             Text(text = "Description: ${project.description.orEmpty()}")
             Text(text = "Release Date: ${project.releaseDate.orEmpty()}")
-            Text(text = "Company Id: ${project.companyId.toString()}")
             Text(text = "Expected Expense: ${project.expectedExpense.toString()}")
             Text(text = "Current Expense: ${project.currentExpense.toString()}")
         }
