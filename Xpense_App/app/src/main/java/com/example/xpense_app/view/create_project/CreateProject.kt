@@ -29,7 +29,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.xpense_app.R
 import com.example.xpense_app.controller.services.ProjectService
 import com.example.xpense_app.model.Project
 import com.example.xpense_app.model.User
@@ -77,7 +79,7 @@ fun CreateProjectScreen(currentUser: MutableState<User>, context: Context) {
             TextField(
                 value = projectName,
                 onValueChange = { projectName = it },
-                label = { Text("PROJECT NAME") },
+                label = { Text(stringResource(R.string.project_name)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface),
@@ -91,7 +93,7 @@ fun CreateProjectScreen(currentUser: MutableState<User>, context: Context) {
             TextField(
                 value = projectDescription,
                 onValueChange = { projectDescription = it },
-                label = { Text("PROJECT DESCRIPTION") },
+                label = { Text(stringResource(R.string.project_description)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface),
@@ -119,7 +121,7 @@ fun CreateProjectScreen(currentUser: MutableState<User>, context: Context) {
                     contentColor = MaterialTheme.colorScheme.onTertiary
                 )
             ) {
-                Text("CREATE PROJECT")
+                Text(stringResource(R.string.create_project))
             }
             if (showDialog) {
                 Success(
@@ -159,9 +161,9 @@ fun createProject(
 ) {
 
     try {
-        require(name.isNotBlank()) { "Please enter a project name" }
-        require(description.isNotBlank()) { "Please enter a project description" }
-        require(!releaseDate.before(Date())) { "Release date cannot be in the past" }
+        require(name.isNotBlank()) { context.getString(R.string.please_enter_a_project_name) }
+        require(description.isNotBlank()) { context.getString(R.string.please_enter_a_project_description) }
+        require(!releaseDate.before(Date())) { context.getString(R.string.release_date_cannot_be_in_the_past) }
     } catch (e: IllegalArgumentException) {
         Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
         onSuccess(false)
@@ -193,19 +195,19 @@ fun createProject(
 fun Success(name: String, description: String, releaseDate: Date, onClose: () -> Unit) {
     AlertDialog(
         onDismissRequest = onClose,
-        title = { Text(text = "Project successfully created") },
+        title = { Text(text = stringResource(R.string.project_successfully_created)) },
         text = {
             Column {
-                Text("Name: ${name}")
-                Text("Description: ${description}")
-                Text("Release Date: ${releaseDate}")
+                Text(stringResource(R.string.name, name))
+                Text(stringResource(R.string.description2, description))
+                Text(stringResource(R.string.release_date, releaseDate))
             }
         },
         confirmButton = {
             Button(
                 onClick = onClose
             ) {
-                Text("close")
+                Text(stringResource(R.string.close))
             }
         })
 }

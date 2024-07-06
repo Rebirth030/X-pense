@@ -30,6 +30,7 @@
     <string name="date_time_format_hour_minute">HH:mm</string>
     <string name="add_expense">Aufwand hinzufügen</string>
     <string name="timer">Timer</string>
+    <string name="app_name">X-Pense</string>
     <string name="back">Zurück</string>
     <string name="forward">Vorwärts</string>
     <string name="error_message_an_error_occurred_while_placing_expenses">Es ist ein Fehler beim Platzieren der Aufwände aufgetreten.</string>
@@ -71,7 +72,7 @@
     <string name="profile">Profile</string>
     <string name="week">Woche %1$s</string>
     <string name="projects_overview">Projektübersicht</string>
-    <string name="error_while_reordering_project_message">Es ist ein Fehler beim Aktualisieren der Projekte. Nachricht</string>
+    <string name="error_while_reordering_project_message">Es ist ein Fehler beim Aktualisieren der Projekte aufgetreten. Nachricht</string>
     <string name="project_id_must_not_be_null">Es ist ein Fehler bei laden des Projekts aufgetreten.</string>
     <string name="error_while_setting_project_time">Es ist ein Fehler bei der Projektzeit aufgetreten. Nachricht</string>
     <string name="project_name_must_not_be_null">Projekt name nicht vorhanden.</string>
@@ -93,8 +94,8 @@
     <string name="error_current_expense_must_not_be_null">Fehler beim Lesen der aktuellen Ausgabe.</string>
     <string name="error_while_createing_project">Fehler beim Erstellen des Projekts.</string>
     <string name="user_role_not_found">Benutzer profile nicht gefunden.</string>
-    <string name="worked_minutes_and_hours">%1$s Stunden und %2$s Minuten</string>
-    <string name="remaining_hours_and_minutes">%1$s Stunden und %2$s Minuten</string>
+    <string name="worked_minutes_and_hours">%1$s h %2$s min</string>
+    <string name="remaining_hours_and_minutes">%1$s h %2$s min</string>
     <string name="role_tag">Rolle:</string>
     <string name="worked_hours_this_month">Diesen Monat gearbeitete Stunden:</string>
     <string name="remaining_working_hours_for_this_month">Verbleibende Arbeitsstunden diesen Monat:</string>
@@ -105,4 +106,14 @@
     <string name="example_ip">Beispiel: 10.0.2.2</string>
     <string name="testing_ip">Testing (benutzt Localhost)</string>
     <string name="check_ip">Verbindungsfehler! Versuche eine Valide IP einzugeben</string>
+    <string name="project_name">Projekt Name</string>
+    <string name="project_description">Projekt Beschreibung</string>
+    <string name="please_enter_a_project_name">Bitte füge einen Projekt Namen hinzu</string>
+    <string name="please_enter_a_project_description">Bitte füge eine Projekt Beschreibung hinzu.</string>
+    <string name="release_date_cannot_be_in_the_past">Erscheinungsdatung kann nicht in der Vergangenheit liegen</string>
+    <string name="project_successfully_created">Projekt wurde erfolgreich erstellt</string>
+    <string name="name">Name: %1$s</string>
+    <string name="description2">Beschreibung: %1$s</string>
+    <string name="release_date">Erscheinungsdatum: %1$s</string>
+    <string name="close">Schließen</string>
 </resources>
