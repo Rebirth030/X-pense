@@ -25,15 +25,6 @@ public class Project {
 
     private Double currentExpense;
 
-    /*
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
-    private Set<Expense> expenses;
-
-     */
-
-    @ManyToOne()
-    private Company company;
-
     @ManyToOne()
     private ApplicationUser applicationUser;
 
@@ -83,24 +74,6 @@ public class Project {
 
     public void setCurrentExpense(Double currentExpense) {
         this.currentExpense = currentExpense;
-    }
-
-    /*
-    public Set<Expense> getExpenses() {
-        return expenses;
-    }
-
-    public void setExpenses(Set<Expense> expenses) {
-        this.expenses = expenses;
-    }
-     */
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
     }
 
     public ApplicationUser getUser() {

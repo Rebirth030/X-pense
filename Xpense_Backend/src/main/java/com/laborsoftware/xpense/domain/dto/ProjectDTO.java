@@ -16,8 +16,6 @@ public class ProjectDTO {
 
     private Double currentExpense;
 
-    private Long companyId;
-
     private Long userId;
 
     public Long getId() {
@@ -66,15 +64,6 @@ public class ProjectDTO {
 
     public void setCurrentExpense(Double currentExpense) {
         this.currentExpense = currentExpense;
-    }
-
-
-    public Long getCompanyId() {
-        return companyId;
-    }
-
-    public void setCompanyId(Long companyId) {
-        this.companyId = companyId;
     }
 
     public Long getUserId() {
