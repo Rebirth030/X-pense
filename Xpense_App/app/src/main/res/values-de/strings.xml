@@ -118,6 +118,5 @@
     <string name="close">Schließen</string>
     <string name="autologin_successful">Autologin erfolgreich.</string>
     <string name="autologin_failed_please_login_again">Autologin gescheitert, bitte erneut einloggen.</string>
-    <string name="autologin_failed_please_login_again">A</string>
     <string name="title_not_found">Titel wurde nicht gefunden</string>
 </resources>
